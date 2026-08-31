@@ -1,18 +1,14 @@
-import type { CentreStatus } from '../types/centre'
+import type { CentreStatus, Language } from '../types/centre'
 
-export type Language = 'en' | 'hi'
+export type { Language }
 
 /**
- * Shape interface for a single language's copy map.
- *
- * All fields are typed as `string` — not string literals — so both English and
- * Hindi values are assignable. Key completeness is enforced by the interface itself:
- * TS will error if any key is missing from `en` or `hi`.
- *
- * Applied per TypeScript skill: prefer interfaces over literal/typeof patterns for
- * structures that must be implemented more than once.
+ * Shape interface for bilingual copy map.
+ * All fields are typed as `string` to support English and Hindi assignability.
+ * Applied per TypeScript skill.
  */
 export interface CopyMap {
+  // Brand & Nav
   brand: string
   navCentres: string
   navHow: string
@@ -56,6 +52,58 @@ export interface CopyMap {
   toastDescription: string
   scroll: string
   min: string
+
+  // Onboarding Wizard Strings
+  onboardingTitle: string
+  onboardingSubtitle: string
+  stepPhone: string
+  stepProfile: string
+  stepPrefs: string
+  stepOf: string
+  phoneLabel: string
+  phonePlaceholder: string
+  demoAutofill: string
+  sendOtp: string
+  sendingOtp: string
+  otpLabel: string
+  demoOtpHint: string
+  verifyOtp: string
+  verifyingOtp: string
+  resendOtp: string
+  resendIn: string
+  nameLabel: string
+  namePlaceholder: string
+  villageLabel: string
+  villagePlaceholder: string
+  districtLabel: string
+  districtPlaceholder: string
+  aadhaarLabel: string
+  aadhaarPlaceholder: string
+  cropLabel: string
+  cropWheat: string
+  cropSoybean: string
+  cropPaddy: string
+  cropBarley: string
+  nextStep: string
+  backStep: string
+  preferredLangTitle: string
+  langHindiName: string
+  langHindiDesc: string
+  langEngName: string
+  langEngDesc: string
+  whatsappToggleTitle: string
+  whatsappToggleDesc: string
+  completeOnboarding: string
+  savingProfile: string
+  successTitle: string
+  successDesc: string
+  goToHome: string
+  goToCentres: string
+  errPhoneRequired: string
+  errOtpRequired: string
+  errNameRequired: string
+  errVillageRequired: string
+  errDistrictRequired: string
 }
 
 /** English copy */
@@ -107,6 +155,59 @@ const en: CopyMap = {
     'This first slice is focused on centre discovery. Phone verification will be available on the next page.',
   scroll: 'Scroll to explore',
   min: 'min',
+
+  // Onboarding Wizard Strings
+  onboardingTitle: 'Farmer Profile Setup',
+  onboardingSubtitle: 'One-time registration for seamless mandi access',
+  stepPhone: 'Mobile & OTP',
+  stepProfile: 'Farmer Details',
+  stepPrefs: 'Language & WhatsApp',
+  stepOf: 'Step',
+  phoneLabel: 'Mobile Number',
+  phonePlaceholder: 'Enter 10-digit number',
+  demoAutofill: 'Demo Login (Ramesh Kumar)',
+  sendOtp: 'Send OTP',
+  sendingOtp: 'Sending OTP...',
+  otpLabel: 'Enter 4-digit verification code',
+  demoOtpHint: 'Demo code is 1234',
+  verifyOtp: 'Verify & Continue',
+  verifyingOtp: 'Verifying...',
+  resendOtp: 'Resend OTP',
+  resendIn: 'Resend code in',
+  nameLabel: 'Full Name',
+  namePlaceholder: 'e.g. Ramesh Kumar',
+  villageLabel: 'Village / Town',
+  villagePlaceholder: 'e.g. Biaora',
+  districtLabel: 'District',
+  districtPlaceholder: 'Select District',
+  aadhaarLabel: 'Aadhaar Last 4 Digits (Optional)',
+  aadhaarPlaceholder: 'e.g. 4521',
+  cropLabel: 'Primary Crop for Sale',
+  cropWheat: 'Wheat',
+  cropSoybean: 'Soybean',
+  cropPaddy: 'Paddy',
+  cropBarley: 'Barley',
+  nextStep: 'Next Step',
+  backStep: 'Back',
+  preferredLangTitle: 'Choose Preferred Language',
+  langHindiName: 'हिंदी (Hindi)',
+  langHindiDesc: 'Default for voice alerts, WhatsApp & updates',
+  langEngName: 'English',
+  langEngDesc: 'Technical & administrative display',
+  whatsappToggleTitle: 'Receive Digital Passes on WhatsApp',
+  whatsappToggleDesc: 'Instant digital QR pass, delay notifications & token status',
+  completeOnboarding: 'Complete Profile Setup',
+  savingProfile: 'Saving Profile...',
+  successTitle: 'Profile Successfully Linked!',
+  successDesc:
+    'You will never need to fill identity forms again. Welcome to KisanQueue.',
+  goToHome: 'Go to Mandi Dashboard',
+  goToCentres: 'Explore Nearby Mandis',
+  errPhoneRequired: 'Please enter a valid 10-digit mobile number',
+  errOtpRequired: 'Please enter the complete 4-digit code',
+  errNameRequired: 'Please enter your full name',
+  errVillageRequired: 'Please enter your village name',
+  errDistrictRequired: 'Please select your district',
 }
 
 /** Hindi copy */
@@ -159,6 +260,59 @@ const hi: CopyMap = {
     'यह पहला चरण केंद्र खोजने पर केंद्रित है। फोन सत्यापन अगले पेज में उपलब्ध होगा।',
   scroll: 'देखने के लिए स्क्रॉल करें',
   min: 'मिनट',
+
+  // Onboarding Wizard Strings (Hindi)
+  onboardingTitle: 'किसान प्रोफ़ाइल सेटअप',
+  onboardingSubtitle: 'मंडी में बिना रुकावट पहुंच के लिए एक बार पंजीकरण',
+  stepPhone: 'मोबाइल और ओटीपी',
+  stepProfile: 'किसान विवरण',
+  stepPrefs: 'भाषा और व्हाट्सएप',
+  stepOf: 'चरण',
+  phoneLabel: 'मोबाइल नंबर',
+  phonePlaceholder: '10 अंकों का मोबाइल नंबर दर्ज करें',
+  demoAutofill: 'डेमो लॉगिन (रमेश कुमार)',
+  sendOtp: 'ओटीपी भेजें',
+  sendingOtp: 'ओटीपी भेजा जा रहा है...',
+  otpLabel: '4 अंकों का सत्यापन कोड दर्ज करें',
+  demoOtpHint: 'डेमो कोड 1234 है',
+  verifyOtp: 'सत्यापित करें और आगे बढ़ें',
+  verifyingOtp: 'सत्यापन हो रहा है...',
+  resendOtp: 'ओटीपी पुनः भेजें',
+  resendIn: 'पुनः कोड भेजें',
+  nameLabel: 'पूरा नाम',
+  namePlaceholder: 'उदा. रमेश कुमार',
+  villageLabel: 'गांव / कस्बा',
+  villagePlaceholder: 'उदा. ब्यावरा',
+  districtLabel: 'जिला',
+  districtPlaceholder: 'जिला चुनें',
+  aadhaarLabel: 'आधार के अंतिम 4 अंक (वैकल्पिक)',
+  aadhaarPlaceholder: 'उदा. 4521',
+  cropLabel: 'बिक्री के लिए मुख्य फसल',
+  cropWheat: 'गेहूं (Wheat)',
+  cropSoybean: 'सोयाबीन (Soybean)',
+  cropPaddy: 'धान (Paddy)',
+  cropBarley: 'जौ (Barley)',
+  nextStep: 'अगला चरण',
+  backStep: 'पीछे',
+  preferredLangTitle: 'पसंदीदा भाषा चुनें',
+  langHindiName: 'हिंदी (Hindi)',
+  langHindiDesc: 'सभी अपडेट, वॉयस और व्हाट्सएप संदेशों के लिए',
+  langEngName: 'English (अंग्रेज़ी)',
+  langEngDesc: 'तकनीकी और प्रशासनिक विवरण के लिए',
+  whatsappToggleTitle: 'व्हाट्सएप पर डिजिटल पास और अपडेट प्राप्त करें',
+  whatsappToggleDesc: 'डिजिटल क्यूआर पास, देरी की सूचना और टोकन स्थिति सीधे व्हाट्सएप पर',
+  completeOnboarding: 'प्रोफ़ाइल पूरी करें',
+  savingProfile: 'सहेजा जा रहा है...',
+  successTitle: 'प्रोफ़ाइल सफलतापूर्वक जुड़ गई!',
+  successDesc:
+    'आपको दोबारा कभी पहचान फॉर्म भरने की आवश्यकता नहीं होगी। किसानक्यू में आपका स्वागत है।',
+  goToHome: 'मंडी डैशबोर्ड पर जाएं',
+  goToCentres: 'नज़दीकी मंडियां देखें',
+  errPhoneRequired: 'कृपया 10 अंकों का वैध मोबाइल नंबर दर्ज करें',
+  errOtpRequired: 'कृपया पूरा 4 अंकों का कोड दर्ज करें',
+  errNameRequired: 'कृपया अपना पूरा नाम दर्ज करें',
+  errVillageRequired: 'कृपया अपने गांव का नाम दर्ज करें',
+  errDistrictRequired: 'कृपया अपना जिला चुनें',
 }
 
 export const copy: Record<Language, CopyMap> = { en, hi }

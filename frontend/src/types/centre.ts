@@ -1,6 +1,8 @@
 export const centreStatuses = ['NORMAL', 'BUSY', 'LIFTING_DELAYED', 'PAUSED'] as const
 export type CentreStatus = (typeof centreStatuses)[number]
 
+export type Language = 'en' | 'hi'
+
 export type EtaConfidence = 'HIGH' | 'MEDIUM' | 'LOW' | 'NA'
 
 export type DataFreshness =

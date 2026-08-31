@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import './index.css'
 import App from './App.tsx'
+import { SmoothScrollProvider } from '@/components/layout/SmoothScrollProvider'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,15 +24,17 @@ createRoot(root).render(
   <StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <App />
-        <Toaster
-          position="top-center"
-          richColors
-          closeButton
-          toastOptions={{
-            duration: 5000,
-          }}
-        />
+        <SmoothScrollProvider>
+          <App />
+          <Toaster
+            position="top-center"
+            richColors
+            closeButton
+            toastOptions={{
+              duration: 5000,
+            }}
+          />
+        </SmoothScrollProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,

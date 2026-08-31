@@ -1,33 +1,73 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { Language } from '@/types/centre'
+import type { FarmerProfile, AuthSession } from '@/types/auth'
 
-export type Language = 'en' | 'hi'
+export type { Language }
 
 interface AppState {
   /** UI language — persisted across sessions. */
-  language: Language
+  readonly language: Language
   setLanguage: (lang: Language) => void
 
-  /**
-   * Whether the current session has an authenticated farmer.
-   * false for this slice — authentication comes in the onboarding slice.
-   * Retained here so components can safely gate on isAuthenticated
-   * without needing to change once auth is wired.
-   */
-  isAuthenticated: boolean
+  /** Authenticated farmer profile */
+  readonly farmer: FarmerProfile | null
+
+  /** Session JWT token (mock) */
+  readonly token: string | null
+
+  /** Whether the current session has an authenticated farmer */
+  readonly isAuthenticated: boolean
+
+  /** Log in with session payload */
+  login: (session: AuthSession) => void
+
+  /** Log out and clear session */
+  logout: () => void
+
+  /** Update active farmer profile */
+  updateFarmerProfile: (profile: Partial<FarmerProfile>) => void
 }
 
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       language: 'hi',
-      setLanguage: (lang) => set({ language: lang }),
+      farmer: null,
+      token: null,
       isAuthenticated: false,
+
+      setLanguage: (lang) => set({ language: lang }),
+
+      login: (session) =>
+        set({
+          farmer: session.farmer,
+          token: session.token,
+          isAuthenticated: true,
+          language: session.farmer.language ?? 'hi',
+        }),
+
+      logout: () =>
+        set({
+          farmer: null,
+          token: null,
+          isAuthenticated: false,
+        }),
+
+      updateFarmerProfile: (partial) =>
+        set((state) => ({
+          farmer: state.farmer ? { ...state.farmer, ...partial } : null,
+        })),
     }),
     {
       name: 'kq-app',
-      // Only persist language; isAuthenticated comes from real session tokens later.
-      partialize: (state) => ({ language: state.language }),
+      // Persist language, farmer profile, token, and auth flag
+      partialize: (state) => ({
+        language: state.language,
+        farmer: state.farmer,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     },
   ),
 )

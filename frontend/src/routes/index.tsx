@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { LandingPage } from '@/pages/LandingPage'
+import { OnboardingPage } from '@/pages/OnboardingPage'
 
 /**
  * Application route table.
@@ -23,9 +24,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-
-      {/* Reserved — not linked in navigation until implemented */}
-      <Route path="/onboarding" element={<ReservedPage name="Farmer Onboarding" />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
       <Route path="/home" element={<ReservedPage name="Farmer Home" />} />
       <Route path="/centres" element={<ReservedPage name="Centre Discovery" />} />
       <Route path="/centres/:id" element={<ReservedPage name="Centre Details" />} />

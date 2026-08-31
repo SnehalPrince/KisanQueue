@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowDown, ShieldCheck } from 'lucide-react'
-import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
 import { copy } from '@/lib/copy'
 import { centreKeys } from '@/lib/query-keys'
@@ -11,37 +11,57 @@ import type { CentrePreview } from '@/types/centre'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { CentreStatusGrid } from '@/components/centre/CentreStatusGrid'
 import { CentreModal } from '@/components/centre/CentreModal'
+import { useSmoothScroll } from '@/components/layout/SmoothScrollProvider'
 
 /**
- * Landing page — `/`
- *
- * Public, unauthenticated. Shows:
- *  1. Hero — product promise, language switcher, onboarding entry point
- *  2. Centre status preview — Rajgarh / Hisar / Patiala with real mock data
- *  3. How it works — brief product explanation
- *  4. Footer — data disclaimer
- *
- * Sign-in / personalized features are gated behind a toast in this slice.
- * The next slice (farmer onboarding) implements the actual auth flow.
+ * Stagger variants for the How It Works section.
+ * Applied per framer-motion & emil-design-eng skills.
  */
+const sectionVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.32,
+      ease: [0.22, 1, 0.36, 1],
+      staggerChildren: 0.08,
+    },
+  },
+} as const
+
+const statItemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] },
+  },
+} as const
+
 /**
  * Landing page — `/`
  *
  * Skills applied:
- * - react: function keyword, handle prefix for handlers, named export
- * - tanstack-query: centreKeys query key factory
- * - framer-motion: motion.button with whileTap, variants outside render
- * - accessibility-a11y: skip link, lang attrs, aria-labels, focus management
- * - emil-design-eng: <300ms transitions, scale(0.97) on press, ease-out
- * - zustand: select only needed state, persist middleware in store
+ * - lenis / smooth-scroll: Lenis smooth scroll provider + scrollTo helper
+ * - framer-motion: useScroll reading page progress, useTransform for subtle hero parallax, whileInView stagger
+ * - accessibility-a11y: skip link, aria-labels, touch targets >=44px, prefers-reduced-motion respected
+ * - emil-design-eng: button scale(0.97) on press, hardware-accelerated transforms, <300ms transitions
  */
 export function LandingPage() {
+  const navigate = useNavigate()
   const { language, setLanguage } = useAppStore()
+  const { scrollTo } = useSmoothScroll()
   const [selectedCentre, setSelectedCentre] = useState<CentrePreview | null>(null)
   const reduceMotion = useReducedMotion()
   const text = copy[language]
 
-  // tanstack-query skill: use key factory for type-safe, cacheable keys
+  // Scroll progress for top progress bar & subtle parallax
+  const { scrollYProgress } = useScroll()
+  const heroImageY = useTransform(scrollYProgress, [0, 0.25], reduceMotion ? [0, 0] : [0, 36])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.3], reduceMotion ? [1, 1] : [1, 0.75])
+
+  // TanStack Query for centre data
   const {
     data: centres,
     isLoading,
@@ -53,23 +73,27 @@ export function LandingPage() {
     staleTime: 30_000,
   })
 
-  // react skill: handle prefix for event handlers
   function handleToggleLanguage() {
     setLanguage(language === 'hi' ? 'en' : 'hi')
   }
 
   function handleProfileClick() {
-    toast.info(text.toastTitle, { description: text.toastDescription })
+    navigate('/onboarding')
   }
 
   function handleScrollToCentres() {
-    document.getElementById('content')?.scrollIntoView({
-      behavior: reduceMotion ? 'auto' : 'smooth',
-    })
+    scrollTo('#content', { offset: -20 })
   }
 
   return (
     <main id="main-content">
+      {/* Scroll Progress Bar at the top */}
+      <motion.div
+        className="page-scroll-progress"
+        style={{ scaleX: scrollYProgress, transformOrigin: '0% 50%' }}
+        aria-hidden="true"
+      />
+
       {/* Skip link — must be first focusable element */}
       <a className="skip-link" href="#content">
         Skip to centre conditions
@@ -84,12 +108,13 @@ export function LandingPage() {
 
       {/* ─── Hero ─────────────────────────────────────────────────── */}
       <section id="top" className="hero-section" aria-labelledby="hero-title">
-        <img
+        <motion.img
           className="hero-image"
           src="/assets/images/hero_mandi_dusk.png"
           alt="Tractors carrying grain at a procurement mandi at sunrise"
-          fetchPriority="high"
+          loading="eager"
           decoding="async"
+          style={{ y: heroImageY, opacity: heroOpacity }}
         />
         <div className="hero-wash" aria-hidden="true" />
         <div className="hero-grain" aria-hidden="true" />
@@ -121,7 +146,6 @@ export function LandingPage() {
 
           {/* Primary actions */}
           <div className="hero-actions">
-            {/* framer-motion skill: motion.button + whileTap per emil-design-eng press feedback */}
             <motion.button
               type="button"
               className="primary-button"
@@ -182,7 +206,15 @@ export function LandingPage() {
       </section>
 
       {/* ─── How It Works ──────────────────────────────────────────── */}
-      <section id="how-it-works" className="explain-section" aria-labelledby="how-title">
+      <motion.section
+        id="how-it-works"
+        className="explain-section"
+        aria-labelledby="how-title"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={sectionVariants}
+      >
         <div className="explain-rule" aria-hidden="true" />
         <p className="section-kicker">02 / KISANQUEUE</p>
         <h2 id="how-title" lang={language === 'hi' ? 'hi' : 'en'}>
@@ -191,20 +223,20 @@ export function LandingPage() {
         <p lang={language === 'hi' ? 'hi' : 'en'}>{text.howText}</p>
 
         <div className="stat-row" role="list" aria-label="Key features">
-          <span role="listitem">
+          <motion.span role="listitem" variants={statItemVariants}>
             <strong aria-hidden="true">01</strong>
             <span lang={language === 'hi' ? 'hi' : 'en'}>{text.statOne}</span>
-          </span>
-          <span role="listitem">
+          </motion.span>
+          <motion.span role="listitem" variants={statItemVariants}>
             <strong aria-hidden="true">02</strong>
             <span lang={language === 'hi' ? 'hi' : 'en'}>{text.statTwo}</span>
-          </span>
-          <span role="listitem">
+          </motion.span>
+          <motion.span role="listitem" variants={statItemVariants}>
             <strong aria-hidden="true">03</strong>
             <span lang={language === 'hi' ? 'hi' : 'en'}>{text.statThree}</span>
-          </span>
+          </motion.span>
         </div>
-      </section>
+      </motion.section>
 
       {/* ─── Footer ────────────────────────────────────────────────── */}
       <footer role="contentinfo">
