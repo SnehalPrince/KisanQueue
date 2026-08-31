@@ -1,13 +1,13 @@
 # 11 — Frontend Architecture & UI Engineering
 
 > **Official Brand Palette**: **Almond** (`#D6BD98`) · **Matcha Brew** (`#677D6A`) · **Forest Roast** (`#40534C`) · **Eclipse** (`#1A3636`).  
-> **Referenced Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`ask-sonner`](../.agents/skills/ask-sonner/SKILL.md).
+> **Referenced Modern Libraries**: [`reactbits.dev`](https://reactbits.dev), [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`ask-sonner`](../.agents/skills/ask-sonner/SKILL.md).
 
 ---
 
 ## 1. Core Technology Stack
 * **Framework**: React 18+ with TypeScript & Vite.
-* **Component Primitives**: **Skiper UI** (creative floating dialogs, interactive cards, dynamic buttons) + Radix UI primitives.
+* **Component Primitives**: **Skiper UI** + **React Bits (`reactbits.dev`)** + Radix UI primitives.
 * **Animation & Physics**: **Motion (`motion/react`)** + `transitions.dev` tokenized CSS classes.
 * **Data Visualization & Analytics**: **Bklit UI** (mandi throughput graphs, capacity distribution charts).
 * **Stylized ASCII Effects**: **ascii-magic / asciinator** (animated ASCII grain matrix & live queue ticker).
@@ -67,10 +67,11 @@ frontend/
 │   └── favicon.ico
 ├── src/
 │   ├── app/
-│   │   ├── App.tsx                     # Root layout with Toaster & ASCII background
+│   │   ├── App.tsx                     # Root layout with Toaster, GrainOverlay & ASCII ticker
 │   │   ├── router.tsx                  # Role-based route definitions
 │   │   └── providers.tsx               # QueryClient, I18n, Zustand Persist, AuthProvider
 │   ├── components/                     # Reusable UI Primitives (Design System)
+│   │   ├── reactbits/                  # DecryptedText, SpotlightCard, GrainOverlay, SplitText
 │   │   ├── ui/                         # Skiper UI buttons, cards, modals, tabs
 │   │   ├── motion/                     # NumberPopIn, MotionDialog, ErrorShake
 │   │   ├── charts/                     # Bklit UI Mandi Throughput & Capacity Charts
@@ -155,16 +156,19 @@ export function MandiThroughputAnalytics({ hourlyData, capacityFactor }: Analyti
 }
 ```
 
-### 3. ASCII Live Queue Matrix Ticker (`ascii-magic` / `asciinator`)
+### 3. React Bits Decrypted Token Reveal (`reactbits.dev`)
 ```tsx
-export function ASCIILiveTicker({ centreName, waitingCount, etaMinutes }: TickerProps) {
+import { DecryptedText } from '@/components/reactbits/DecryptedText';
+import { SpotlightCard } from '@/components/reactbits/SpotlightCard';
+
+export function PassTokenHeader({ tokenCode }: { tokenCode: string }) {
   return (
-    <div className="font-mono text-xs bg-[#1A3636] text-[#D6BD98] py-1.5 px-3 rounded-lg overflow-x-auto flex items-center gap-3 border border-[#40534C]">
-      <span className="animate-pulse text-[#677D6A]">●</span>
-      <span className="uppercase font-bold tracking-wider">
-        [/// {centreName} ///] WAITING: {waitingCount} | LIVE ETA: ~{etaMinutes}M | ADMISSION: ACTIVE
-      </span>
-    </div>
+    <SpotlightCard spotlightColor="rgba(214, 189, 152, 0.2)" className="rounded-2xl border border-[#D6BD98] p-4 bg-white">
+      <div className="text-xs uppercase font-mono text-[#677D6A]">Token Identification</div>
+      <div className="font-['Urbanist'] font-black text-4xl text-[#1A3636]">
+        <DecryptedText text={tokenCode} speed={30} maxIterations={10} animateOn="view" />
+      </div>
+    </SpotlightCard>
   );
 }
 ```
@@ -191,7 +195,7 @@ flowchart TD
 
     WSHook -->|Event: ETA_UPDATED| QueueCache
     WSHook -->|Event: CENTRE_STATUS_CHANGED| CentresCache
-    QueueCache --> UI[Skiper UI & Motion Components]
+    QueueCache --> UI[Skiper UI + React Bits Components]
     CentresCache --> UI
     AuthStore --> UI
 ```

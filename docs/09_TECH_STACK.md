@@ -1,6 +1,7 @@
 # 09 — Tech Stack, Modern UI Tooling & Visual Assets
 
-> **Referenced Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app).  
+> **Referenced Modern Libraries**: [`reactbits.dev`](https://reactbits.dev), [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app).  
+> **Brand Color Palette**: **Almond** (`#D6BD98`) · **Matcha Brew** (`#677D6A`) · **Forest Roast** (`#40534C`) · **Eclipse** (`#1A3636`).  
 > **Typography System**: English (`Urbanist` + `Rustic Roadway`) · Hindi (`AMS Shikha` / `Manoja` + `Noto Sans Devanagari`).  
 > **Curated Visual Assets**: `assets/images/hero_mandi.jpg`, `assets/images/assistant_avatar.jpg`.
 
@@ -11,7 +12,7 @@
 | Layer | Choice | Alternatives Considered | Why Chosen |
 |---|---|---|---|
 | **Frontend Framework** | React 18+ + Vite + TypeScript | Next.js, Vue 3, Svelte | Instant local HMR, lightweight bundle, zero SSR hydration overhead. Perfect for low-latency client rendering over REST/WS. |
-| **Component Primitives** | **Skiper UI** + Radix UI Primitives | Material UI, AntD, Chakra | Tailored, high-craft UI components (floating cards, interactive drawers, dynamic modals). |
+| **Component Primitives** | **Skiper UI** + **React Bits (`reactbits.dev`)** | Material UI, AntD, Chakra | Tailored, high-craft UI components (floating cards, spotlight borders, grain canvas, text decoding). |
 | **Animation & Physics** | **Motion (`motion/react`)** + `transitions.dev` Tokens | Vanilla CSS, Anime.js | Hardware-accelerated GPU spring physics, layout animations, exit transitions. |
 | **Data Visualization** | **Bklit UI** Charts | Recharts, Chart.js, D3 | Clean, modern analytics graphs for Mandi hourly throughput and capacity factors. |
 | **ASCII Effects & Motion** | **ascii-magic / asciinator** | Canvas2D raw text | Retro-modern live queue matrix ticker and animated ASCII grain flow shaders. |
@@ -62,27 +63,4 @@
     "vitest": "^1.4.0"
   }
 }
-```
-
----
-
-## Backend Package Manifest (`requirements.txt`)
-
-```text
-fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
-pydantic>=2.6.0
-pydantic-settings>=2.2.0
-sqlalchemy[asyncio]>=2.0.28
-asyncpg>=0.29.0
-alembic>=1.13.0
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
-qrcode[pil]>=7.4.2
-structlog>=24.1.0
-slowapi>=0.1.9
-websockets>=12.0
-pytest>=8.1.0
-pytest-asyncio>=0.23.0
-httpx>=0.27.0
 ```

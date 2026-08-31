@@ -1,6 +1,7 @@
 # 08 — Design System, Palette & Motion Engineering
 
-> **Referenced Agent Skills & Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
+> **Referenced UI Libraries**: [`reactbits.dev`](https://reactbits.dev), [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app).  
+> **Referenced Agent Skills**: [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
 
 ---
 
@@ -67,7 +68,20 @@ KisanQueue uses a curated, earthy agricultural palette blending natural grain to
 
 ---
 
-## 2. Bilingual Typography & Font Pairings
+## 2. Modern UI & Visual Craft Libraries
+
+* **React Bits (`reactbits.dev`)**:
+  * **Interactive Backgrounds**: `GridDistortion` and `Particles` for subtle agricultural ambient canvas; `GrainOverlay` for tactile paper realism.
+  * **Text Animations**: `SplitText`, `BlurText`, and `DecryptedText` for live token code decoding (`KQ-1047`) and dynamic status reveal.
+  * **Micro-Components**: `MagneticButton`, `ShinyText`, `GlowBorder` cards, and `SpotlightCard` for elevated mandi cards.
+* **Skiper UI**: Creative floating modals, action drawers, and responsive sheet primitives.
+* **Motion (`motion/react`)**: Spring layout animations, number pop-in transitions, and gesture drag physics.
+* **Bklit UI**: High-polish analytics charts for hourly grain throughput and mandi capacity factors.
+* **ASCII Magic / Asciinator**: Terminal-grade live queue matrix status ticker and grain flow shaders.
+
+---
+
+## 3. Bilingual Typography & Font Pairings
 
 * **English Primary & Numerical Display**: `Urbanist` (Modern geometric sans-serif for numbers, display & body)
 * **English Rustic Display Accent**: `Rustic Roadway` (with fallbacks `Rye`, `Rubik Dirt`, `Cinzel Decorative` for mandi gate badges & highway logistics)
@@ -96,7 +110,7 @@ KisanQueue uses a curated, earthy agricultural palette blending natural grain to
 
 ---
 
-## 3. Motion Engineering & ASCII Canvas Effects
+## 4. Motion Engineering & Micro-Interactions
 
 ### 1. Motion Tokens (`transitions.dev` & `Motion`)
 ```css
@@ -117,23 +131,23 @@ KisanQueue uses a curated, earthy agricultural palette blending natural grain to
 }
 ```
 
-### 2. ASCII Live Queue Matrix Ticker (`ascii-magic` / `asciinator`)
-```text
-  [/// KISANQUEUE ///] ECLIPSE #1A3636 | ALMOND #D6BD98 | STATUS: 14 WAITING
+### 2. React Bits Component Integrations
+```tsx
+// Example: React Bits DecryptedText for live Pass token generation
+import { DecryptedText } from '@/components/reactbits/DecryptedText';
+import { SpotlightCard } from '@/components/reactbits/SpotlightCard';
+
+export function DigitalPassToken({ tokenCode }: { tokenCode: string }) {
+  return (
+    <SpotlightCard spotlightColor="rgba(214, 189, 152, 0.25)" className="rounded-3xl border border-[#D6BD98] p-6 bg-white">
+      <div className="font-mono text-xs uppercase tracking-widest text-[#677D6A]">Verified Gate Pass</div>
+      <div className="font-['Urbanist'] text-4xl font-extrabold text-[#1A3636] mt-1">
+        <DecryptedText text={tokenCode} speed={40} maxIterations={12} animateOn="view" revealDirection="start" />
+      </div>
+    </SpotlightCard>
+  );
+}
 ```
-
----
-
-## 4. Component Inventory with Brand Palette
-
-1. **Digital Pass Card (`KQ-1047`)**:
-   - Background: Pure white with warm `--palette-almond` (`#D6BD98`) border and subtle wheat grain watermark.
-   - Header & Token ID: Bold `--palette-eclipse` (`#1A3636`) in Urbanist 800.
-   - Status Badge: Harmonized `--palette-forest` (`#40534C`) / `--palette-matcha` (`#677D6A`).
-2. **Officer Capacity Controller**:
-   - High-contrast segmented bar in `--palette-eclipse` with active status in `--palette-almond`.
-3. **Throughput Graphs (Bklit UI)**:
-   - Stroke gradient moving from `--palette-matcha` (`#677D6A`) to `--palette-forest` (`#40534C`) with almond fill under the curve.
 
 ---
 

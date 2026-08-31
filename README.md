@@ -3,7 +3,7 @@
 <img src="https://img.shields.io/badge/SIH%202026-PS%2026032-orange?style=for-the-badge" />
 <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Stack-FastAPI%20%2B%20React%20%2B%20Motion-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Craft-SkiperUI%20%2B%20BklitUI-purple?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Craft-ReactBits%20%2B%20SkiperUI-purple?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Status-Blueprint%20Complete-brightgreen?style=for-the-badge" />
 
 # 🌾 KisanQueue
@@ -31,18 +31,29 @@ A farmer holds a valid government slot, drives 40 km to the mandi, and discovers
 
 ---
 
+## 🎨 Official Brand Color Palette
+
+| Swatch | Color Name | HEX Code | Role in KisanQueue |
+|---|---|---|---|
+| 🌰 | **Almond** | `#D6BD98` | Warm wheat accent, highlight borders, pass badges, active button accents |
+| 🍵 | **Matcha Brew** | `#677D6A` | Organic sage green, secondary buttons, status badges, subtle borders & icons |
+| 🌲 | **Forest Roast** | `#40534C` | Deep earthy slate green, card headers, secondary surfaces, active tabs, Bklit chart lines |
+| 🌑 | **Eclipse** | `#1A3636` | Rich obsidian forest, brand primary anchor, navbar, hero headers, dark mode canvas |
+
+---
+
 ## ✨ Key Features & Modern UI Craft
 
 | Feature | Description | UI Library & Craft |
 |---|---|---|
 | 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice | Motion Springs + Krishi Mitra Avatar |
-| 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | Skiper UI Floating Modal |
+| 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | Skiper UI Floating Modal + DecryptedText |
 | ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts live to officer updates | Explainable Math + NumberPopIn |
 | 📊 **Mandi Throughput Analytics** | Real-time graphs of hourly grain intake and truck lifting capacity | Bklit UI Analytics Charts |
 | 📟 **ASCII Live Queue Matrix** | Terminal-grade live queue ticker and grain flow shaders | `ascii-magic` / `asciinator` |
+| ✨ **Ambient Visual Craft** | Grain background overlay, spotlight card glow, and magnetic buttons | React Bits (`reactbits.dev`) |
 | 🟢 **Live Centre Status** | Officer-reported operational status: Normal, Busy, Lifting Delayed, Reduced, Paused | Tri-Factor Badging (Icon+Text+Color) |
 | ⚡ **Sub-2s Real-Time Sync** | WebSocket event fan-out updates farmer's screen within ~2 seconds of officer action | Native FastAPI WebSockets |
-| 🎨 **Design Engineering** | Tokenized motion scale, number pop-in digits, origin-aware popovers, press physics | Emil Kowalski & `transitions.dev` |
 | 🌐 **Bilingual Typography** | English: `Urbanist` + `Rustic Roadway`<br>Hindi: `AMS Shikha` / `Manoja` + `Noto Sans Devanagari` | Curated Multi-Font Stack |
 
 ---
@@ -100,7 +111,7 @@ Delayed State: N = 14, T_base = 25, C = 1, F = 0.60 ➔ ETA = 584 min (~9h 44m, 
 
 ### Frontend
 - **Framework**: React 18+ with TypeScript & Vite (lightning-fast HMR, lightweight bundle)
-- **Component Primitives**: **Skiper UI** + Radix UI Primitives (floating modals, interactive cards)
+- **Component Primitives**: **Skiper UI** + **React Bits (`reactbits.dev`)** + Radix UI Primitives
 - **Animation & Physics**: **Motion (`motion/react`)** + `transitions.dev` Motion Tokens
 - **Analytics & Graphs**: **Bklit UI** (hourly throughput, capacity factors)
 - **ASCII Effects**: **ascii-magic / asciinator** (live queue matrix ticker)
@@ -127,15 +138,15 @@ The complete implementation blueprint lives in [`/docs`](docs/). All 30 files ar
 | 00 | [Project Overview](docs/00_PROJECT_OVERVIEW.md) | Problem statement, differentiation, core pitch |
 | 01 | [PRD](docs/01_PRD.md) | Product Requirements Document & Progressive Onboarding |
 | 02 | [Product Requirements](docs/02_PRODUCT_REQUIREMENTS.md) | Functional & non-functional requirements |
-| 03 | [User Personas](docs/03_USER_PERSONAS.md) | Farmer, Mandi Officer, State Admin personas |
+| 03 | [User Personas](docs/03_USER_PERSONAS.md) | Farmer Ramesh, Officer Suresh, Admin Patel |
 | 04 | [User Flows](docs/04_USER_FLOWS.md) | One-time onboarding, conversational pass gen, check-in |
 | 05 | [Feature Specification](docs/05_FEATURE_SPECIFICATION.md) | Every feature with acceptance criteria & error states |
 | 06 | [MVP Scope](docs/06_MVP_SCOPE.md) | P0/P1/P2 breakdown & 7-hour build plan |
-| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Skiper UI, Motion, Bklit UI, ASCII Magic, Typography |
-| 08 | [Design System & Motion](docs/08_DESIGN_SYSTEM.md) | Urbanist + Rustic Roadway, AMS Shikha, Motion tokens |
+| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Skiper UI, React Bits, Motion, Bklit UI, ASCII Magic |
+| 08 | [Design System & Motion](docs/08_DESIGN_SYSTEM.md) | Almond/Matcha/Forest/Eclipse palette, Typography, Tokens |
 | 09 | [Tech Stack & Tooling](docs/09_TECH_STACK.md) | Package manifests, architectural rationale |
 | 10 | [System Architecture](docs/10_SYSTEM_ARCHITECTURE.md) | MVP + production architecture diagrams |
-| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | Motion springs, Bklit charts, Zustand state, routes |
+| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | React Bits, Motion springs, Bklit charts, Zustand |
 | 12 | [Backend Architecture](docs/12_BACKEND_ARCHITECTURE.md) | FastAPI module breakdown, async patterns, logging |
 | 13 | [Database Schema](docs/13_DATABASE_SCHEMA.md) | All tables, constraints, indexes, ER diagram |
 | 14 | [API Specification](docs/14_API_SPECIFICATION.md) | REST endpoints + WebSocket event schemas |
