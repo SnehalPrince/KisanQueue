@@ -1,25 +1,82 @@
-# 09 — Tech Stack
+# 09 — Tech Stack & Tooling
+
+> **Referenced Agent Skills**: [`fastapi-templates`](../.agents/skills/fastapi-templates/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`react-state-management`](../.agents/skills/react-state-management/SKILL.md), [`security-and-hardening`](../.agents/skills/security-and-hardening/SKILL.md).
+
+---
 
 ## Decision Summary
 
-| Layer | Choice | Alternatives considered | Why chosen |
+| Layer | Choice | Alternatives Considered | Why Chosen |
 |---|---|---|---|
-| Frontend | React + Vite + TypeScript + Tailwind CSS | Next.js, Vue | Vite gives the fastest local dev loop for a 7-hour build; no SSR/routing complexity is needed since this is a client-rendered app hitting a REST/WebSocket API. Next.js's extra conventions (server components, routing) cost setup time without a corresponding MVP benefit. |
-| Backend | Python + FastAPI (modular monolith) | Node/Express, Django | FastAPI gives async support (needed for WebSockets), automatic OpenAPI docs (useful for a fast-iterating hackathon team), and Python is comfortable for most SIH teams. A modular monolith avoids the operational overhead of microservices for a 7-hour build. |
-| Database | PostgreSQL (via Supabase free tier for MVP) | MongoDB, SQLite | The domain (queues, tokens, capacity events, relationships between farmers/centres/officers) is inherently relational; PostgreSQL enforces the integrity constraints (foreign keys, unique tokens) that matter for a queue system. Supabase gives a managed Postgres instance with zero ops time. |
-| Realtime | Native WebSockets (FastAPI `WebSocket` routes) | Socket.IO, Supabase Realtime, SSE | Plain WebSockets are sufficient for our small, well-defined event set (`15_REALTIME_QUEUE.md`) and avoid adding a second protocol/library. SSE was considered but WebSockets better support the bidirectional check-in/officer-action pattern in the same connection model used elsewhere in the app. |
-| Cache/Queue (optional) | None for MVP; Redis flagged as post-MVP | Redis pub/sub for scaling WebSocket fan-out | Not needed at hackathon scale (single backend instance, few concurrent centres). Redis becomes relevant when horizontally scaling the realtime layer — documented in `29_ROADMAP.md`, not built now. |
-| WhatsApp | Provider-agnostic adapter interface; `MockWhatsAppProvider` for MVP, Twilio WhatsApp API or Meta Cloud API as the production provider | Direct Meta Cloud API only | A mock-first adapter lets the MVP demo the *interaction design* without needing WhatsApp Business API approval/setup during the hackathon, while keeping the production path a drop-in swap (`17_WHATSAPP_INTEGRATION.md`). |
-| Auth | JWT sessions; phone+OTP for farmers (mocked), username+password for officer/admin | Firebase Auth, Auth0 | Rolling a minimal JWT auth path keeps full control over the Farmer/Officer/Admin role model without pulling in a third-party auth SaaS mid-hackathon. |
-| Deployment | Frontend: Vercel. Backend + DB: Render or Railway (WebSocket-capable). | Netlify, Heroku, self-hosted | Vercel is fastest for a static/Vite frontend deploy; Render/Railway support long-lived WebSocket connections (unlike some serverless platforms) and deploy from a Git push with minimal config — both matter for demo-day reliability. |
+| **Frontend Framework** | React 18+ + Vite + TypeScript | Next.js, Vue 3, Svelte | Instant local HMR, lightweight bundle, zero SSR hydration overhead. Perfect for low-latency client rendering over REST/WS. |
+| **Design & UI Motion** | Tailwind CSS + `transitions.dev` Tokens + `framer-motion` | Material UI, AntD, Chakra | Tailored, non-generic craft aesthetics. Tokenized motion scale (`--duration-*`, `--ease-smooth-out`) ensures 60 FPS hardware acceleration on budget mobile devices. |
+| **Frontend State & Cache** | TanStack Query v5 + Zustand (Persist) | Redux Toolkit, MobX | TanStack Query handles server state & automatic revalidation; Zustand provides lightweight, persistent storage for one-time farmer profile data. |
+| **Notifications & Toasts** | Sonner (`ask-sonner`) + Lucide Icons | React-Toastify, Radix Toast | Frictionless imperative API, origin-aware stacking, elegant swipe-to-dismiss. |
+| **Backend Runtime** | Python 3.11+ + FastAPI (Modular Monolith) | Node/Express, Go, Django | Native async event loop, automatic OpenAPI 3.1 schema generation, sub-millisecond in-process ETA computation. |
+| **ORM & Database Driver** | SQLAlchemy 2.0 (Async) + `asyncpg` | Tortoise ORM, Prisma | Industry-standard async DB access, robust connection pooling, full relational integrity enforcement. |
+| **Database** | PostgreSQL (Supabase / Render Managed) | MongoDB, SQLite | Relational model guarantees foreign key constraints, partial unique indexes for active queues, and JSONB audit trails. |
+| **Realtime Engine** | Native FastAPI WebSockets | Socket.io, SSE, Supabase Realtime | Lightweight bidirectional communication with sub-2s latency, custom connection manager, and zero external service cost. |
+| **Cryptographic Tokens** | HMAC-SHA256 (`hashlib` / `hmac`) | RSA, Asymmetric PKI | Fast, tamper-proof, day-scoped QR tokens with constant-time verification (`hmac.compare_digest`). |
+| **Testing Suite** | Pytest-Asyncio (Backend) + Vitest & Playwright (Frontend) | Jest, Cypress | Fast parallel execution, automated WCAG 2.1 AA accessibility auditing with `@axe-core/playwright`. |
 
-## Rationale for a Modular Monolith (not microservices)
-See `41`/`42` sections in the master prompt and `10_SYSTEM_ARCHITECTURE.md` for the explicit evaluation. Short version: a 7-hour build cannot absorb the operational cost of multiple deployable services, service discovery, or distributed transactions. A single FastAPI app with clearly separated modules (queue, ETA, auth, notifications, integration adapters) gives the same conceptual separation without the infrastructure tax, and can be split into services later if genuinely needed.
+---
 
-## Package-Level Notes
-- Backend: FastAPI, SQLAlchemy (or SQLModel), Pydantic, `python-jose` (JWT), `qrcode` (QR generation), `hmac`/`hashlib` (token signing).
-- Frontend: React Router, Tailwind, a small state layer (React Query for server state + minimal local state — no heavy global state library needed at this scope), `react-i18next` for Hindi/English.
-- WhatsApp production candidates: Twilio's Python SDK for WhatsApp, or a Meta WhatsApp Cloud API client — both fit behind the same adapter interface.
+## Front-End Package Manifest (`package.json`)
 
-## What We Deliberately Did Not Choose
-- Kubernetes, Kafka, event sourcing, multiple databases, ML pipelines — all rejected per the explicit "don't overengineer" constraint (`41_ARCHITECTURAL_QUALITY_BAR` guidance in the master prompt).
+```json
+{
+  "dependencies": {
+    "@tanstack/react-query": "^5.28.0",
+    "clsx": "^2.1.0",
+    "framer-motion": "^11.0.0",
+    "i18next": "^23.10.0",
+    "lucide-react": "^0.359.0",
+    "qrcode.react": "^3.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.51.0",
+    "react-i18next": "^14.1.0",
+    "react-router-dom": "^6.22.0",
+    "sonner": "^1.4.0",
+    "tailwind-merge": "^2.2.0",
+    "zod": "^3.22.0",
+    "zustand": "^4.5.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.8.0",
+    "@playwright/test": "^1.42.0",
+    "@testing-library/react": "^14.2.0",
+    "@types/react": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.1.0",
+    "vitest": "^1.4.0"
+  }
+}
+```
+
+---
+
+## Backend Package Manifest (`requirements.txt`)
+
+```text
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+sqlalchemy[asyncio]>=2.0.28
+asyncpg>=0.29.0
+alembic>=1.13.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+qrcode[pil]>=7.4.2
+structlog>=24.1.0
+slowapi>=0.1.9
+websockets>=12.0
+pytest>=8.1.0
+pytest-asyncio>=0.23.0
+httpx>=0.27.0
+```
