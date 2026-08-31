@@ -1,16 +1,37 @@
 import type { CentrePreview } from '../../types/centre'
+import type { CentreService } from '../../types/service'
+import { CENTRE_FIXTURES } from './fixtures/centres'
 
-const centrePreviews: readonly CentrePreview[] = [
-  { id: 'centre-001', name: 'Rajgarh Procurement Centre', hindiName: 'राजगढ़ उपार्जन केंद्र', district: 'Rajgarh, MP', distanceKm: 12, status: 'NORMAL', queueLength: 9, etaMinutes: 63, confidence: 'HIGH', activeCounters: 2, capacityFactor: 1, updatedMinutesAgo: 2, note: 'Operating normally. Farmer Ramesh is currently at position 5 in the seeded demo queue.' },
-  { id: 'centre-002', name: 'Hisar HAFED Centre', hindiName: 'हिसार हैफेड केंद्र', district: 'Hisar, Haryana', distanceKm: 28, status: 'BUSY', queueLength: 22, etaMinutes: 413, confidence: 'MEDIUM', activeCounters: 2, capacityFactor: 0.8, updatedMinutesAgo: 6, note: 'High congestion today. Consider visiting only if this centre is your most suitable option.' },
-  { id: 'centre-003', name: 'Patiala Anaaj Kharid Centre', hindiName: 'पटियाला अनाज खरीद केंद्र', district: 'Patiala, Punjab', distanceKm: 41, status: 'PAUSED', queueLength: 0, etaMinutes: null, confidence: 'NA', activeCounters: 0, capacityFactor: 0, updatedMinutesAgo: 4, note: 'Operations are paused today. New queue requests are not being accepted.' },
-]
+/** Simulated network delay (ms). Set to 0 in tests via VITE_MOCK_DELAY=0. */
+const MOCK_DELAY_MS =
+  import.meta.env['VITE_MOCK_DELAY'] !== undefined
+    ? Number(import.meta.env['VITE_MOCK_DELAY'])
+    : 600
 
-const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds))
+const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms))
 
-export const centreService = {
+/**
+ * Mock implementation of CentreService.
+ *
+ * Satisfies the CentreService interface — the real REST/WebSocket
+ * implementation will replace this without any UI changes.
+ *
+ * Set VITE_MOCK_ERROR=true to force listPreviews() to reject,
+ * enabling error-state testing without modifying component code.
+ */
+export const centreService: CentreService = {
   async listPreviews(): Promise<readonly CentrePreview[]> {
-    await wait(550)
-    return centrePreviews
+    await wait(MOCK_DELAY_MS)
+    if (import.meta.env['VITE_MOCK_ERROR'] === 'true') {
+      throw new Error('Mock: simulated network failure')
+    }
+    return CENTRE_FIXTURES
+  },
+
+  async getDetail(id: string): Promise<CentrePreview> {
+    await wait(MOCK_DELAY_MS)
+    const centre = CENTRE_FIXTURES.find((c) => c.id === id)
+    if (!centre) throw new Error(`Mock: centre "${id}" not found`)
+    return centre
   },
 }

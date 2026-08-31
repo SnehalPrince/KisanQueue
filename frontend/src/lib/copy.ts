@@ -1,9 +1,171 @@
 import type { CentreStatus } from '../types/centre'
 
 export type Language = 'en' | 'hi'
-export const copy = {
-  en: { brand: 'KisanQueue', navCentres: 'Centre conditions', navHow: 'How it works', profile: 'Set up profile', live: 'Live operational preview', eyebrow: 'Procurement, before the journey', heading: 'Know the mandi situation before you leave home.', intro: 'KisanQueue makes the queue, capacity, and real wait visible—so a valid slot does not become a day lost at the gate.', explore: 'See nearby centre conditions', profileHint: 'One-time profile. No repeated forms.', proofTitle: 'A clear signal, before a long trip.', proofBody: 'Officer updates become understandable status and ETA updates for farmers.', preview: 'Nearby centre preview', previewNote: 'Sample public view · sign in for your personal recommendations and queue actions.', status: 'Centre status', queue: 'Farmers waiting', updated: 'Updated', estimatedWait: 'Estimated wait', confidence: 'Estimate quality', counters: 'Active counters', details: 'View status details', normal: 'Operating normally', busy: 'Busy today', delayed: 'Lifting delayed', paused: 'Operations paused', high: 'Good estimate', medium: 'Approximate estimate', low: 'Rough estimate', na: 'ETA unavailable', pausedEta: 'No ETA while paused', joinSignIn: 'Sign in to continue', howTitle: 'Honest operational visibility', howText: 'A centre officer can report a capacity change in two taps. KisanQueue recalculates the estimate and explains what changed—without pretending it is a promise.', statOne: 'one-time profile', statTwo: 'capacity-aware ETA', statThree: 'bilingual access', modalTitle: 'Centre condition', close: 'Close', source: 'Demo data · officer-reported status is simulated for this preview.', toastTitle: 'Profile setup comes next', toastDescription: 'This first slice is focused on centre discovery. Phone verification will be available on the next page.', scroll: 'Scroll to explore', min: 'min' },
-  hi: { brand: 'किसानक्यू', navCentres: 'केंद्र की स्थिति', navHow: 'यह कैसे काम करता है', profile: 'प्रोफ़ाइल बनाएं', live: 'लाइव स्थिति का पूर्वावलोकन', eyebrow: 'यात्रा से पहले खरीद की जानकारी', heading: 'घर से निकलने से पहले मंडी की स्थिति जानें।', intro: 'किसानक्यू कतार, क्षमता और अनुमानित प्रतीक्षा को साफ़ दिखाता है—ताकि वैध स्लॉट का मतलब गेट पर पूरा दिन न हो।', explore: 'नज़दीकी केंद्रों की स्थिति देखें', profileHint: 'प्रोफ़ाइल सिर्फ़ एक बार। बार-बार फॉर्म नहीं।', proofTitle: 'लंबी यात्रा से पहले, साफ़ जानकारी।', proofBody: 'अधिकारी के अपडेट किसानों के लिए समझने योग्य स्थिति और समय अनुमान बन जाते हैं।', preview: 'नज़दीकी केंद्रों का पूर्वावलोकन', previewNote: 'सार्वजनिक नमूना दृश्य · व्यक्तिगत सुझाव और कतार के लिए साइन इन करें।', status: 'केंद्र की स्थिति', queue: 'प्रतीक्षारत किसान', updated: 'अपडेट', estimatedWait: 'अनुमानित प्रतीक्षा', confidence: 'अनुमान की विश्वसनीयता', counters: 'सक्रिय काउंटर', details: 'स्थिति का विवरण देखें', normal: 'सामान्य रूप से चल रहा है', busy: 'आज व्यस्त है', delayed: 'उठान में देरी', paused: 'कामकाज बंद है', high: 'सटीक अनुमान', medium: 'अनुमानित समय', low: 'लगभग अनुमान', na: 'समय उपलब्ध नहीं', pausedEta: 'बंद होने पर समय उपलब्ध नहीं', joinSignIn: 'आगे बढ़ने के लिए साइन इन करें', howTitle: 'साफ़ संचालन जानकारी', howText: 'केंद्र अधिकारी दो टैप में क्षमता बदल सकते हैं। किसानक्यू अनुमान को फिर से गिनता है और बदलाव समझाता है—इसे कोई पक्का वादा नहीं बताता।', statOne: 'एक बार प्रोफ़ाइल', statTwo: 'क्षमता आधारित अनुमान', statThree: 'दो भाषाओं में', modalTitle: 'केंद्र की स्थिति', close: 'बंद करें', source: 'डेमो डेटा · इस पूर्वावलोकन में अधिकारी की स्थिति नकली है।', toastTitle: 'प्रोफ़ाइल सेटअप अगला चरण है', toastDescription: 'यह पहला चरण केंद्र खोजने पर केंद्रित है। फोन सत्यापन अगले पेज में उपलब्ध होगा।', scroll: 'देखने के लिए स्क्रॉल करें', min: 'मिनट' },
-} as const
 
-export const statusKey: Record<CentreStatus, 'normal' | 'busy' | 'delayed' | 'paused'> = { NORMAL: 'normal', BUSY: 'busy', LIFTING_DELAYED: 'delayed', PAUSED: 'paused' }
+/**
+ * Shape interface for a single language's copy map.
+ *
+ * All fields are typed as `string` — not string literals — so both English and
+ * Hindi values are assignable. Key completeness is enforced by the interface itself:
+ * TS will error if any key is missing from `en` or `hi`.
+ *
+ * Applied per TypeScript skill: prefer interfaces over literal/typeof patterns for
+ * structures that must be implemented more than once.
+ */
+export interface CopyMap {
+  brand: string
+  navCentres: string
+  navHow: string
+  profile: string
+  live: string
+  eyebrow: string
+  heading: string
+  intro: string
+  explore: string
+  profileHint: string
+  proofTitle: string
+  proofBody: string
+  preview: string
+  previewNote: string
+  status: string
+  queue: string
+  updated: string
+  estimatedWait: string
+  confidence: string
+  counters: string
+  details: string
+  normal: string
+  busy: string
+  delayed: string
+  paused: string
+  high: string
+  medium: string
+  low: string
+  na: string
+  pausedEta: string
+  joinSignIn: string
+  howTitle: string
+  howText: string
+  statOne: string
+  statTwo: string
+  statThree: string
+  modalTitle: string
+  close: string
+  source: string
+  toastTitle: string
+  toastDescription: string
+  scroll: string
+  min: string
+}
+
+/** English copy */
+const en: CopyMap = {
+  brand: 'KisanQueue',
+  navCentres: 'Centre conditions',
+  navHow: 'How it works',
+  profile: 'Set up profile',
+  live: 'Live operational preview',
+  eyebrow: 'Procurement, before the journey',
+  heading: 'Know the mandi situation before you leave home.',
+  intro:
+    'KisanQueue makes the queue, capacity, and real wait visible—so a valid slot does not become a day lost at the gate.',
+  explore: 'See nearby centre conditions',
+  profileHint: 'One-time profile. No repeated forms.',
+  proofTitle: 'A clear signal, before a long trip.',
+  proofBody: 'Officer updates become understandable status and wait estimates for farmers.',
+  preview: 'Nearby centre preview',
+  previewNote:
+    'Sample public view · Sign in for your personal recommendations and queue actions.',
+  status: 'Centre status',
+  queue: 'Farmers waiting',
+  updated: 'Updated',
+  estimatedWait: 'Estimated wait',
+  confidence: 'Estimate quality',
+  counters: 'Active counters',
+  details: 'View status details',
+  normal: 'Operating normally',
+  busy: 'Busy today',
+  delayed: 'Lifting delayed',
+  paused: 'Operations paused',
+  high: 'Good estimate',
+  medium: 'Approximate estimate',
+  low: 'Rough estimate',
+  na: 'ETA unavailable',
+  pausedEta: 'No ETA while paused',
+  joinSignIn: 'Sign in to continue',
+  howTitle: 'Honest operational visibility',
+  howText:
+    'A centre officer can report a capacity change in two taps. KisanQueue recalculates the estimate and explains what changed—without pretending it is a promise.',
+  statOne: 'one-time profile',
+  statTwo: 'capacity-aware ETA',
+  statThree: 'bilingual access',
+  modalTitle: 'Centre condition',
+  close: 'Close',
+  source: 'Demo data · officer-reported status is simulated for this preview.',
+  toastTitle: 'Profile setup comes next',
+  toastDescription:
+    'This first slice is focused on centre discovery. Phone verification will be available on the next page.',
+  scroll: 'Scroll to explore',
+  min: 'min',
+}
+
+/** Hindi copy */
+const hi: CopyMap = {
+  brand: 'किसानक्यू',
+  navCentres: 'केंद्र की स्थिति',
+  navHow: 'यह कैसे काम करता है',
+  profile: 'प्रोफ़ाइल बनाएं',
+  live: 'लाइव स्थिति का पूर्वावलोकन',
+  eyebrow: 'यात्रा से पहले खरीद की जानकारी',
+  heading: 'घर से निकलने से पहले मंडी की स्थिति जानें।',
+  intro:
+    'किसानक्यू कतार, क्षमता और अनुमानित प्रतीक्षा को साफ़ दिखाता है—ताकि वैध स्लॉट का मतलब गेट पर पूरा दिन न हो।',
+  explore: 'नज़दीकी केंद्रों की स्थिति देखें',
+  profileHint: 'प्रोफ़ाइल सिर्फ़ एक बार। बार-बार फॉर्म नहीं।',
+  proofTitle: 'लंबी यात्रा से पहले, साफ़ जानकारी।',
+  proofBody:
+    'अधिकारी के अपडेट किसानों के लिए समझने योग्य स्थिति और समय अनुमान बन जाते हैं।',
+  preview: 'नज़दीकी केंद्रों का पूर्वावलोकन',
+  previewNote:
+    'सार्वजनिक नमूना दृश्य · व्यक्तिगत सुझाव और कतार के लिए साइन इन करें।',
+  status: 'केंद्र की स्थिति',
+  queue: 'प्रतीक्षारत किसान',
+  updated: 'अपडेट',
+  estimatedWait: 'अनुमानित प्रतीक्षा',
+  confidence: 'अनुमान की विश्वसनीयता',
+  counters: 'सक्रिय काउंटर',
+  details: 'स्थिति का विवरण देखें',
+  normal: 'सामान्य रूप से चल रहा है',
+  busy: 'आज व्यस्त है',
+  delayed: 'उठान में देरी',
+  paused: 'कामकाज बंद है',
+  high: 'सटीक अनुमान',
+  medium: 'अनुमानित समय',
+  low: 'लगभग अनुमान',
+  na: 'समय उपलब्ध नहीं',
+  pausedEta: 'बंद होने पर समय उपलब्ध नहीं',
+  joinSignIn: 'आगे बढ़ने के लिए साइन इन करें',
+  howTitle: 'साफ़ संचालन जानकारी',
+  howText:
+    'केंद्र अधिकारी दो टैप में क्षमता बदल सकते हैं। किसानक्यू अनुमान को फिर से गिनता है और बदलाव समझाता है—इसे कोई पक्का वादा नहीं बताता।',
+  statOne: 'एक बार प्रोफ़ाइल',
+  statTwo: 'क्षमता आधारित अनुमान',
+  statThree: 'दो भाषाओं में',
+  modalTitle: 'केंद्र की स्थिति',
+  close: 'बंद करें',
+  source: 'डेमो डेटा · इस पूर्वावलोकन में अधिकारी की स्थिति नकली है।',
+  toastTitle: 'प्रोफ़ाइल सेटअप अगला चरण है',
+  toastDescription:
+    'यह पहला चरण केंद्र खोजने पर केंद्रित है। फोन सत्यापन अगले पेज में उपलब्ध होगा।',
+  scroll: 'देखने के लिए स्क्रॉल करें',
+  min: 'मिनट',
+}
+
+export const copy: Record<Language, CopyMap> = { en, hi }
+
+export const statusKey: Record<CentreStatus, 'normal' | 'busy' | 'delayed' | 'paused'> = {
+  NORMAL: 'normal',
+  BUSY: 'busy',
+  LIFTING_DELAYED: 'delayed',
+  PAUSED: 'paused',
+}
