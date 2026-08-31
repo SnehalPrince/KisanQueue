@@ -3,7 +3,8 @@
 <img src="https://img.shields.io/badge/SIH%202026-PS%2026032-orange?style=for-the-badge" />
 <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Stack-FastAPI%20%2B%20React-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Status-Documentation%20Complete-brightgreen?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Craft-Design%20Engineered-purple?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Status-Blueprint%20Complete-brightgreen?style=for-the-badge" />
 
 # 🌾 KisanQueue
 
@@ -17,34 +18,36 @@
 
 ## 🎯 What is KisanQueue?
 
-KisanQueue is a **real-time visibility and queue management layer** that sits *on top of* existing government procurement systems (MP e-Uparjan, Haryana e-Kharid, Punjab Anaaj Kharid). It does not replace them — it adds what they lack.
+KisanQueue is a **real-time operational visibility and admission layer** that sits *on top of* existing government procurement systems (MP e-Uparjan, Haryana e-Kharid, Punjab Anaaj Kharid). It does not replace them — it adds the live operational intelligence they currently lack.
 
-**The core problems it solves:**
-1. **Uncertain Mandi Delays:** A farmer holds a slot, arrives at the mandi, and discovers a 6-hour lifting delay or a 30-farmer backlog with zero prior warning.
-2. **Form Fatigue:** Existing government portals force farmers through repetitive, multi-page forms every harvest trip.
+### The Core Problem
+A farmer holds a valid government slot, drives 40 km to the mandi, and discovers a **6-hour lifting delay (FCI trucks late)**, a 30-farmer backlog, or a paused centre with zero warning before they made the trip.
 
-**KisanQueue's Core Principle:**
-> **Progressive Onboarding, Not Repeated Registration.**  
-> Verify identity once. For every future harvest, the persistent WhatsApp Assistant recognizes the farmer, asks only transaction-specific details (*crop & quintals*), and generates an instant digital pass with live capacity-aware ETA.
+### The KisanQueue Solution: Progressive Onboarding & Persistent Assistant
+1. **Zero Form Fatigue**: The farmer's identity and village profile are verified **once** during onboarding.
+2. **Persistent WhatsApp Assistant**: Returning farmers simply message *"I want to sell wheat"*. The assistant recognizes them by phone, recommends nearby mandis with live congestion/ETAs, asks only for quantity (*quintals*), and generates an instant pass (`KQ-1047`) with a signed QR code.
+3. **Backlog-Aware Deterministic ETA**: Reacts in real time when mandi officers report delays or capacity changes.
+4. **Offline-Resilient QR Pass**: HMAC-SHA256 signed gate pass that can be screenshotted and scanned at the gate even without mobile network.
 
 ---
 
 ## ✨ Key Features
 
-| Feature | Description |
-|---|---|
-| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice |
-| ⚡ **1-Tap Digital Pass** | Farmer messages *"I want to sell wheat"* ➔ Bot shows nearby mandis with live ETAs ➔ Asks quintals ➔ Issues Pass `KQ-1047` |
-| ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts in real-time to officer capacity updates |
-| 🟢 **Live Centre Status** | Officer-reported operational conditions — Normal, Busy, Lifting Delayed, Reduced Capacity, Paused |
-| 🎟️ **Signed QR Pass** | HMAC-SHA256 signed QR code on pass for instant physical gate check-in & offline resilience |
-| 📡 **Real-Time WebSocket Sync** | ETA updates on farmer's screen/WhatsApp in < 2s when officer reports a delay |
-| 📋 **Officer Mandi Console** | 2-tap capacity & delay controller, QR gate check-in scanner, live throughput table |
-| 🏛️ **Government Integration Layer** | `GovernmentProcurementAdapter` interface — connects to state APIs without modifying core workflows |
+| Feature | Description | Craft / Standard |
+|---|---|---|
+| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice | Zero Form Fatigue |
+| 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | HMAC-SHA256 Signed |
+| ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts live to officer updates | Explainable Math (No Black Box) |
+| 🟢 **Live Centre Status** | Officer-reported operational status: Normal, Busy, Lifting Delayed, Reduced, Paused | Tri-Factor Badging (Icon+Text+Color) |
+| ⚡ **Sub-2s Real-Time Sync** | WebSocket event fan-out updates farmer's screen within ~2 seconds of officer action | Native FastAPI WebSockets |
+| 🎨 **Design Engineering** | Tokenized motion scale, number pop-in digits, origin-aware popovers, press physics | Emil Kowalski & `transitions.dev` |
+| 📋 **Officer Mandi Console** | 2-tap capacity & delay controller, QR check-in camera scanner, throughput table | Tablet & Mobile Ergonomics |
+| 🏛️ **Government Adapter** | `GovernmentProcurementAdapter` interface — connects to state APIs without modifying core code | Clean Architecture Pattern |
+| 🌐 **Bilingual (Hindi / English)** | Full localization across Web and WhatsApp; Devanagari font rendering optimization | WCAG 2.1 AA Compliant |
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ System Architecture
 
 ```
 [Farmer WhatsApp Assistant]   [Farmer Mobile Web App]   [Officer Mandi Console]
@@ -54,126 +57,166 @@ KisanQueue is a **real-time visibility and queue management layer** that sits *o
                                         │
                       ┌─────────────────▼──────────────────┐
                       │     FastAPI Modular Monolith        │
-                      │  Auth · Centres · Queue · ETA       │
-                      │  QR/Token · Notifications · Admin   │
+                      │  Auth · Farmer · Assistant · ETA    │
+                      │  Queue (KQ-xxxx) · QR · Audit       │
                       │  GovernmentProcurementAdapter       │
                       └─────────────────┬──────────────────┘
                                         │
                                 PostgreSQL (Supabase)
 ```
 
-**Tech Stack:**
-- **Frontend**: React + Vite + TypeScript + Tailwind CSS + React Query + `react-i18next`
-- **Backend**: Python 3.11 + FastAPI (async modular monolith)
-- **Database**: PostgreSQL via Supabase
-- **Realtime**: Native FastAPI WebSockets
-- **Auth**: JWT (HS256) — One-time Phone+OTP for farmers, username+password for officers
-- **QR Security**: HMAC-SHA256 signed tokens, single-use, day-scoped expiry
-- **Deployment**: Vercel (frontend) + Render/Railway (backend)
+### Architecture Highlights
+* **Modular Monolith**: Single deployable FastAPI process with clean module boundaries (`auth`, `farmer`, `assistant`, `queue`, `eta`, `officer`, `qr`, `integration`).
+* **In-Process ETA Engine**: Recalculates waiting queues in < 10ms upon capacity state transitions.
+* **Resilience & Circuit Breaker**: Downstream government adapter calls are isolated with timeouts (2.5s) to guarantee zero mandi check-in stalls.
 
 ---
 
-## 📐 The ETA Formula
+## 📐 The Deterministic ETA Formula
 
-The core technical innovation — a **deterministic, explainable, capacity-aware ETA model**:
+The core technical centerpiece is a **deterministic, explainable, capacity-aware mathematical model**:
 
 ```
 ETA (minutes) = ceil( N × T_base / (C × F) )
 ```
 
-| Variable | Meaning |
-|---|---|
-| `N` | Farmers waiting ahead in queue |
-| `T_base` | Base processing time per farmer (minutes) |
-| `C` | Active counters (officer-reported) |
-| `F` | Capacity factor — 1.00 = normal, 0.60 = 40% reduction |
+| Variable | Definition | Source |
+|---|---|---|
+| `N` | Farmers waiting ahead in queue | Live `queue_entries` count |
+| `T_base` | Baseline processing time per farmer (minutes) | Mandi historical average (e.g. 25 min) |
+| `C` | Active operational counters | Officer-reported live counter count |
+| `F` | Capacity factor | Officer condition (`1.00` = normal, `0.60` = 40% reduction) |
 
-**Example — Lifting Delay:**
+### Live Scenario — FCI Truck Lifting Delay:
 ```
-Normal:  N=14, T_base=25, C=2, F=1.00 → ETA = 175 min (~2h 55m)
-Delayed: N=14, T_base=25, C=1, F=0.60 → ETA = 584 min (~9h 44m)  ← farmer sees this instantly
+Normal State:  N = 14, T_base = 25, C = 2, F = 1.00 ➔ ETA = 175 min (~2h 55m, High confidence)
+Delayed State: N = 14, T_base = 25, C = 1, F = 0.60 ➔ ETA = 584 min (~9h 44m, Low confidence)
 ```
-
-No ML. No black box. Fully explainable to SIH judges. See [`docs/16_ETA_ENGINE.md`](docs/16_ETA_ENGINE.md).
+*The farmer receives this updated ETA and a delay warning on their phone in ~2 seconds without refreshing.*
 
 ---
 
-## 📁 Documentation
+## 🛠️ Tech Stack & Engineering Standards
 
-The complete implementation blueprint lives in [`/docs`](docs/). All 30 documents are written and implementation-ready.
+### Frontend
+- **Framework**: React 18+ with TypeScript & Vite (lightning-fast HMR, lightweight bundle)
+- **Styling & Motion**: Tailwind CSS + `transitions.dev` Motion Tokens + `framer-motion` GPU transforms
+- **State Management**: TanStack Query v5 (server cache & auto-revalidation) + Zustand (persistent profile)
+- **Micro-Interactions**: Sonner (`ask-sonner` toast notifications), Lucide Icons, NumberPopIn
+- **Localization**: `react-i18next` with complete English & Hindi dictionaries
+
+### Backend
+- **Framework**: Python 3.11+ + FastAPI (Async, modular monolith, auto-generated OpenAPI 3.1)
+- **Database & ORM**: PostgreSQL via SQLAlchemy 2.0 (Async) + `asyncpg` connection pooling
+- **Security & Tokens**: `python-jose` (JWT), `passlib[bcrypt]`, constant-time HMAC-SHA256 QR signing
+- **Realtime**: Native FastAPI WebSockets with async `ConnectionManager`
+- **Observability**: `structlog` structured JSON logging with `X-Request-ID` correlation middleware
+
+### Installed Skills & Craft Engines
+* **UI/UX**: `emil-design-eng`, `transitions-dev`, `impeccable`, `visual-design-foundations`
+* **FastAPI & Async**: `fastapi-templates`, `async-python-patterns`, `python-design-patterns`
+* **Security & Auth**: `security-and-hardening` (Addy Osmani), `jwt-security`, `signed-audit-trails-recipe`
+* **Testing & A11y**: `test-driven-development`, `python-testing-patterns`, `accessibility-compliance` (Axe-core)
+
+---
+
+## 📁 Complete Documentation Package
+
+The complete implementation blueprint lives in [`/docs`](docs/). All 30 files are written and implementation-ready:
 
 | # | Document | Contents |
 |---|---|---|
-| 00 | [Project Overview](docs/00_PROJECT_OVERVIEW.md) | Summary, differentiation, one-line pitches |
-| 01 | [PRD](docs/01_PRD.md) | Full PRD with Progressive Onboarding & Assistant design |
+| 00 | [Project Overview](docs/00_PROJECT_OVERVIEW.md) | Problem statement, differentiation, core pitch |
+| 01 | [PRD](docs/01_PRD.md) | Product Requirements Document & Progressive Onboarding |
 | 02 | [Product Requirements](docs/02_PRODUCT_REQUIREMENTS.md) | Functional & non-functional requirements |
-| 03 | [User Personas](docs/03_USER_PERSONAS.md) | Farmer, Officer, Admin personas |
-| 04 | [User Flows](docs/04_USER_FLOWS.md) | End-to-end journey maps & conversational flows |
-| 05 | [Feature Specification](docs/05_FEATURE_SPECIFICATION.md) | Every feature with acceptance criteria |
-| 06 | [MVP Scope](docs/06_MVP_SCOPE.md) | P0/P1/P2 + 7-hour build plan |
-| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Screen inventory, states, mobile-first spec |
-| 08 | [Design System](docs/08_DESIGN_SYSTEM.md) | Typography, color, components, tokens |
-| 09 | [Tech Stack](docs/09_TECH_STACK.md) | Stack decisions with rationale |
+| 03 | [User Personas](docs/03_USER_PERSONAS.md) | Farmer, Mandi Officer, State Admin personas |
+| 04 | [User Flows](docs/04_USER_FLOWS.md) | One-time onboarding, conversational pass gen, check-in |
+| 05 | [Feature Specification](docs/05_FEATURE_SPECIFICATION.md) | Every feature with acceptance criteria & error states |
+| 06 | [MVP Scope](docs/06_MVP_SCOPE.md) | P0/P1/P2 breakdown & 7-hour build plan |
+| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Screen inventory, states, mobile-first specifications |
+| 08 | [Design System & Motion](docs/08_DESIGN_SYSTEM.md) | Emil Kowalski principles, transitions.dev tokens, WCAG AA |
+| 09 | [Tech Stack & Tooling](docs/09_TECH_STACK.md) | Package manifests, architectural rationale |
 | 10 | [System Architecture](docs/10_SYSTEM_ARCHITECTURE.md) | MVP + production architecture diagrams |
-| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | Folder structure, routes, state, i18n |
-| 12 | [Backend Architecture](docs/12_BACKEND_ARCHITECTURE.md) | FastAPI module breakdown, middleware |
+| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | State management, UI motion engineering, routes |
+| 12 | [Backend Architecture](docs/12_BACKEND_ARCHITECTURE.md) | FastAPI module breakdown, async patterns, logging |
 | 13 | [Database Schema](docs/13_DATABASE_SCHEMA.md) | All tables, constraints, indexes, ER diagram |
-| 14 | [API Specification](docs/14_API_SPECIFICATION.md) | Every REST + WebSocket endpoint |
-| 15 | [Realtime Queue](docs/15_REALTIME_QUEUE.md) | Queue state machine, all WS events |
-| 16 | [ETA Engine](docs/16_ETA_ENGINE.md) | Formula, examples, pseudocode, edge cases |
-| 17 | [WhatsApp Integration](docs/17_WHATSAPP_INTEGRATION.md) | Persistent assistant conversational flow |
-| 18 | [QR Token System](docs/18_QR_TOKEN_SYSTEM.md) | HMAC signing, threat model, validation |
-| 19 | [Auth & RBAC & Security](docs/19_AUTH_RBAC_SECURITY.md) | JWT, OTP, roles, PII, audit logs |
-| 20 | [Notification System](docs/20_NOTIFICATION_SYSTEM.md) | Events, channels, adapter, deduplication |
-| 21 | [Integration Strategy](docs/21_INTEGRATION_STRATEGY.md) | GovernmentProcurementAdapter + state adapters |
-| 22 | [Mock Data](docs/22_MOCK_DATA.md) | Full seed dataset + 5 demo scenarios |
-| 23 | [Error Handling](docs/23_ERROR_HANDLING.md) | Every error in EN + HI farmer language |
-| 24 | [Testing Strategy](docs/24_TESTING_STRATEGY.md) | pytest + Vitest test code for all P0 paths |
+| 14 | [API Specification](docs/14_API_SPECIFICATION.md) | REST endpoints + WebSocket event schemas |
+| 15 | [Realtime Queue](docs/15_REALTIME_QUEUE.md) | Queue state machine, WebSocket connection manager |
+| 16 | [ETA Engine](docs/16_ETA_ENGINE.md) | Formula, worked examples, pseudocode, edge cases |
+| 17 | [WhatsApp Integration](docs/17_WHATSAPP_INTEGRATION.md) | Persistent assistant conversational flow (HI/EN) |
+| 18 | [QR Token System](docs/18_QR_TOKEN_SYSTEM.md) | HMAC signing, constant-time validation, threat model |
+| 19 | [Auth & Security Hardening](docs/19_AUTH_RBAC_SECURITY.md) | JWT, STRIDE threat model, signed audit trails |
+| 20 | [Notification System](docs/20_NOTIFICATION_SYSTEM.md) | Outbound alerts, adapter pattern, deduplication |
+| 21 | [Integration Strategy](docs/21_INTEGRATION_STRATEGY.md) | `GovernmentProcurementAdapter` interface + state adapters |
+| 22 | [Mock Data](docs/22_MOCK_DATA.md) | Full seed dataset + 5 realistic demo scenarios |
+| 23 | [Error Handling](docs/23_ERROR_HANDLING.md) | Every error code in EN + plain-language Hindi |
+| 24 | [Testing Strategy](docs/24_TESTING_STRATEGY.md) | TDD, Pytest suites, Playwright WCAG a11y tests |
 | 25 | [Deployment](docs/25_DEPLOYMENT.md) | Vercel + Render + Supabase setup guide |
-| 26 | [Environment Variables](docs/26_ENVIRONMENT_VARIABLES.md) | Every env var with `.env.example` |
-| 27 | [Demo Script](docs/27_DEMO_SCRIPT.md) | 7-min SIH demo + judge Q&A recovery |
-| 28 | [SIH Pitch Story](docs/28_SIH_PITCH_TECHNICAL_STORY.md) | Technical narrative for judges |
-| 29 | [Roadmap](docs/29_ROADMAP.md) | 4-phase roadmap from MVP to multi-state |
-| 30 | [Open Questions](docs/30_OPEN_QUESTIONS.md) | 18 unresolved questions with assumptions |
+| 26 | [Environment Variables](docs/26_ENVIRONMENT_VARIABLES.md) | Environment configuration with `.env.example` |
+| 27 | [Demo Script](docs/27_DEMO_SCRIPT.md) | 7-min SIH jury demo script + Q&A recovery |
+| 28 | [SIH Pitch Technical Story](docs/28_SIH_PITCH_TECHNICAL_STORY.md) | Technical narrative for hackathon judges |
+| 29 | [Roadmap](docs/29_ROADMAP.md) | 4-phase scale roadmap from MVP to national rollout |
+| 30 | [Open Questions](docs/30_OPEN_QUESTIONS.md) | 18 unresolved questions with documented assumptions |
 
 ---
 
 ## 🚀 Quick Start (Local Development)
 
-### Backend
+### Prerequisites
+- Node.js 18+ & npm
+- Python 3.11+
+
+### Backend Setup
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate          # Windows
+venv\Scripts\activate          # Windows (or source venv/bin/activate on Linux/Mac)
 pip install -r requirements.txt
-cp .env.example .env           # Fill in your values
+cp .env.example .env           # Fill in JWT_SECRET_KEY and QR_HMAC_SECRET
 alembic upgrade head
 python seed.py
 uvicorn main:app --reload --port 8000
 ```
+> API runs at `http://localhost:8000` · Swagger docs at `http://localhost:8000/docs`
 
-### Frontend
+### Frontend Setup
 ```bash
 cd frontend
 npm install
 cp .env.example .env.local     # Set VITE_API_BASE_URL=http://localhost:8000/v1
-npm run dev                    # Starts on localhost:5173
+npm run dev                    # Starts Vite server on localhost:5173
 ```
 
-> **Demo farmer login**: Phone `+919876543210` · OTP `1234` → Ramesh Kumar (Biaora, Rajgarh)  
-> **Officer login**: `officer_rajgarh` / `Demo@1234`
+> **Demo Farmer Login**: Phone `+919876543210` · OTP `1234` ➔ Ramesh Kumar (Biaora, Rajgarh)  
+> **Officer Login**: `officer_rajgarh` / `Demo@1234` (Rajgarh Procurement Centre)
 
 ---
 
-## 🎬 Demo Scenario
+## 🎬 3-Step Demo Moment for Judges
 
-The core SIH demo flow in 3 quick steps:
+1. **Farmer requests pass on WhatsApp**: *"I want to sell wheat"* ➔ Bot recognizes Ramesh, recommends 3 nearby mandis with live congestion/ETAs, asks quantity (*80 quintals*), issues Pass **`KQ-1047`** with signed QR.
+2. **Officer reports lifting delay** on web console: Sets capacity to 60%, 1 counter.
+3. **Farmer's ETA jumps to ~2h 15m in real time** on Web & WhatsApp in < 2 seconds — without refreshing.
 
-1. **Farmer requests pass on WhatsApp**: *"I want to sell wheat"* ➔ Bot recognizes Ramesh, recommends 3 nearby mandis with live ETAs, asks quantity (*80 quintals*), issues Pass **`KQ-1047`** with signed QR.
-2. **Officer reports lifting delay** on dashboard: Sets capacity to 60%, 1 counter.
-3. **Farmer's ETA jumps to ~2h 15m in real time** on Web & WhatsApp — without refreshing.
+*Full walkthrough & judge Q&A recovery script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)*
 
-Full script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)
+---
+
+## 🤝 Differentiation vs Existing Systems
+
+| State System | What It Does | What It Misses | What KisanQueue Adds |
+|---|---|---|---|
+| **MP e-Uparjan** | Registration, slot booking, payment status | No live delay visibility or backlog status | Live capacity-aware ETA updated by mandi officers in real time |
+| **Haryana e-Kharid** | Digital gate pass, QR check-in | No predictive wait times or dynamic queues | Real-time queue tracker with delay notifications |
+| **Punjab Anaaj Kharid** | e-Passes, bulk SMS alerts | Rigid portal forms, broadcast-only alerts | Persistent WhatsApp Assistant with progressive, 1-tap pass generation |
+
+---
+
+## 🏆 Smart India Hackathon 2026
+
+- **Hackathon**: Smart India Hackathon 2026
+- **Problem Statement**: PS 26032
+- **Category**: Agriculture, Food Processing & Rural Development
 
 ---
 
@@ -181,7 +224,7 @@ Full script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)
 
 MIT License — Copyright © 2026 **Snehal Prince**
 
-See [LICENSE](LICENSE) for full text.
+See [LICENSE](LICENSE) for full legal text.
 
 ---
 
