@@ -97,6 +97,12 @@
       "skillPath": "plugins/reverse-engineering/skills/anti-reversing-techniques/SKILL.md",
       "computedHash": "34479bae98ffd79698325ed1a2c4cb0171ad32bb659eb7691acb2b48b2441e0f"
     },
+    "api-and-interface-design": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-and-interface-design/SKILL.md",
+      "computedHash": "26f5a9e7abfd332d7a2e5887cf19bddd3393f47514c379b36bf227c1f15cdec4"
+    },
     "api-design-principles": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -253,6 +259,18 @@
       "skillPath": "plugins/before-you-build/skills/before-you-build/SKILL.md",
       "computedHash": "9ab281502c2cd4c9254a668fa159e6caefae1b39c0446784eef3e9a3cc2fe84a"
     },
+    "better-auth-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/best-practices/SKILL.md",
+      "computedHash": "e8b46af23c6b1bc7aefdae3cf816368058c05e46eadb9bdca4f744b17d05a866"
+    },
+    "better-auth-security-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "security/SKILL.md",
+      "computedHash": "087c1094fa5f1834af4785c058dcc8c9abe4c1321b853883c76ea46c93a21cfe"
+    },
     "billing-automation": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -301,6 +319,12 @@
       "skillPath": "plugins/brand-landingpage/skills/brand-landingpage/SKILL.md",
       "computedHash": "dceba70e0a3198b1c2e8e94e9e8077034469e4657dba079a77acacc64e61e184"
     },
+    "browser-testing-with-devtools": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/browser-testing-with-devtools/SKILL.md",
+      "computedHash": "639950ea71851d9c4919608cba8b6276cd1ba30cd82acdc4949c701537eed661"
+    },
     "business-central-development": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -336,6 +360,12 @@
       "sourceType": "github",
       "skillPath": "chrome-extension-development/SKILL.md",
       "computedHash": "973f0a7879af02b429af666256a15c9d2106387cd554252cbdd926fce11f472c"
+    },
+    "ci-cd-and-automation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ci-cd-and-automation/SKILL.md",
+      "computedHash": "578b098a7d2352ccdac8b8abdc40eb6803538e81cf8382f138da6188a655087c"
     },
     "ci-cd-best-practices": {
       "source": "mindrally/skills",
@@ -373,11 +403,23 @@
       "skillPath": "skills/engineering/code-review/SKILL.md",
       "computedHash": "b4f17857c85ca60af1df7d0b623dd03c2a48419f6123e714f3d9748ca744a1bf"
     },
+    "code-review-and-quality": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-review-and-quality/SKILL.md",
+      "computedHash": "6231479cc74c7ed70a5618b81b3f94034d9806c0319a1a23d15f9b94a368c581"
+    },
     "code-review-excellence": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/developer-essentials/skills/code-review-excellence/SKILL.md",
       "computedHash": "89b2a6a234f6368b12f0232e1d77bd5ed894115114edf67eb1f2976e153664c0"
+    },
+    "code-simplification": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/code-simplification/SKILL.md",
+      "computedHash": "7973e746e8e2ea5004d520da970c15a106824b8d6be1bcff48908aec021f3677"
     },
     "codebase-design": {
       "source": "mattpocock/skills",
@@ -397,11 +439,23 @@
       "skillPath": "computer-vision-opencv/SKILL.md",
       "computedHash": "18c248ee75adf4ebffb009c3d98b374629d6c7b9abafd31ab5f01e3c5d812981"
     },
+    "constraint-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/constraint-driven-development/SKILL.md",
+      "computedHash": "40df237bb0447cba2b485309e5a9a13b4804dad31413dec186c1e9df73338c64"
+    },
     "context-driven-development": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/conductor/skills/context-driven-development/SKILL.md",
       "computedHash": "01a007dd590ccf10e68efd39e534c6a581d600b691a678e4cb79fb86fe8a9707"
+    },
+    "context-engineering": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/context-engineering/SKILL.md",
+      "computedHash": "bb8864454c5a24636cab86c4b3c4b29e7e7431c80485bfd7c9c0a19a01936510"
     },
     "convex": {
       "source": "mindrally/skills",
@@ -426,6 +480,12 @@
       "sourceType": "github",
       "skillPath": "plugins/backend-development/skills/cqrs-implementation/SKILL.md",
       "computedHash": "4da4af422951fed153ecb9528395e5cac60b13746c97b2031c3ab29b8a96f4af"
+    },
+    "create-auth": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/create-auth/SKILL.md",
+      "computedHash": "cf5d2c852c66269dc350dec0db8cfb07634a2310aee5be1bfd7e643dca72f22e"
     },
     "css": {
       "source": "mindrally/skills",
@@ -487,6 +547,12 @@
       "skillPath": "plugins/data-engineering/skills/dbt-transformation-patterns/SKILL.md",
       "computedHash": "79f3271827f7a29be343a25136dc10778a07435b319c8b45b374c95871785bb3"
     },
+    "debugging-and-error-recovery": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/debugging-and-error-recovery/SKILL.md",
+      "computedHash": "1a119d27e8f1d27ed6317adf3115826336491346780dcb7d7a7a7f79fe3ffe10"
+    },
     "debugging-strategies": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -534,6 +600,12 @@
       "sourceType": "github",
       "skillPath": "plugins/cicd-automation/skills/deployment-pipeline-design/SKILL.md",
       "computedHash": "fb952bfdc4dac88f91eacb90a745887195f0ebb0aaf6e94123419edd7b10247b"
+    },
+    "deprecation-and-migration": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/deprecation-and-migration/SKILL.md",
+      "computedHash": "55a559781ae92cacd6b75acd509e61b577c2660212d1808da2fbb8dbadc90196"
     },
     "design-system-patterns": {
       "source": "wshobson/agents",
@@ -583,6 +655,12 @@
       "skillPath": "docker/SKILL.md",
       "computedHash": "d7cde6ea1ffb9730f2864351ab3de766830f8734d631c9326b865969d5a86460"
     },
+    "documentation-and-adrs": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/documentation-and-adrs/SKILL.md",
+      "computedHash": "7464fd2950b99fb00bbf65cab27653e0a049eef00c98927713ffdfe232a9daa9"
+    },
     "domain-modeling": {
       "source": "mattpocock/skills",
       "sourceType": "github",
@@ -600,6 +678,12 @@
       "sourceType": "github",
       "skillPath": "plugins/dotnet-contribution/skills/dotnet-backend-patterns/SKILL.md",
       "computedHash": "624af9f8faea713dadaa51fc2f2040a4b365b4e083b9b9f82d7e9df1f627ea79"
+    },
+    "doubt-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/doubt-driven-development/SKILL.md",
+      "computedHash": "880332887b731e34509974dd6b62c8ae3943367f3b8ca0dd1bbb4479f474f73e"
     },
     "drizzle-orm": {
       "source": "mindrally/skills",
@@ -636,6 +720,12 @@
       "sourceType": "github",
       "skillPath": "elixir/SKILL.md",
       "computedHash": "f78fbef110bbb5824232f8ec1fa172662a24dca86dee07164b5e447ce6e452ce"
+    },
+    "email-and-password-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/emailAndPassword/SKILL.md",
+      "computedHash": "7786d722fa682b3d6a99793e73a9d51b59becefa595676134a993020633e068f"
     },
     "embedding-strategies": {
       "source": "wshobson/agents",
@@ -793,6 +883,12 @@
       "skillPath": "front-end-developer/SKILL.md",
       "computedHash": "3cb3f4e423bc9608538ec782c1ea1260b60228103d702ca508589308ed35e324"
     },
+    "frontend-ui-engineering": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-ui-engineering/SKILL.md",
+      "computedHash": "cb4e981ecb5f701b451fc4e937a38049b49fd4523f213e06cffbd00b007060dc"
+    },
     "game-development": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -840,6 +936,12 @@
       "sourceType": "github",
       "skillPath": "git-workflow/SKILL.md",
       "computedHash": "2d234c30b7a4ca910fe6625977b0c045529079b8b71642d9efd53341787d66e4"
+    },
+    "git-workflow-and-versioning": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/git-workflow-and-versioning/SKILL.md",
+      "computedHash": "acdc333418db7f2390978415e00d151092ed19a0b6475e2b00c5b8f79d149dfc"
     },
     "github-actions-templates": {
       "source": "wshobson/agents",
@@ -1021,6 +1123,12 @@
       "skillPath": "plugins/llm-application-dev/skills/hybrid-search-implementation/SKILL.md",
       "computedHash": "72d40cbc68219b3c404fe0a18c1bd15fb4d7b0aecd2b6f34d40d7bce9db187a2"
     },
+    "idea-refine": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/idea-refine/SKILL.md",
+      "computedHash": "9fc0ae5d8a074872a636d22f9c6fe71e041b86cddc9fe5af90ef654f5032ec5d"
+    },
     "impeccable": {
       "source": "pbakaus/impeccable",
       "sourceType": "github",
@@ -1057,6 +1165,12 @@
       "skillPath": "plugins/incident-response/skills/incident-runbook-templates/SKILL.md",
       "computedHash": "da032736b281bdcc62b31ff2391d9f12c25d6cf75c5cd7af76be1f84ed7d12e2"
     },
+    "incremental-implementation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/incremental-implementation/SKILL.md",
+      "computedHash": "bd40e91eac68b83ba0204dd57b4bd35511cb900f937a7127b79f2396b2bb305d"
+    },
     "interaction-design": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -1068,6 +1182,12 @@
       "sourceType": "github",
       "skillPath": "internationalization-i18n/SKILL.md",
       "computedHash": "5dd3043eecc450d2a82a522611517f124650ff60fe2f7eff74d0075d040cd31e"
+    },
+    "interview-me": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/interview-me/SKILL.md",
+      "computedHash": "efded91ac7f7626239b338ce8622afeb557151b86532b632f3c9eb5b2ff9048f"
     },
     "ionic": {
       "source": "mindrally/skills",
@@ -1525,6 +1645,12 @@
       "skillPath": "oauth-implementation/SKILL.md",
       "computedHash": "451ce99b5d15c32fc4e7ed79223e59530093156fd8a3e80434a677a2d7601faf"
     },
+    "observability-and-instrumentation": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/observability-and-instrumentation/SKILL.md",
+      "computedHash": "6a22881e154faa94c7312ff1a083309a4ac75dd2b8c05eceef9fc3d7ba3827e5"
+    },
     "observability-guidelines": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -1567,6 +1693,12 @@
       "skillPath": "optimized-nextjs-typescript/SKILL.md",
       "computedHash": "d94268ecf8422b888b64b8db78894aad3bda5a3c750f06d540a5398d7b47863d"
     },
+    "organization-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/organization/SKILL.md",
+      "computedHash": "f8ea75816a22992c1601c21c0ee3ff8209798065072d76aec3e31eea8295af57"
+    },
     "pandas-best-practices": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -1604,10 +1736,10 @@
       "computedHash": "3909389ad2981d02c147ad09a5a9661ea84d43296d20b0f9f23dfd88574ea236"
     },
     "performance-optimization": {
-      "source": "mindrally/skills",
+      "source": "addyosmani/agent-skills",
       "sourceType": "github",
-      "skillPath": "performance-optimization/SKILL.md",
-      "computedHash": "c312a668af8cb566f5cef43dcf70607df2cb9f49cf008d8e31a0c54b1bde43c8"
+      "skillPath": "skills/performance-optimization/SKILL.md",
+      "computedHash": "f0a8e3bdb9b7d199434c2a5dd7cbb7d3cf69d802029cde1ef5daa07bffa27efc"
     },
     "phoenix": {
       "source": "mindrally/skills",
@@ -1632,6 +1764,12 @@
       "sourceType": "github",
       "skillPath": "pixi-js/SKILL.md",
       "computedHash": "09c1e2e0daf45108b5b8da84c6b4d12cb949193242ed8fe1cc37a0946911677f"
+    },
+    "planning-and-task-breakdown": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/planning-and-task-breakdown/SKILL.md",
+      "computedHash": "0dc14a1402cdabd376f2d81d2225fcb4a18ee63d58b945ff83affeb024285b8f"
     },
     "playwright": {
       "source": "mindrally/skills",
@@ -2161,6 +2299,12 @@
       "skillPath": "plugins/cicd-automation/skills/secrets-management/SKILL.md",
       "computedHash": "ac5378fb8ad478d159f74a61c43f6db43fa7bf71e0c4bf27febb60e07efc3bb2"
     },
+    "security-and-hardening": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/security-and-hardening/SKILL.md",
+      "computedHash": "47d027526d7e0be784a19a034f18cba328009b3c8fe483f16e4b12530cf82183"
+    },
     "security-best-practices": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -2233,6 +2377,12 @@
       "skillPath": "plugins/shell-scripting/skills/shellcheck-configuration/SKILL.md",
       "computedHash": "29fe56c2429547f2f1aeb492ab1212dfc46173c23ad04f38b6e853abde758e64"
     },
+    "shipping-and-launch": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/shipping-and-launch/SKILL.md",
+      "computedHash": "47c62d418e9f3f395092864e6080b5c4b84fe3ef8abbbb6a3397ed655dda0ba8"
+    },
     "shopify": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -2287,6 +2437,12 @@
       "skillPath": "plugins/blockchain-web3/skills/solidity-security/SKILL.md",
       "computedHash": "8313ac3799079c7eee4f8bfdb2747514a09590b370f11ef1db4739a11d2e4ab9"
     },
+    "source-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/source-driven-development/SKILL.md",
+      "computedHash": "c48d3c3abb2cb8a5c4a8584ab95db64f8a0261f3acfe2cdb7b8ff88ec3d90211"
+    },
     "spark-environment-setup": {
       "source": "wshobson/agents",
       "sourceType": "github",
@@ -2310,6 +2466,12 @@
       "sourceType": "github",
       "skillPath": "plugins/dgx-spark-ops/skills/spark-training-gotchas/SKILL.md",
       "computedHash": "009f4313373f6a8f5b317fd28ce6bad486699f05124419c86b875f56d8970237"
+    },
+    "spec-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/spec-driven-development/SKILL.md",
+      "computedHash": "aca026683acdae1cd8a58f335fb26e60fb5db11ae81461a6896b0bf561aacb75"
     },
     "spring-boot": {
       "source": "mindrally/skills",
@@ -2509,6 +2671,12 @@
       "skillPath": "plugins/cloud-infrastructure/skills/terraform-module-library/SKILL.md",
       "computedHash": "f1cf122edb227253db47fc322b607c4f1f4841c3c4bc679a59fc072c1cacf00d"
     },
+    "test-driven-development": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/test-driven-development/SKILL.md",
+      "computedHash": "a8fef2b010af8402fd2979bdb2e5e39e5baa1ca14b5cdec366ee75df5e1dec68"
+    },
     "testing": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -2605,6 +2773,12 @@
       "skillPath": "plugins/developer-essentials/skills/turborepo-caching/SKILL.md",
       "computedHash": "61fadcb6a0fe4f5c218c0c537dbf2a654035a99c3e28d85845bb88dfe452f80f"
     },
+    "two-factor-authentication-best-practices": {
+      "source": "better-auth/skills",
+      "sourceType": "github",
+      "skillPath": "better-auth/twoFactor/SKILL.md",
+      "computedHash": "cfe69aad10d4d7b397fbc101630afd9361b385b5f6f83056f33f36ab3b736fcb"
+    },
     "typeorm": {
       "source": "mindrally/skills",
       "sourceType": "github",
@@ -2640,6 +2814,12 @@
       "sourceType": "github",
       "skillPath": "plugins/game-development/skills/unity-ecs-patterns/SKILL.md",
       "computedHash": "69b09dcd30b88cbb71e5854e05506f8c353a886a15e1ed48ece51d107559cdd8"
+    },
+    "using-agent-skills": {
+      "source": "addyosmani/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/using-agent-skills/SKILL.md",
+      "computedHash": "ae93cf505ae7e49da376162da7f9d746c44273704da6765e89d39960f9f6ab67"
     },
     "uv-package-manager": {
       "source": "wshobson/agents",
