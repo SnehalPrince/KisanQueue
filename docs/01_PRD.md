@@ -1,103 +1,82 @@
 # 01 — Product Requirements Document (PRD)
 
 ## Product Vision
-Make procurement-centre operational reality visible to farmers before they travel, without duplicating or replacing existing government procurement infrastructure.
+Make procurement-centre operational reality visible to farmers before they travel, through a persistent farmer assistant on WhatsApp and Web, without duplicating or replacing existing government procurement infrastructure.
 
 ## Problem Statement
-PS 26032 (SIH 2026): farmers face long waits, unclear procurement schedules, and uncertainty about procurement status at MSP crop-procurement centres. Existing digitization (e-Uparjan, e-Kharid, Punjab e-pass) solved *registration and admission* but not *live operational visibility* — a farmer can hold a valid slot and still face an unpredictable wait because of backlog, lifting delay, or reduced capacity that the system never surfaces to them in advance.
+PS 26032 (SIH 2026): farmers face long waits, unclear procurement schedules, and uncertainty about procurement status at MSP crop-procurement centres. Existing digitization (e-Uparjan, e-Kharid, Punjab e-pass) solved *registration and admission* but not *live operational visibility* — a farmer can hold a valid slot and still face an unpredictable wait because of backlog, lifting delay, or reduced capacity that the system never surfaces to them in advance. Furthermore, existing government portals force farmers through repetitive, cumbersome form-filling for every single visit.
+
+## Core UX Principle: Progressive Onboarding, Not Repeated Registration
+> **Collect identity & profile information once.** For every future procurement journey, recognise the farmer from their linked WhatsApp account / profile and ask **only** for information that is genuinely specific to that particular transaction (e.g. crop type, quantity, selected centre).
 
 ## Background
 See `KisanQueue_Validation_Report.md` (source of truth). Summary of validated facts:
 - MP e-Uparjan: registration, slot booking, tokens, SMS alerts, payment status. **[FACT]**
 - Haryana e-Kharid: digital gate passes, QR-based entry, procurement workflow. **[FACT]**
 - Punjab e-pass: digital passes, congestion/rush-point info, SMS access. **[FACT]**
-- None of these expose a farmer-facing, real-time, capacity-aware wait estimate that reacts to officer-reported operational conditions. **[INFERENCE, per validation report]**
+- None of these expose a farmer-facing, real-time, capacity-aware wait estimate that reacts to officer-reported operational conditions or provides a persistent WhatsApp assistant that remembers the farmer. **[INFERENCE, per validation report]**
 
 ## Goals
-1. Give farmers an honest, pre-travel view of centre status and expected wait.
-2. Let officers report real operating conditions in seconds, not paperwork.
-3. Demonstrate that ETA can react live to those conditions in front of judges.
-4. Present an architecture that could realistically plug into existing state systems.
+1. **One-Time Onboarding**: Link WhatsApp number and store persistent profile (name, village, district, language, identity hint).
+2. **Persistent WhatsApp Assistant**: Recognise returning farmers automatically; recommend nearby centres based on live congestion/ETA; ask only transaction-specific details.
+3. **Capacity-Aware ETA**: Give farmers an honest, pre-travel view of centre status and expected wait before generating a pass.
+4. **Digital Pass & QR Gate Check-In**: Issue a digital procurement pass with a cryptographically signed QR code for gate admission.
+5. **Officer Capacity Control**: Let officers report real operating conditions in 2 taps, triggering live ETA recalculations.
+6. **Interoperable Architecture**: Present a `GovernmentProcurementAdapter` that can plug into existing state systems without replacing them.
 
 ## Non-Goals
-- Replacing registration, MSP eligibility checks, or DBT payment systems.
-- Building AI/ML crop advisory, disease detection, IoT sensing, blockchain, marketplace, lending, insurance, or payment gateway features.
-- Building a full government-grade admin/analytics suite for MVP.
+- Replacing government MSP registration databases, land records, or DBT payment systems.
+- Requiring farmers to re-enter personal/identity documents on every procurement trip.
+- Building AI/ML crop advisory, disease detection, IoT sensing, blockchain, marketplace, lending, or insurance.
+- Building a full enterprise admin suite for MVP.
 
 ## Users
-- **Farmer** (primary)
-- **Procurement Officer** (secondary, data source for ETA engine)
-- **Administrator** (tertiary, MVP-minimal)
+- **Farmer** (primary — uses WhatsApp as a persistent assistant or Mobile Web)
+- **Procurement Officer** (secondary — uses Web Console for queue & capacity management)
+- **Administrator** (tertiary — MVP-minimal)
 
 ## Use Cases
-- UC1: Farmer checks whether a centre is worth visiting today.
-- UC2: Farmer joins a virtual queue and receives a token/QR.
-- UC3: Farmer tracks live queue position and ETA.
-- UC4: Officer flags lifting delay / reduced capacity / pause, and ETA recalculates for all queued farmers.
-- UC5: Farmer checks procurement and payment status after delivery.
-- UC6: Farmer interacts entirely via WhatsApp without opening the app.
+- **UC1: One-Time Farmer Onboarding**: Farmer links phone/WhatsApp number, provides basic profile (village, district, preferred language), creating a persistent identity.
+- **UC2: Returning Farmer Procurement Request**: Returning farmer messages *"I want to sell wheat"*. System recognises farmer, presents nearby centres with live ETAs/status, asks only for quantity, and generates a digital pass (`KQ-xxxx`) upon confirmation.
+- **UC3: Real-Time Queue & ETA Tracking**: Farmer tracks live queue position and ETA via WhatsApp or live web tracker.
+- **UC4: Officer Capacity Update**: Officer flags lifting delay / reduced capacity / pause; ETA recalculates for all queued farmers in real-time.
+- **UC5: Gate Check-in via QR**: Officer scans farmer's digital pass QR code at centre gate to check in.
+- **UC6: Post-Procurement Status**: Farmer checks procurement weight, grade, and payment status.
 
 ## Functional Requirements
 
 | ID | Requirement | Priority |
 |---|---|---|
-| FR-FARMER-001 | Farmer can register/login (phone + OTP, mocked for MVP) | P0 |
-| FR-FARMER-002 | Farmer can browse centres and see live operational status | P0 |
-| FR-FARMER-003 | Farmer can view/select a slot and receive a queue token | P0 |
-| FR-FARMER-004 | Farmer can view live queue position and ETA | P0 |
-| FR-FARMER-005 | Farmer receives realtime ETA/status updates without manual refresh | P0 |
-| FR-FARMER-006 | Farmer can view a QR representation of their token | P0 |
-| FR-FARMER-007 | Farmer can view procurement status (mocked) | P0 |
-| FR-FARMER-008 | Farmer can view payment status (mocked) | P1 |
-| FR-FARMER-009 | Farmer can toggle Hindi/English | P0 |
-| FR-FARMER-010 | Farmer can query status via simulated WhatsApp flow | P0 |
-| FR-OFFICER-001 | Officer can securely log in | P0 |
-| FR-OFFICER-002 | Officer sees today's queue/arrivals for their centre | P0 |
-| FR-OFFICER-003 | Officer can check in a farmer via QR/token | P0 |
-| FR-OFFICER-004 | Officer can mark processing started/completed for a queue entry | P0 |
-| FR-OFFICER-005 | Officer can update capacity/operational status (Normal/Busy/Lifting delayed/Reduced capacity/Paused) | P0 |
-| FR-OFFICER-006 | Officer capacity update triggers ETA recalculation for all affected farmers | P0 |
-| FR-ADMIN-001 | Admin can create/edit centres | P1 |
-| FR-ADMIN-002 | Admin can create/edit officer accounts | P1 |
-| FR-ADMIN-003 | Admin can view basic analytics (queue length, avg wait) | P2 |
-| FR-INTEGRATION-001 | System exposes a `GovernmentProcurementAdapter` interface with a mock implementation | P1 |
+| FR-FARMER-001 | Farmer completes **one-time onboarding** (phone + OTP, name, village/district, preferred language) creating a persistent profile | P0 |
+| FR-FARMER-002 | System automatically identifies returning farmers from their linked WhatsApp account / session | P0 |
+| FR-FARMER-003 | System presents nearby centres with live operational status & capacity-aware ETAs based on farmer's registered location | P0 |
+| FR-FARMER-004 | System asks **only transaction-specific questions** (crop, quantity quintals, centre choice) without re-asking identity data | P0 |
+| FR-FARMER-005 | Farmer confirms transaction and receives a digital procurement pass with unique token (`KQ-xxxx`) and signed QR | P0 |
+| FR-FARMER-006 | Farmer receives realtime ETA/status updates without manual refresh via WebSocket / WhatsApp notifications | P0 |
+| FR-FARMER-007 | Farmer can view procurement status & payment status after delivery (mocked in MVP) | P0 |
+| FR-FARMER-008 | Full bilingual support (Hindi & English) across Web and WhatsApp | P0 |
+| FR-OFFICER-001 | Officer can securely log in to web console | P0 |
+| FR-OFFICER-002 | Officer sees today's queue/arrivals and active counters | P0 |
+| FR-OFFICER-003 | Officer can scan/validate farmer's digital pass QR code for check-in | P0 |
+| FR-OFFICER-004 | Officer can mark processing started and completed for a queue entry | P0 |
+| FR-OFFICER-005 | Officer can update capacity/status (Normal/Busy/Lifting delayed/Reduced capacity/Paused) in 1 tap | P0 |
+| FR-OFFICER-006 | Capacity update triggers instant ETA recalculation and broadcast to affected farmers | P0 |
+| FR-INTEGRATION-001 | System exposes a `GovernmentProcurementAdapter` interface with mock implementation | P1 |
 
 ## Non-Functional Requirements
 
 | ID | Requirement | Priority |
 |---|---|---|
-| NFR-PERF-001 | Realtime ETA update should reach the farmer client within ~2s of an officer update (WebSocket push) | P0 |
-| NFR-SEC-001 | QR/token payloads must be signed and non-guessable | P0 |
-| NFR-SEC-002 | Role-based access control for Farmer/Officer/Admin | P0 |
-| NFR-SEC-003 | PII (phone numbers, Aadhaar-adjacent identifiers) minimized and never logged in plaintext | P0 |
-| NFR-UX-001 | Core farmer flows usable one-handed on a low-end Android device | P0 |
-| NFR-UX-002 | All screens degrade gracefully with no network / stale data, with visible "last updated" timestamps | P0 |
-| NFR-I18N-001 | All farmer-facing strings available in Hindi and English | P0 |
-| NFR-REL-001 | If realtime channel drops, farmer view falls back to periodic polling | P1 |
-| NFR-SCALE-001 | Architecture must not require redesign to add more Indian languages or more states | P1 |
+| NFR-PERF-001 | Realtime ETA update reaches farmer client within ~2s of an officer status change | P0 |
+| NFR-SEC-001 | Digital pass QR payloads must be HMAC-SHA256 signed, single-use, and day-scoped | P0 |
+| NFR-SEC-002 | Role-based access control (FARMER, OFFICER, ADMIN) | P0 |
+| NFR-SEC-003 | PII protection: Aadhaar last-4 only, phone numbers masked in logs, no financial credentials stored | P0 |
+| NFR-UX-001 | Conversational WhatsApp flow must feel like a persistent assistant, never a rigid form questionnaire | P0 |
+| NFR-UX-002 | Mobile-first UI usable on low-end Android smartphones and 2G/3G networks | P0 |
+| NFR-I18N-001 | All farmer-facing copy available in Hindi and English | P0 |
+| NFR-REL-001 | Graceful degradation: offline QR screenshot validity, fallback polling if WebSocket drops | P0 |
 
-## Success Metrics (demo-context, not production KPIs)
-- Judges can see officer capacity change propagate to farmer ETA live, within the demo.
-- Farmer flow (centre check → queue join → QR → ETA) completable in under 60 seconds in the demo.
-- Zero fabricated integration claims during Q&A.
-
-## Assumptions
-- No real government API access is available; all such integrations are mocked (`21_INTEGRATION_STRATEGY.md`).
-- A single hackathon team (assume 3–5 members) has ~7 hours for the MVP build.
-- Officers are willing/able to make a 2-tap status update; this is the core data-honesty mechanism of the product.
-
-## Dependencies
-- PostgreSQL instance (e.g., Supabase free tier) for MVP.
-- A deployed backend capable of WebSocket connections (Render/Railway; see `25_DEPLOYMENT.md`).
-- Twilio/WhatsApp Cloud API credentials only required for the *production* WhatsApp path — not required for MVP mock.
-
-## Risks
-- ETA formula could be perceived as "just a guess" — mitigated by presenting it as an *estimate with a confidence indicator*, never a guarantee.
-- Judges conflate KisanQueue with existing systems — mitigated by explicit differentiation messaging throughout demo/pitch docs.
-- Officer adoption risk in the real world (extra data-entry burden) — flagged as an open question (`30_OPEN_QUESTIONS.md`), mitigated by keeping the officer update to one tap.
-
-## MVP Definition
-See `06_MVP_SCOPE.md` for the authoritative P0/P1/P2/NOT-BUILD breakdown and 7-hour build plan.
-
-## Future Roadmap
-See `29_ROADMAP.md`.
+## Assumptions & Risks
+- Farmer identity verification is done once at onboarding (simulated/mock for SIH MVP where government KYC APIs are inaccessible).
+- Transaction eligibility and physical verification happen at the centre gate via QR scan.
+- ETA is an honest operational estimate, not a contractually guaranteed arrival slot.

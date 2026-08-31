@@ -1,168 +1,190 @@
-# 17 — WhatsApp Integration
+# 17 — WhatsApp Integration & Persistent Farmer Assistant
 
-## Positioning
+## Positioning & Core UX Principle
 
-WhatsApp is not a bonus feature. It is the **primary accessibility interface** for farmers who:
-- Do not have a smartphone capable of running a web app reliably.
-- Do not want to navigate a multi-screen application.
-- Already use WhatsApp daily and are familiar with its interface.
-
-**FACT**: WhatsApp has ~500 million users in India (ASSUMPTION: majority in rural/semi-urban areas — not independently verified with primary source). WhatsApp-based citizen services (COVID vaccination slots, ration card queries, government scheme updates) have been used extensively in India by state governments. **INFERENCE** — not citing a specific government service integration without verification.
-
-**Classification of MVP approach**: `MVP MOCK` — The WhatsApp interaction is simulated inside the app UI using a chat-like component. No WhatsApp Business API account, no webhook, no phone number required during the hackathon. The production architecture is fully designed and can be activated with API credentials.
-
----
-
-## Conversation Design
-
-### Account Linking
-A farmer must link their registered phone number before the WhatsApp bot can serve them. The link is established by:
-
-1. Farmer sends any message to the KisanQueue WhatsApp number.
-2. Bot replies with a link request: "Please send your registered phone number to link your KisanQueue account."
-3. Farmer sends their phone number.
-4. System looks up `users.phone` → if found, creates a WhatsApp-linked session (stored as a flag/token in the `users` table or a separate `whatsapp_sessions` table — **POST-MVP**).
-5. Bot confirms: "Linked! Your account for Ramesh Kumar is now connected."
-
-**MVP shortcut**: In the in-app simulator, account linking is pre-assumed (the logged-in user's account is automatically linked).
+WhatsApp is not a bonus feature or a rigid form-filling chatbot. It is a **persistent farmer assistant** that:
+1. **Collects profile and identity once** during one-time onboarding.
+2. **Remembers the farmer's profile permanently** via their linked WhatsApp number.
+3. **Never asks for information it already knows** (Name, village, district, language, Aadhaar hint).
+4. **Asks only transaction-specific questions** (Crop, Quantity in quintals, Centre selection).
+5. **Recommends suitable centres** based on the farmer's registered location and current live operational congestion/ETAs.
+6. **Generates the digital procurement pass with a signed QR code** upon confirmation.
 
 ---
 
-## Conversation Flow
+## 1. One-Time Onboarding & Account Linking Flow
 
 ```
-Farmer: Hi
-Bot: नमस्ते Ramesh Kumar! 🌾 KisanQueue में आपका स्वागत है।
-     आप क्या जानना चाहते हैं?
-     1️⃣ मेरा टोकन और स्थान
-     2️⃣ केंद्र की स्थिति
-     3️⃣ अनुमानित प्रतीक्षा समय (ETA)
-     4️⃣ खरीद की स्थिति
-     5️⃣ भुगतान की स्थिति
-     0️⃣ मदद
+Farmer: Hi / नमस्ते
+Bot:    नमस्ते! 🌾 KisanQueue में आपका स्वागत है। 
+        हम आपका किसान प्रोफ़ाइल केवल एक बार सेट करेंगे।
+        कृपया अपना नाम बताएं:
+
+Farmer: Ramesh Kumar
+Bot:    धन्यवाद रमेश जी! आपका गाँव और जिला क्या है?
+
+Farmer: Biaora, Rajgarh
+Bot:    ✅ प्रोफ़ाइल सफलतापूर्वक सेट हो गई!
+        नाम: Ramesh Kumar
+        स्थान: Biaora, Rajgarh (MP)
+        भाषा: हिंदी
+        
+        अब आप कभी भी फसल बेचने, कतार देखने या भुगतान जानने के लिए बस मुझे संदेश भेज सकते हैं!
+```
+
+---
+
+## 2. Returning Farmer Procurement Flow (Subsequent Visits)
+
+When an onboarded farmer messages the bot, KisanQueue identifies them immediately without re-asking personal details:
+
+### Example in English:
+```text
+Farmer: I want to sell wheat.
+
+Bot:    Sure, Ramesh! Based on your registered location (Biaora, Rajgarh), I found 3 nearby procurement centres:
+
+        1️⃣ Rajgarh Centre — Estimated wait: 45 min (Normal ✅)
+        2️⃣ Biaora Mandi — Estimated wait: 1h 20m (Busy ⚠️)
+        3️⃣ Khilchipur Centre — Lifting delayed (Wait: ~3h 45m 🛑)
+
+        Which centre would you prefer? (Reply 1, 2, or 3)
 
 Farmer: 1
-Bot: आपका टोकन नंबर: 47
-     स्थान: 9वें नंबर पर
-     केंद्र: राजगढ़ खरीदी केंद्र
-     स्थिति: प्रतीक्षा में
-     अनुमानित प्रतीक्षा: ~53 मिनट (अनुमानित)
-     अंतिम अपडेट: 9:22 AM
 
-Farmer: 3
-Bot: 📊 अनुमानित प्रतीक्षा समय
-     आपकी स्थिति: 9वें नंबर पर
-     अनुमानित समय: ~53 मिनट
-     विश्वसनीयता: मध्यम
-     ⚠️ यह एक अनुमान है। केंद्र की स्थिति बदलने पर समय बदल सकता है।
+Bot:    Great choice. How much wheat (in quintals) are you bringing?
 
-Farmer: 2
-Bot: 🏢 राजगढ़ खरीदी केंद्र
-     स्थिति: सामान्य ✅
-     कतार में: 14 किसान
-     सक्रिय काउंटर: 2
-     अंतिम अपडेट: 9:32 AM (5 मिनट पहले)
+Farmer: 80 quintals.
 
-Farmer: 4
-Bot: 📋 खरीद की स्थिति
-     टोकन: 47 — प्रक्रिया पूर्ण
-     फसल: गेहूं | मात्रा: 38 क्विंटल
-     ग्रेड: A | कुल राशि: ₹86,450
-     (यह डेमो डेटा है — वास्तविक खरीद केंद्र प्रणाली से जुड़ने पर उपलब्ध होगा)
+Bot:    📋 Procurement Pass Summary:
+        • Farmer: Ramesh Kumar
+        • Centre: Rajgarh Procurement Centre
+        • Crop: Wheat (80 quintals)
+        • Est. Arrival Window: 11:00 AM – 11:30 AM
+        • Est. Processing Wait: ~45 min (High confidence)
+        • Gate Requirement: Clean grain (<12% moisture), Aadhaar last-4 (4521)
 
-Farmer: 5
-Bot: 💰 भुगतान की स्थिति
-     राशि: ₹86,450
-     स्थिति: प्रक्रिया में
-     UTR: उपलब्ध नहीं
-     अपेक्षित: 3–7 कार्य दिवस
-     (यह डेमो डेटा है)
+        Would you like me to generate your digital procurement pass?
+
+Farmer: Yes
+
+Bot:    ✅ Pass Generated Successfully!
+        🎟️ Token: KQ-1047
+        🏢 Centre: Rajgarh Procurement Centre
+        ⏰ Est. Arrival: 11:30 AM
+        ⏱️ Est. Wait Time: ~45 min
+        
+        📱 Digital QR Pass: https://kisanqueue.in/pass/KQ-1047
+        [QR Code Image Attached]
+        
+        (Please show this QR code at the mandi gate for instant check-in. I will notify you if any delay occurs!)
+```
+
+### Example in Hindi:
+```text
+Farmer: मुझे गेहूं बेचना है।
+
+Bot:    नमस्ते रमेश जी! आपके पंजीकृत क्षेत्र (ब्यावरा, राजगढ़) के अनुसार 3 नजदीकी केंद्र उपलब्ध हैं:
+
+        1️⃣ राजगढ़ खरीदी केंद्र — अनुमानित प्रतीक्षा: ~45 मिनट (सामान्य ✅)
+        2️⃣ ब्यावरा मंडी — अनुमानित प्रतीक्षा: ~1 घंटा 20 मिनट (व्यस्त ⚠️)
+        3️⃣ खिलचीपुर केंद्र — उठान में देरी (अनुमानित: ~3 घंटे 45 मिनट 🛑)
+
+        आप किस केंद्र पर जाना चाहते हैं? (1, 2 या 3 भेजें)
+
+Farmer: 1
+
+Bot:    राजगढ़ केंद्र चुना गया। आप कितना गेहूं (क्विंटल में) ला रहे हैं?
+
+Farmer: 80 क्विंटल
+
+Bot:    📋 पास विवरण सारांश:
+        • किसान: रमेश कुमार
+        • केंद्र: राजगढ़ खरीदी केंद्र
+        • फसल: गेहूं (80 क्विंटल)
+        • आगमन समय: 11:00 AM – 11:30 AM
+        • अनुमानित प्रतीक्षा: ~45 मिनट
+
+        क्या मैं आपका डिजिटल खरीद पास जनरेट करूँ?
+
+Farmer: हाँ
+
+Bot:    ✅ पास सफलतापूर्वक जारी किया गया!
+        🎟️ टोकन नंबर: KQ-1047
+        🏢 केंद्र: राजगढ़ खरीदी केंद्र
+        ⏰ आगमन समय: 11:30 AM
+        ⏱️ अनुमानित प्रतीक्षा: ~45 मिनट
+        
+        📱 डिजिटल QR पास लिंक: https://kisanqueue.in/pass/KQ-1047
+        [QR कोड संलग्न]
+        
+        (गेट पर यह QR कोड दिखाएं। यदि केंद्र पर कोई देरी होगी, तो मैं आपको सूचित कर दूंगा!)
 ```
 
 ---
 
-## Supported Commands
+## 3. Quick Status & Query Commands
 
-| Input | Action |
+Returning farmers can also use quick numbered or text queries:
+
+| Command | Assistant Action |
 |---|---|
-| `hi`, `hello`, `नमस्ते`, `helo` | Show main menu |
-| `1` or `token` or `टोकन` | My token + position |
-| `2` or `centre` or `केंद्र` | Centre status |
-| `3` or `eta` or `समय` | ETA |
-| `4` or `procurement` or `खरीद` | Procurement status |
-| `5` or `payment` or `भुगतान` | Payment status |
-| `0` or `help` or `मदद` | Help / command list |
-| `cancel` or `रद्द` | Cancel queue entry (requires confirmation) |
-| `language en` / `language hi` | Switch response language |
-
-**Fuzzy matching**: The production bot should handle common misspellings and short forms. MVP simulator uses exact string matching.
+| `1` or `token` / `पास` | Shows active pass (`KQ-1047`), position in queue, and live ETA |
+| `2` or `centres` / `केंद्र` | Lists nearby mandis with live operational badges & delay warnings |
+| `3` or `eta` / `समय` | Detailed live wait time with confidence level and delay explanation |
+| `4` or `receipt` / `खरीद` | Shows completed weighing, accepted quintals, and MSP payout summary |
+| `5` or `payment` / `भुगतान` | Displays DBT payment status, reference number, and timeline |
+| `cancel` / `रद्द` | Cancels active pass with 1 confirmation step |
+| `help` / `मदद` | Lists available features and quick commands |
 
 ---
 
-## Outbound Notifications (Push Messages)
+## 4. Outbound Real-Time Alerts (Proactive Push)
 
-The bot also sends *proactive* messages to farmers without them asking:
+The assistant proactively alerts the farmer when conditions change:
 
-| Trigger | Message |
-|---|---|
-| Queue joined | "टोकन 47 मिल गया। राजगढ़ केंद्र में 14वें नंबर पर हैं। अनुमानित: ~87 मिनट।" |
-| ETA increased significantly (> +30 min) | "⚠️ केंद्र में देरी हो रही है। आपका नया अनुमान: ~145 मिनट। (उठान में देरी)" |
-| You are next (position = 2) | "🔔 आप अगले हैं! कृपया काउंटर पर आएं।" |
-| Processing started | "✅ आपकी फसल की प्रक्रिया शुरू हो गई है।" |
-| Processing completed | "🎉 खरीद पूर्ण! गेहूं 38 क्विंटल, ₹86,450। भुगतान की जानकारी जल्द आएगी।" |
-| Centre paused | "⏸️ राजगढ़ केंद्र अस्थायी रूप से बंद है। अपडेट के लिए प्रतीक्षा करें।" |
+```
+[Officer at Rajgarh reports Lifting Delay]
+Bot: ⚠️ ध्यान दें रमेश जी!
+     राजगढ़ केंद्र पर FCI ट्रक में देरी के कारण उठान प्रभावित हुआ है।
+     आपका नया अनुमानित समय: ~2 घंटे 15 मिनट (पहले ~45 मिनट था)।
+     कृपया अपनी यात्रा उसी अनुसार तय करें।
 
-**MVP status**: All of these are logged as "would send" by `MockNotificationAdapter`. The message copy is finalized and wired to the real adapter in production.
+[Farmer position drops to #2]
+Bot: 🔔 टोकन KQ-1047: आपकी बारी आने वाली है!
+     आप कतार में 2वें नंबर पर हैं। कृपया गेट/काउंटर पर तैयार रहें।
+
+[Officer completes weighing]
+Bot: 🎉 खरीद पूर्ण! 
+     गेहूं: 78.5 क्विंटल | ग्रेड: A
+     कुल राशि: ₹1,78,587.50
+     भुगतान आपके बैंक खाते में 3-5 कार्य दिवसों में DBT द्वारा आ जाएगा।
+```
 
 ---
 
-## MVP Simulator Design
-
-The in-app WhatsApp simulator is a React component (`features/whatsapp-sim/`) that:
-
-1. Renders a chat UI styled to resemble WhatsApp (green header, chat bubbles, bottom input).
-2. The farmer types a command in the input box.
-3. The simulator calls the **same backend REST endpoints** that a real WhatsApp webhook would call.
-4. The bot response is rendered as a chat bubble.
-5. The farmer's account context is inherited from the current login session.
-
-This means the simulator is a **real test** of the business logic — it is not a hardcoded script. If the ETA changes in the database, the WhatsApp simulator will return the updated value.
+## 5. Architecture & Adapter Pattern
 
 ```mermaid
-flowchart LR
-    FarmerTypes["Farmer types in simulator"] --> SimHandler["WhatsAppSimHandler.process(input)"]
-    SimHandler --> IntentParser["parseIntent(input)"]
-    IntentParser --> QueueAPI["GET /v1/queue/my-status"]
-    IntentParser --> CentreAPI["GET /v1/centres/{id}/status"]
-    IntentParser --> ProcurAPI["GET /v1/procurement/{id}"]
-    QueueAPI --> Response["Format response as WA message"]
-    CentreAPI --> Response
-    ProcurAPI --> Response
-    Response --> ChatBubble["Render in simulator UI"]
+flowchart TD
+    Farmer[Farmer WhatsApp] --> WAProvider[WhatsApp Cloud API / Twilio]
+    WAProvider --> Webhook[FastAPI Webhook: POST /v1/webhooks/whatsapp]
+    Webhook --> Lookup[Lookup Farmer by Phone in users + farmers table]
+    Lookup -->|First Time| OnboardFlow[Progressive Onboarding Handler]
+    Lookup -->|Returning| AssistantEngine[Persistent Assistant Engine]
+    
+    AssistantEngine --> IntentParser[Parse Intent: Sell Crop / Check ETA / Pass Query]
+    IntentParser --> CoreServices[QueueService · CentreService · ETAEngine · QRService]
+    CoreServices --> Formatter[Bilingual Message Formatter]
+    Formatter --> WAProvider
 ```
+
+### In-App WhatsApp Simulator (MVP)
+The frontend (`src/features/whatsapp-sim/`) provides an authentic WhatsApp chat interface that interacts with this exact backend state, allowing seamless testing and SIH jury evaluation without physical device setup.
 
 ---
 
-## Production Architecture
-
-```mermaid
-flowchart LR
-    Farmer["Farmer WhatsApp"] --> WACloud["WhatsApp Cloud API / Twilio"]
-    WACloud --> Webhook["POST /v1/webhooks/whatsapp"]
-    Webhook --> AuthMiddleware["Verify webhook signature (X-Hub-Signature-256)"]
-    AuthMiddleware --> WAService["WhatsAppService.handle_message(from_number, body)"]
-    WAService --> AccountLookup["users.phone lookup → link session"]
-    WAService --> IntentParser["parseIntent(body, language)"]
-    IntentParser --> BusinessLogic["Same services as REST API (QueueService, CentreService, etc.)"]
-    BusinessLogic --> MessageFormatter["MessageFormatter.format(result, language)"]
-    MessageFormatter --> WACloud
-    WACloud --> Farmer
-```
-
-### Provider Selection
-- **Recommended production provider**: Meta WhatsApp Cloud API (direct, no per-message cost beyond volume tiers).
-- **Alternative**: Twilio Python SDK (`twilio` package) — easier to get started with sandbox, per-message cost.
-- Both providers fit behind the same `WhatsAppAdapter` interface:
+## 6. Provider-Agnostic Adapter Interface
 
 ```python
 # modules/notifications/adapters/base.py
@@ -171,48 +193,8 @@ class WhatsAppAdapter(ABC):
     async def send_message(self, to_phone: str, body: str) -> bool: ...
 
     @abstractmethod
-    async def send_template(self, to_phone: str, template_name: str, params: dict) -> bool: ...
+    async def send_pass_with_qr(self, to_phone: str, pass_summary: str, qr_image_url: str) -> bool: ...
 ```
 
----
-
-## Webhook Security (Production)
-
-- WhatsApp Cloud API signs each webhook with `X-Hub-Signature-256` (HMAC-SHA256 of body with app secret).
-- Webhook handler validates signature before processing any message.
-- Replay prevention: timestamp in webhook payload; reject if `> 5 minutes` old.
-- Rate limiting: max 1 message/user/5s on the handler side.
-
----
-
-## Message Templates (Production)
-
-WhatsApp Business requires pre-approved templates for outbound (proactive) messages. Template IDs must be registered with Meta before production launch. MVP uses free-form messages in the simulator (no template approval needed).
-
-Example templates to register:
-- `kq_queue_joined` — token + position confirmation
-- `kq_eta_updated` — delay warning
-- `kq_processing_complete` — procurement done
-- `kq_centre_paused` — centre closed alert
-
----
-
-## Multilingual Handling
-
-- Language preference stored on `users.preferred_language`.
-- Bot always responds in the farmer's preferred language.
-- Farmer can switch language mid-conversation with `language en` / `language hi`.
-- All message templates have EN and HI variants.
-- Architecture supports adding additional languages (Punjabi, Marathi, etc.) by adding translation keys — no structural change required.
-
----
-
-## Error Handling in Bot
-
-| Situation | Bot Response |
-|---|---|
-| Unrecognised input | "समझ नहीं आया। कृपया 0 टाइप करें सहायता के लिए।" |
-| No active queue entry | "आपकी कोई सक्रिय कतार नहीं है। कतार में शामिल होने के लिए ऐप खोलें।" |
-| Centre data stale | Response includes: "⚠️ डेटा 30 मिनट से अधिक पुराना हो सकता है।" |
-| Backend error | "कुछ तकनीकी समस्या है। थोड़ी देर बाद कोशिश करें।" |
-| Account not linked | "खाता लिंक नहीं है। कृपया अपना पंजीकृत फ़ोन नंबर भेजें।" |
+- **MVP**: `MockNotificationAdapter` logs message payloads to stdout and feeds the in-app simulator.
+- **Production**: Seamless drop-in switch to `MetaWhatsAppCloudAPIAdapter` or `TwilioWhatsAppAdapter` via environment variable `WHATSAPP_PROVIDER`.

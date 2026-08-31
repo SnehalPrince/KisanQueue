@@ -3,65 +3,86 @@
 ## Information Architecture
 
 ```text
-Farmer App
-├── Onboarding (language select → phone/OTP)
-├── Home (nearby centres, status badges)
-├── Centre Detail (status, queue length, join button)
-├── My Queue (position, ETA, QR)
-├── Procurement Status
-├── Payment Status
-└── WhatsApp Simulator (accessible from Home)
+Farmer Web & WhatsApp Assistant
+├── One-Time Onboarding (language select ➔ phone/OTP ➔ Name, Village, District)
+├── Home / Centre Discovery (nearby mandis, color-coded live status, wait times)
+├── 1-Tap Pass Generator (Select crop, enter quintals, confirm ➔ Instant Digital Pass)
+├── Live Queue Tracker (live queue position, ETA clock, signed QR gate pass)
+├── Post-Procurement Receipt (weight, grade, MSP total)
+├── Payment Status (DBT status chip & UTR info)
+└── WhatsApp Simulator (interactive chat UI replicating persistent assistant)
 
-Officer App
-├── Login
-├── Dashboard (today's queue)
-├── Check-in (QR scan / manual token entry)
-├── Processing controls (start/complete)
-└── Capacity/Status Update
+Officer Console
+├── Login (officer credentials)
+├── Mandi Dashboard (today's arrivals, active counters, queue throughput)
+├── Check-in Scanner (camera QR scan / manual token entry)
+├── Counter Processing (start / complete processing)
+└── 2-Tap Capacity & Delay Controller (Normal / Busy / Lifting delayed / Paused)
 
-Admin App (minimal, P1)
-├── Centres
-├── Officers
-└── Basic Analytics
+Admin Console (minimal, P1)
+├── Mandi & Counter Configuration
+├── Officer Management
+└── State/District Congestion Overview
 ```
 
-## Navigation
-- Farmer: bottom tab bar (Home, My Queue, Status, WhatsApp) — max 4 tabs, large touch targets.
-- Officer: single-page dashboard with a persistent status selector at the top (always visible, never buried in a menu).
+---
 
-## Farmer Journey (screen-by-screen)
-1. **Language select** — first screen ever seen, no login required. Sets locale before anything else loads.
-2. **Phone/OTP** — one field per screen, large numeric keypad.
-3. **Home** — list of centres sorted by distance, each card shows: name, status badge (color + text, not color alone), queue length, "updated Xm ago."
-4. **Centre Detail** — expanded status, capacity note if degraded (e.g., "Lifting delayed — capacity reduced 40%"), Join Queue button.
-5. **My Queue** — large ETA number, confidence badge (High/Medium/Low), position, QR code, plain-language explanation if ETA just changed ("Wait increased because of a lifting delay").
-6. **Procurement/Payment Status** — simple status chips (Pending/In Progress/Completed), never blank without explanation.
-7. **WhatsApp Simulator** — chat-style UI replicating the intended production flow.
+## Farmer Journey (Screen-by-Screen)
+
+### 1. One-Time Onboarding (First-Time User Only)
+- **Step 1: Language selection** — Large Hindi/English cards.
+- **Step 2: Phone & OTP** — Single numeric field with auto-focus.
+- **Step 3: Location Profile** — Farmer provides Name, Village, and District. This profile is permanently saved.
+- *Outcome*: Returning visits completely skip this step and land directly on the Home dashboard or WhatsApp conversation.
+
+### 2. Conversational Pass Creation (WhatsApp & Web)
+- Farmer says: *"I want to sell wheat"* (or taps *"Generate Pass"* on Web).
+- System recognizes farmer's registered district and immediately displays the 3 nearest mandis with their **live congestion status** and **capacity-aware ETAs**.
+- System asks only: *"How much wheat are you bringing?"*
+- Farmer enters quantity (e.g. `80 quintals`).
+- System previews the pass with estimated arrival window and wait time.
+- Farmer taps **"Confirm & Get Pass"**.
+
+### 3. Digital Procurement Pass & Live Tracker (`My Queue`)
+- **Digital Pass Header**: Prominent Token ID (e.g. `KQ-1047`) and centre name.
+- **High-Contrast QR Code**: Encodes HMAC-signed pass payload for gate admission (with screenshot recommendation).
+- **Live Progress Counter**: Live position indicator (e.g. `#14 in queue`) updating via WebSocket.
+- **ETA Clock & Confidence Badge**: e.g., `~45 min` (High) or `~2h 15m` (Low — Lifting delay).
+- **Delay Alert Banner**: If the officer reports a delay, a clear amber/red alert appears explaining *why* the wait changed (e.g. *"Delay reported: FCI truck delayed by 2 hours"*).
+
+### 4. Post-Delivery Receipt & Payment Tracker
+- Shows completed weighing summary (Quantity accepted, Grade A/B, MSP rate, Total amount).
+- Payment status chips (`Pending` / `In Progress` / `Paid`) with estimated DBT payout timeline.
+
+### 5. In-App WhatsApp Simulator
+- WhatsApp-styled chat window allowing full testing and demonstration of the persistent assistant.
+
+---
 
 ## Officer Journey
-1. **Login** — username/password.
-2. **Dashboard** — queue table (name/token/position/status), big status selector fixed at top, check-in field.
-3. **Status update modal** — pick one of 5 states; if Lifting Delayed/Reduced Capacity, a single percentage slider appears. Submission is one tap.
 
-## Screen States (every data-bearing screen must define these)
-- **Empty**: no centres nearby / no one in queue — explicit friendly message, not a blank screen.
-- **Loading**: skeleton cards, not spinners alone, to reduce perceived wait on slow networks.
-- **Error**: network/API failure — plain-language message + retry button (see `23_ERROR_HANDLING.md`).
-- **Offline**: cached last-known state clearly labeled "Offline — showing data from [time]."
-- **Stale**: data older than threshold — visible badge, does not block viewing.
+1. **Login** — Officer ID & password.
+2. **Dashboard Overview** — Live queue table (Token, Farmer Name, Crop, Quintals, Status), active counters, daily count.
+3. **Gate Check-In** — 1-click QR camera scan or quick manual token entry.
+4. **2-Tap Capacity & Condition Selector**:
+   - Fixed at the top of the dashboard.
+   - States: `Normal` (100%), `Busy` (80%), `Lifting Delayed` (custom %, default 60%), `Reduced Capacity`, `Paused`.
+   - Updating status takes < 5 seconds and instantly recalculates all farmer ETAs.
 
-## Accessibility
-- Minimum 4.5:1 contrast for all status text.
-- Status conveyed by icon + text + color together (never color alone) — colorblind-safe.
-- Touch targets ≥44px.
-- Hindi font rendering tested (Noto Sans Devanagari or equivalent) at same visual weight as English.
+---
 
-## Hindi/English Behavior
-- Toggle available on every screen header.
-- Switching language never navigates away from current screen.
-- Numerals and dates use a consistent, locale-appropriate format (Indian numbering conventions where relevant, e.g., "1.5 lakh" style avoided in favor of plain minutes/hours for ETA to reduce ambiguity).
+## Screen States & Graceful Degradation
 
-## Mobile-First Considerations
-- Design at 360×800 baseline; officer dashboard may assume a slightly larger viewport (tablet/desktop at centre) but must remain usable on mobile.
-- All primary actions reachable within thumb-reach zone on a single-hand grip.
-- Avoid heavy imagery; prioritize text + iconography for low-bandwidth rendering.
+- **Empty State**: Friendly illustration and message when no queue is active.
+- **Loading State**: Subtle skeleton placeholders to prevent layout jump.
+- **Offline / Stale State**: If network drops, the pass QR and last known queue position remain visible with a clear label: *"Offline — showing status from 9:45 AM"*.
+- **Stale Data Warning**: Yellow chip if centre status hasn't been updated in >30 minutes.
+
+---
+
+## Accessibility & Localization
+
+- **High Contrast**: Minimum 4.5:1 text-to-background contrast.
+- **Colorblind-Safe Badges**: Status is always indicated by **Icon + Text + Color** together (e.g., `✅ Normal`, `⚠️ Delayed`, `⏸️ Paused`).
+- **Large Touch Targets**: Minimum 48×48px buttons for one-handed operation.
+- **Devanagari Font Optimization**: Crisp rendering with Noto Sans Devanagari across all Android viewports.

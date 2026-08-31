@@ -19,11 +19,13 @@
 
 KisanQueue is a **real-time visibility and queue management layer** that sits *on top of* existing government procurement systems (MP e-Uparjan, Haryana e-Kharid, Punjab Anaaj Kharid). It does not replace them — it adds what they lack.
 
-**The core problem it solves:**
-A farmer may have a valid e-Uparjan slot and still arrive at the mandi to discover a 6-hour lifting delay, a paused centre, or a 30-farmer backlog — with no warning before they made the trip.
+**The core problems it solves:**
+1. **Uncertain Mandi Delays:** A farmer holds a slot, arrives at the mandi, and discovers a 6-hour lifting delay or a 30-farmer backlog with zero prior warning.
+2. **Form Fatigue:** Existing government portals force farmers through repetitive, multi-page forms every harvest trip.
 
-**KisanQueue answers one question honestly:**
-> *"If I leave for the mandi now, what is likely to happen?"*
+**KisanQueue's Core Principle:**
+> **Progressive Onboarding, Not Repeated Registration.**  
+> Verify identity once. For every future harvest, the persistent WhatsApp Assistant recognizes the farmer, asks only transaction-specific details (*crop & quintals*), and generates an instant digital pass with live capacity-aware ETA.
 
 ---
 
@@ -31,33 +33,33 @@ A farmer may have a valid e-Uparjan slot and still arrive at the mandi to discov
 
 | Feature | Description |
 |---|---|
-| 🟢 **Live Centre Status** | Officer-reported operational status — Normal, Busy, Lifting Delayed, Reduced Capacity, Paused |
+| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice |
+| ⚡ **1-Tap Digital Pass** | Farmer messages *"I want to sell wheat"* ➔ Bot shows nearby mandis with live ETAs ➔ Asks quintals ➔ Issues Pass `KQ-1047` |
 | ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts in real-time to officer capacity updates |
-| 📲 **Virtual Queue + Token** | Join queue from home, receive HMAC-signed QR token, track live position |
-| ⚡ **Real-Time Updates** | WebSocket push — ETA updates on farmer's screen within ~2 seconds of officer action |
-| 💬 **WhatsApp Accessible** | Check token, ETA, and procurement status via WhatsApp — no app required |
-| 🌐 **Hindi / English** | Full bilingual UI — farmer-first, low-literacy design |
-| 📋 **Officer Dashboard** | One-tap capacity controls, check-in scanner, processing queue management |
-| 🏛️ **Government Integration Layer** | `GovernmentProcurementAdapter` interface — plugs into e-Uparjan / e-Kharid without replacing them |
+| 🟢 **Live Centre Status** | Officer-reported operational conditions — Normal, Busy, Lifting Delayed, Reduced Capacity, Paused |
+| 🎟️ **Signed QR Pass** | HMAC-SHA256 signed QR code on pass for instant physical gate check-in & offline resilience |
+| 📡 **Real-Time WebSocket Sync** | ETA updates on farmer's screen/WhatsApp in < 2s when officer reports a delay |
+| 📋 **Officer Mandi Console** | 2-tap capacity & delay controller, QR gate check-in scanner, live throughput table |
+| 🏛️ **Government Integration Layer** | `GovernmentProcurementAdapter` interface — connects to state APIs without modifying core workflows |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-[Farmer Mobile Web App]  [Officer Dashboard]  [WhatsApp Bot]
-         │                      │                    │
-         └──────────────────────┼────────────────────┘
-                    REST + WebSocket (wss://)
-                                │
-              ┌─────────────────▼──────────────────┐
-              │     FastAPI Modular Monolith        │
-              │  Auth · Centres · Queue · ETA       │
-              │  QR/Token · Notifications · Admin   │
-              │  GovernmentProcurementAdapter       │
-              └─────────────────┬──────────────────┘
-                                │
-                        PostgreSQL (Supabase)
+[Farmer WhatsApp Assistant]   [Farmer Mobile Web App]   [Officer Mandi Console]
+           │                            │                         │
+           └────────────────────────────┼─────────────────────────┘
+                               REST + WebSocket (wss://)
+                                        │
+                      ┌─────────────────▼──────────────────┐
+                      │     FastAPI Modular Monolith        │
+                      │  Auth · Centres · Queue · ETA       │
+                      │  QR/Token · Notifications · Admin   │
+                      │  GovernmentProcurementAdapter       │
+                      └─────────────────┬──────────────────┘
+                                        │
+                                PostgreSQL (Supabase)
 ```
 
 **Tech Stack:**
@@ -65,7 +67,7 @@ A farmer may have a valid e-Uparjan slot and still arrive at the mandi to discov
 - **Backend**: Python 3.11 + FastAPI (async modular monolith)
 - **Database**: PostgreSQL via Supabase
 - **Realtime**: Native FastAPI WebSockets
-- **Auth**: JWT (HS256) — Phone+OTP for farmers, username+password for officers
+- **Auth**: JWT (HS256) — One-time Phone+OTP for farmers, username+password for officers
 - **QR Security**: HMAC-SHA256 signed tokens, single-use, day-scoped expiry
 - **Deployment**: Vercel (frontend) + Render/Railway (backend)
 
@@ -88,11 +90,11 @@ ETA (minutes) = ceil( N × T_base / (C × F) )
 
 **Example — Lifting Delay:**
 ```
-Normal:  N=14, T_base=25, C=2, F=1.00 → ETA = 175 min
-Delayed: N=14, T_base=25, C=1, F=0.60 → ETA = 584 min  ← farmer sees this instantly
+Normal:  N=14, T_base=25, C=2, F=1.00 → ETA = 175 min (~2h 55m)
+Delayed: N=14, T_base=25, C=1, F=0.60 → ETA = 584 min (~9h 44m)  ← farmer sees this instantly
 ```
 
-No ML. No black box. Fully explainable. See [`docs/16_ETA_ENGINE.md`](docs/16_ETA_ENGINE.md).
+No ML. No black box. Fully explainable to SIH judges. See [`docs/16_ETA_ENGINE.md`](docs/16_ETA_ENGINE.md).
 
 ---
 
@@ -103,10 +105,10 @@ The complete implementation blueprint lives in [`/docs`](docs/). All 30 document
 | # | Document | Contents |
 |---|---|---|
 | 00 | [Project Overview](docs/00_PROJECT_OVERVIEW.md) | Summary, differentiation, one-line pitches |
-| 01 | [PRD](docs/01_PRD.md) | Full Product Requirements Document |
+| 01 | [PRD](docs/01_PRD.md) | Full PRD with Progressive Onboarding & Assistant design |
 | 02 | [Product Requirements](docs/02_PRODUCT_REQUIREMENTS.md) | Functional & non-functional requirements |
 | 03 | [User Personas](docs/03_USER_PERSONAS.md) | Farmer, Officer, Admin personas |
-| 04 | [User Flows](docs/04_USER_FLOWS.md) | End-to-end journey maps |
+| 04 | [User Flows](docs/04_USER_FLOWS.md) | End-to-end journey maps & conversational flows |
 | 05 | [Feature Specification](docs/05_FEATURE_SPECIFICATION.md) | Every feature with acceptance criteria |
 | 06 | [MVP Scope](docs/06_MVP_SCOPE.md) | P0/P1/P2 + 7-hour build plan |
 | 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Screen inventory, states, mobile-first spec |
@@ -119,7 +121,7 @@ The complete implementation blueprint lives in [`/docs`](docs/). All 30 document
 | 14 | [API Specification](docs/14_API_SPECIFICATION.md) | Every REST + WebSocket endpoint |
 | 15 | [Realtime Queue](docs/15_REALTIME_QUEUE.md) | Queue state machine, all WS events |
 | 16 | [ETA Engine](docs/16_ETA_ENGINE.md) | Formula, examples, pseudocode, edge cases |
-| 17 | [WhatsApp Integration](docs/17_WHATSAPP_INTEGRATION.md) | Conversation flow, adapter pattern |
+| 17 | [WhatsApp Integration](docs/17_WHATSAPP_INTEGRATION.md) | Persistent assistant conversational flow |
 | 18 | [QR Token System](docs/18_QR_TOKEN_SYSTEM.md) | HMAC signing, threat model, validation |
 | 19 | [Auth & RBAC & Security](docs/19_AUTH_RBAC_SECURITY.md) | JWT, OTP, roles, PII, audit logs |
 | 20 | [Notification System](docs/20_NOTIFICATION_SYSTEM.md) | Events, channels, adapter, deduplication |
@@ -158,42 +160,20 @@ cp .env.example .env.local     # Set VITE_API_BASE_URL=http://localhost:8000/v1
 npm run dev                    # Starts on localhost:5173
 ```
 
-> **Demo login**: Phone `+919876543210` · OTP `1234` → Farmer (Ramesh Kumar)
+> **Demo farmer login**: Phone `+919876543210` · OTP `1234` → Ramesh Kumar (Biaora, Rajgarh)  
 > **Officer login**: `officer_rajgarh` / `Demo@1234`
 
 ---
 
 ## 🎬 Demo Scenario
 
-The key demo moment in 3 steps:
+The core SIH demo flow in 3 quick steps:
 
-1. **Farmer joins queue** at Rajgarh Centre → gets Token #47, Position #14, ETA ~87 min
-2. **Officer reports lifting delay** (FCI truck late) — sets capacity 60%, 1 counter
-3. **Farmer's ETA jumps to ~209 min in real time** — without refreshing
-
-That causal chain — officer action → ETA recalculates → farmer notified via WebSocket in ~2 sec — is the product's core value proposition, live.
+1. **Farmer requests pass on WhatsApp**: *"I want to sell wheat"* ➔ Bot recognizes Ramesh, recommends 3 nearby mandis with live ETAs, asks quantity (*80 quintals*), issues Pass **`KQ-1047`** with signed QR.
+2. **Officer reports lifting delay** on dashboard: Sets capacity to 60%, 1 counter.
+3. **Farmer's ETA jumps to ~2h 15m in real time** on Web & WhatsApp — without refreshing.
 
 Full script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)
-
----
-
-## 🤝 Differentiation from Existing Systems
-
-| System | What it does | What KisanQueue adds |
-|---|---|---|
-| MP e-Uparjan | Registration, slot booking, payment status | Live backlog visibility + ETA before travel |
-| Haryana e-Kharid | Digital gate pass, QR entry | Real-time queue position + capacity-aware ETA |
-| Punjab Anaaj Kharid | e-Pass, congestion SMS | Interactive farmer-queryable interface + WhatsApp |
-
-KisanQueue is not a replacement. It is the operational visibility layer these systems are missing.
-
----
-
-## 🏆 SIH 2026
-
-- **Hackathon**: Smart India Hackathon 2026
-- **Problem Statement**: PS 26032
-- **Category**: Agriculture / Farmer Services
 
 ---
 
