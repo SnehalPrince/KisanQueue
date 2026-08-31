@@ -1,6 +1,7 @@
 # 11 — Frontend Architecture & UI Engineering
 
-> **Referenced Agent Skills & Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`ask-sonner`](../.agents/skills/ask-sonner/SKILL.md), [`react-state-management`](../.agents/skills/react-state-management/SKILL.md).
+> **Official Brand Palette**: **Almond** (`#D6BD98`) · **Matcha Brew** (`#677D6A`) · **Forest Roast** (`#40534C`) · **Eclipse** (`#1A3636`).  
+> **Referenced Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`ask-sonner`](../.agents/skills/ask-sonner/SKILL.md).
 
 ---
 
@@ -17,7 +18,42 @@
 
 ---
 
-## 2. Folder Structure
+## 2. Tailwind Configuration (`tailwind.config.js`)
+
+```javascript
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          almond: '#D6BD98',
+          matcha: '#677D6A',
+          forest: '#40534C',
+          eclipse: '#1A3636',
+        },
+        surface: {
+          canvas: '#F9F8F5',
+          card: '#FFFFFF',
+          muted: '#EFECE6',
+        }
+      },
+      fontFamily: {
+        sans: ['Urbanist', 'Noto Sans Devanagari', 'sans-serif'],
+        rustic: ['Rustic Roadway', 'Rye', 'Rubik Dirt', 'serif'],
+        hindi: ['AMS Shikha', 'Manoja', 'Rozha One', 'Yatra One', 'serif'],
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+---
+
+## 3. Folder Structure
 
 ```text
 frontend/
@@ -63,7 +99,7 @@ frontend/
 
 ---
 
-## 3. Motion & Component Integrations
+## 4. Motion & Component Integrations
 
 ### 1. Motion Spring Dialogs (Skiper UI + Motion)
 ```tsx
@@ -73,15 +109,15 @@ export function PassGenerationModal({ isOpen, onClose, onConfirm }: PassModalPro
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A3636]/60 backdrop-blur-sm">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ type: 'spring', stiffness: 350, damping: 28 }}
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-emerald-100"
+            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-[#D6BD98]"
           >
-            <h2 className="font-['Urbanist'] font-bold text-2xl text-emerald-950">
+            <h2 className="font-['Urbanist'] font-bold text-2xl text-[#1A3636]">
               Confirm 1-Tap Pass
             </h2>
             {/* Modal Body */}
@@ -110,7 +146,8 @@ export function MandiThroughputAnalytics({ hourlyData, capacityFactor }: Analyti
         data={hourlyData}
         xKey="hour"
         yKey="quintals_processed"
-        color="#059669"
+        color="#40534C"
+        fillColor="#D6BD98"
         title="Hourly Grain Throughput (Quintals)"
       />
     </div>
@@ -122,8 +159,8 @@ export function MandiThroughputAnalytics({ hourlyData, capacityFactor }: Analyti
 ```tsx
 export function ASCIILiveTicker({ centreName, waitingCount, etaMinutes }: TickerProps) {
   return (
-    <div className="font-mono text-xs bg-slate-950 text-emerald-400 py-1.5 px-3 rounded-lg overflow-x-auto flex items-center gap-3 border border-emerald-800/40">
-      <span className="animate-pulse">●</span>
+    <div className="font-mono text-xs bg-[#1A3636] text-[#D6BD98] py-1.5 px-3 rounded-lg overflow-x-auto flex items-center gap-3 border border-[#40534C]">
+      <span className="animate-pulse text-[#677D6A]">●</span>
       <span className="uppercase font-bold tracking-wider">
         [/// {centreName} ///] WAITING: {waitingCount} | LIVE ETA: ~{etaMinutes}M | ADMISSION: ACTIVE
       </span>
@@ -134,7 +171,7 @@ export function ASCIILiveTicker({ centreName, waitingCount, etaMinutes }: Ticker
 
 ---
 
-## 4. State Management Architecture
+## 5. State Management Architecture
 
 ```mermaid
 flowchart TD

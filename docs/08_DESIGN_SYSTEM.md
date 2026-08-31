@@ -1,37 +1,79 @@
-# 08 — Design System, Typography & Motion Engineering
+# 08 — Design System, Palette & Motion Engineering
 
-> **Referenced Agent Skills & Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
+> **Referenced Agent Skills & Modern Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
 
 ---
 
-## 1. Design Principles & Aesthetic Identity
+## 1. Official Brand Color Palette
 
-* **Authentic Agricultural Grounding + State-of-the-Art Craft**: KisanQueue marries the rugged, hardworking reality of Indian grain mandis with ultra-modern software polish.
-* **Component Craft Stack**:
-  * **Skiper UI**: Modern, creative UI primitives, floating cards, animated buttons, and dynamic drawer dialogs.
-  * **Motion (`motion/react`)**: Hardware-accelerated spring animations, layout morphing, exit transitions, and gestures.
-  * **Bklit UI**: High-polish analytics, live mandi queue throughput charts, and capacity factor distribution graphs.
-  * **ASCII Magic & Asciinator (`ascii-magic.com` / `asciinator.app`)**: Terminal-grade stylized ASCII art motion, animated wheat stalk brand icons, and live retro-modern queue matrix status tickers.
-* **No Placeholders Principle**: 100% curated, high-fidelity real photographic and vector assets (e.g. `assets/images/hero_mandi.jpg`, `assets/images/assistant_avatar.jpg`) instead of generic placeholder grey boxes.
+KisanQueue uses a curated, earthy agricultural palette blending natural grain tones with deep organic forest hues:
+
+<div align="center">
+
+| Color Name | HEX Code | RGB | Semantic Role |
+|---|---|---|---|
+| 🌰 **Almond** | `#D6BD98` | `rgb(214, 189, 152)` | Warm wheat accent, highlight borders, pass badges, golden harvest accents |
+| 🍵 **Matcha Brew** | `#677D6A` | `rgb(103, 125, 106)` | Organic sage green, secondary buttons, success chips, subtle card borders |
+| 🌲 **Forest Roast** | `#40534C` | `rgb(64, 83, 76)` | Deep earthy slate green, card headers, secondary surfaces, active tabs |
+| 🌑 **Eclipse** | `#1A3636` | `rgb(26, 54, 54)` | Deep obsidian forest, primary brand anchor, navbar, hero headers, dark mode canvas |
+
+</div>
+
+```css
+:root {
+  /* Core Brand Tokens */
+  --palette-almond:       #D6BD98;
+  --palette-matcha:       #677D6A;
+  --palette-forest:       #40534C;
+  --palette-eclipse:      #1A3636;
+
+  /* Extended Surface & Background Tones */
+  --color-bg-base:        #F9F8F5; /* Warm almond-tinted anti-glare canvas */
+  --color-bg-surface:     #FFFFFF; /* Pure card canvas */
+  --color-bg-muted:       #EFECE6; /* Subtle almond warm grey */
+  --color-border:         #D8D3C8; /* Organic border */
+
+  /* Text Contrast Hierarchy */
+  --color-text-primary:   #1A3636; /* Eclipse - deep, crisp reading contrast */
+  --color-text-secondary: #40534C; /* Forest Roast - secondary descriptions */
+  --color-text-muted:     #677D6A; /* Matcha Brew - subtle timestamps & metadata */
+  --color-text-accent:    #9A7B4F; /* Darker Almond for legible text on light cards */
+
+  /* Semantic Mandi Status (Earthy Tone Harmonized) */
+  --status-normal:        #40534C; /* Forest Roast / Sage */
+  --status-normal-bg:     #E8EFE9;
+  --status-busy:          #B8860B; /* Harvest Dark Gold */
+  --status-busy-bg:       #FAF3E0;
+  --status-delayed:       #C86D3B; /* Terracotta Orange */
+  --status-delayed-bg:    #FBEDE4;
+  --status-paused:        #A33B3B; /* Deep Brick Crimson */
+  --status-paused-bg:     #FCE8E8;
+  --status-stale:         #677D6A; /* Matcha Grey */
+  --status-stale-bg:      #F0F3F1;
+}
+
+/* Dark Mode Tokens */
+.dark {
+  --color-bg-base:        #122222; /* Deepest Forest */
+  --color-bg-surface:     #1A3636; /* Eclipse surface */
+  --color-bg-muted:       #244444; /* Elevated container */
+  --color-border:         #40534C; /* Forest Roast borders */
+
+  --color-text-primary:   #F9F8F5; /* Warm cream */
+  --color-text-secondary: #D6BD98; /* Almond */
+  --color-text-muted:     #9FB2A2; /* Soft Matcha */
+}
+```
 
 ---
 
 ## 2. Bilingual Typography & Font Pairings
 
-KisanQueue implements a curated, multi-font typographic hierarchy designed specifically for bilingual clarity across English and Hindi:
-
-### 1. English Typography Stack
-* **Primary Sans & Numerical Display**: `Urbanist` (Google Fonts)
-  * Geometric, modern, highly legible at micro-sizes on sunlight-glare mobile screens. Used for queue numbers, ETAs, body text, buttons, and tables.
-* **Rustic Display Accent**: `Rustic Roadway` (with fallbacks to `Cinzel Decorative`, `Rubik Dirt`, `Rye`)
-  * Rugged, artisanal, authentic display accent representing agricultural grounding, highway transport, and mandi gate signage.
-
-### 2. Hindi Typography Stack
-* **Primary Hindi Display**: `AMS Shikha` / `Manoja` (with web-safe high-craft fallbacks: `Rozha One`, `Yatra One`, `Tiro Devanagari Hindi`, `Noto Sans Devanagari`)
-  * Elegant, culturally authentic Devanagari letterforms with generous x-height and clear vowel diacritic spacing to prevent misreading by rural users.
+* **English Primary & Numerical Display**: `Urbanist` (Modern geometric sans-serif for numbers, display & body)
+* **English Rustic Display Accent**: `Rustic Roadway` (with fallbacks `Rye`, `Rubik Dirt`, `Cinzel Decorative` for mandi gate badges & highway logistics)
+* **Hindi Display & Headers**: `AMS Shikha` / `Manoja` (with web-safe fallbacks: `Rozha One`, `Yatra One`, `Tiro Devanagari Hindi`, `Noto Sans Devanagari`)
 
 ```css
-/* Typography Class Rules */
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300..900;1,300..900&family=Rozha+One&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -50,112 +92,52 @@ KisanQueue implements a curated, multi-font typographic hierarchy designed speci
   font-family: var(--font-hi-display);
   letter-spacing: 0.01em;
 }
-
-.font-body {
-  font-family: var(--font-en-sans);
-}
 ```
 
 ---
 
-## 3. Color System & High-Contrast Tokens
-
-Exceeds WCAG 2.1 AA standards (minimum 4.5:1 text contrast, 3:1 graphical element contrast):
-
-```css
-:root {
-  /* Brand / Agricultural Trust (Earthy Forest & Golden Wheat) */
-  --color-primary-900: #064e3b; /* Deep Forest Green */
-  --color-primary-800: #065f46;
-  --color-primary-700: #047857;
-  --color-primary-600: #059669;
-  --color-primary-100: #d1fae5;
-  --color-primary-50:  #ecfdf5;
-
-  --color-wheat-gold:  #d97706; /* Golden Harvest */
-  --color-wheat-light: #fef3c7;
-  --color-wheat-dark:  #92400e;
-
-  /* Surfaces & Canvas */
-  --color-bg-base:     #f8fafc; /* Anti-glare rural canvas */
-  --color-surface-card:#ffffff;
-  --color-surface-subtle: #f1f5f9;
-  --color-text-main:   #0f172a; /* Slate 900 */
-  --color-text-muted:  #475569; /* Slate 600 */
-  --color-border:      #e2e8f0;
-
-  /* Semantic Mandi Status (Icon + Text + Color) */
-  --status-normal:     #16a34a; /* Green */
-  --status-normal-bg:  #dcfce7;
-  --status-busy:       #d97706; /* Amber */
-  --status-busy-bg:    #fef3c7;
-  --status-delayed:    #ea580c; /* Orange */
-  --status-delayed-bg: #ffedd5;
-  --status-paused:     #dc2626; /* Crimson Red */
-  --status-paused-bg:  #fee2e2;
-  --status-stale:      #64748b; /* Slate Grey */
-  --status-stale-bg:   #f1f5f9;
-}
-```
-
----
-
-## 4. Motion Engineering & ASCII Canvas Effects
+## 3. Motion Engineering & ASCII Canvas Effects
 
 ### 1. Motion Tokens (`transitions.dev` & `Motion`)
 ```css
 :root {
-  /* Durations */
-  --duration-micro:      80ms;   /* Tap feedback, ripple */
+  --duration-micro:      80ms;   /* Tap feedback, button press */
   --duration-quick:      150ms;  /* Dropdown/modal close, text swap */
-  --duration-fast:       250ms;  /* Dropdown/modal open, tabs sliding */
-  --duration-medium:     350ms;  /* Card morph, toast dismiss */
-  --duration-slow:       400ms;  /* Panel expansion, ASCII stream */
+  --duration-fast:       250ms;  /* Tabs sliding, card expansion */
+  --duration-medium:     350ms;  /* Toast dismiss, modal morph */
+  --duration-slow:       400ms;  /* ASCII stream, panel slide */
 
-  /* Easing Curves */
-  --ease-smooth-out:     cubic-bezier(0.22, 1, 0.36, 1); /* Natural friction */
-  --ease-in-out:         cubic-bezier(0.77, 0, 0.175, 1); /* Morph */
-  --ease-bounce:         cubic-bezier(0.34, 1.36, 0.64, 1); /* Token Pop */
+  --ease-smooth-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out:         cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-bounce:         cubic-bezier(0.34, 1.36, 0.64, 1);
 
-  /* Scales */
-  --scale-press:         0.97;   /* Responsive press feedback */
-  --scale-enter:         0.95;   /* Elements enter from scale 0.95 (NEVER scale 0) */
+  --scale-press:         0.97;
+  --scale-enter:         0.95;
   --blur-crossfade:      2px;
 }
 ```
 
-### 2. ASCII Motion & Terminal Effects (`ascii-magic` / `asciinator`)
-* **Hero Mandi ASCII Live Canvas**: Real-time ASCII shader background representing live grain flow and mandi trucks at gate.
-* **Animated ASCII Wheat Icon**:
+### 2. ASCII Live Queue Matrix Ticker (`ascii-magic` / `asciinator`)
 ```text
-      \ | /
-    -- (🌾) --   KISANQUEUE LIVE ADMISSION LAYER
-      / | \      [STATUS: RAJGARH MANDI NORMAL - 14 FARMERS WAITING]
+  [/// KISANQUEUE ///] ECLIPSE #1A3636 | ALMOND #D6BD98 | STATUS: 14 WAITING
 ```
-* **Matrix Live Queue Ticker**: Real-time streaming ASCII characters for queue position countdown transitions (`KQ-1047 ➔ IN_PROCESS`).
 
 ---
 
-## 5. Visual Asset Catalog
+## 4. Component Inventory with Brand Palette
 
-| Asset Name | Target Path | Visual Description |
-|---|---|---|
-| **Mandi Hero Banner** | `assets/images/hero_mandi.jpg` | High-detail cinematic photo of modern Indian procurement centre at sunrise with tractor trolleys and digital weighbridge. |
-| **Assistant Mascot Avatar** | `assets/images/assistant_avatar.jpg` | Warm, professional Indian agricultural advisor (*Krishi Mitra*) in traditional attire with modern digital advisor badge. |
-| **Signed QR Pass Watermark** | `assets/images/wheat_grain_pattern.svg` | Subtle vector grain watermark embedded behind the dynamic QR pass for tactile authenticity. |
+1. **Digital Pass Card (`KQ-1047`)**:
+   - Background: Pure white with warm `--palette-almond` (`#D6BD98`) border and subtle wheat grain watermark.
+   - Header & Token ID: Bold `--palette-eclipse` (`#1A3636`) in Urbanist 800.
+   - Status Badge: Harmonized `--palette-forest` (`#40534C`) / `--palette-matcha` (`#677D6A`).
+2. **Officer Capacity Controller**:
+   - High-contrast segmented bar in `--palette-eclipse` with active status in `--palette-almond`.
+3. **Throughput Graphs (Bklit UI)**:
+   - Stroke gradient moving from `--palette-matcha` (`#677D6A`) to `--palette-forest` (`#40534C`) with almond fill under the curve.
 
 ---
 
-## 6. Component Inventory & Interaction Patterns
+## 5. Curated Visual Assets
 
-```mermaid
-graph TD
-    A[Skiper UI Dynamic Card] --> B[Motion Spring Layout]
-    B --> C[Bklit UI Analytics Graph]
-    B --> D[ASCII Live Queue Ticker]
-    B --> E[HMAC-SHA256 SVG QR Pass]
-```
-
-1. **Pass Card (`KQ-1047`)**: Built with **Skiper UI** floating container, Urbanist bold typography, pulsating live status beacon, and SVG QR matrix.
-2. **Mandi Capacity Dashboard**: Built with **Bklit UI** charts for hourly throughput, counter active state, and lifting delay percentage.
-3. **Interactive WhatsApp Simulator**: Realistic chat interface powered by **Motion** spring bubble animations and the **Krishi Mitra** avatar.
+* `assets/images/hero_mandi.jpg`: High-detail photograph of modern Indian procurement mandi at sunrise.
+* `assets/images/assistant_avatar.jpg`: Krishi Mitra Assistant Avatar in organic green and almond kurta.
