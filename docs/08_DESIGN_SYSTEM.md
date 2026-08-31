@@ -1,24 +1,70 @@
-# 08 — Design System & Motion Engineering
+# 08 — Design System, Typography & Motion Engineering
 
-> **Referenced Agent Skills**: [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
-
----
-
-## 1. Design Principles & Taste
-* **Public Service Authority + Modern Craft**: Clean, trustworthy, accessible, and high-performance. Avoid cliché flashy neon startup aesthetics; aim for the understated polish of a world-class public utility.
-* **Unseen Details Compound** (*Emil Kowalski*): Micro-interactions, physical press feedback, and fluid transitions create software that feels instantly intuitive.
-* **Honest Information** (*Impeccable*): Never show fabricated defaults or false precision. Always pair numbers with confidence indicators and timestamps.
-* **Progressive Clarity**: High visual contrast, large touch targets (≥48px), and zero clutter on farmer mobile screens.
+> **Referenced Agent Skills & Libraries**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app), [`emil-design-eng`](../.agents/skills/emil-design-eng/SKILL.md), [`transitions-dev`](../.agents/skills/transitions-dev/SKILL.md), [`impeccable`](../.agents/skills/impeccable/SKILL.md), [`visual-design-foundations`](../.agents/skills/visual-design-foundations/SKILL.md), [`wcag-audit-patterns`](../.agents/skills/wcag-audit-patterns/SKILL.md).
 
 ---
 
-## 2. Color System & Contrast Tokens
+## 1. Design Principles & Aesthetic Identity
 
-We utilize curated, high-contrast semantic palettes that exceed WCAG AA (4.5:1 for normal text, 3:1 for large text):
+* **Authentic Agricultural Grounding + State-of-the-Art Craft**: KisanQueue marries the rugged, hardworking reality of Indian grain mandis with ultra-modern software polish.
+* **Component Craft Stack**:
+  * **Skiper UI**: Modern, creative UI primitives, floating cards, animated buttons, and dynamic drawer dialogs.
+  * **Motion (`motion/react`)**: Hardware-accelerated spring animations, layout morphing, exit transitions, and gestures.
+  * **Bklit UI**: High-polish analytics, live mandi queue throughput charts, and capacity factor distribution graphs.
+  * **ASCII Magic & Asciinator (`ascii-magic.com` / `asciinator.app`)**: Terminal-grade stylized ASCII art motion, animated wheat stalk brand icons, and live retro-modern queue matrix status tickers.
+* **No Placeholders Principle**: 100% curated, high-fidelity real photographic and vector assets (e.g. `assets/images/hero_mandi.jpg`, `assets/images/assistant_avatar.jpg`) instead of generic placeholder grey boxes.
+
+---
+
+## 2. Bilingual Typography & Font Pairings
+
+KisanQueue implements a curated, multi-font typographic hierarchy designed specifically for bilingual clarity across English and Hindi:
+
+### 1. English Typography Stack
+* **Primary Sans & Numerical Display**: `Urbanist` (Google Fonts)
+  * Geometric, modern, highly legible at micro-sizes on sunlight-glare mobile screens. Used for queue numbers, ETAs, body text, buttons, and tables.
+* **Rustic Display Accent**: `Rustic Roadway` (with fallbacks to `Cinzel Decorative`, `Rubik Dirt`, `Rye`)
+  * Rugged, artisanal, authentic display accent representing agricultural grounding, highway transport, and mandi gate signage.
+
+### 2. Hindi Typography Stack
+* **Primary Hindi Display**: `AMS Shikha` / `Manoja` (with web-safe high-craft fallbacks: `Rozha One`, `Yatra One`, `Tiro Devanagari Hindi`, `Noto Sans Devanagari`)
+  * Elegant, culturally authentic Devanagari letterforms with generous x-height and clear vowel diacritic spacing to prevent misreading by rural users.
+
+```css
+/* Typography Class Rules */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300..900;1,300..900&family=Rozha+One&family=Yatra+One&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-en-sans: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-en-rustic: 'Rustic Roadway', 'Rye', 'Rubik Dirt', serif;
+  --font-hi-display: 'AMS Shikha', 'Manoja', 'Rozha One', 'Yatra One', serif;
+  --font-hi-sans: 'Noto Sans Devanagari', 'Urbanist', sans-serif;
+}
+
+.font-rustic-accent {
+  font-family: var(--font-en-rustic);
+  letter-spacing: 0.04em;
+}
+
+.font-hindi-hero {
+  font-family: var(--font-hi-display);
+  letter-spacing: 0.01em;
+}
+
+.font-body {
+  font-family: var(--font-en-sans);
+}
+```
+
+---
+
+## 3. Color System & High-Contrast Tokens
+
+Exceeds WCAG 2.1 AA standards (minimum 4.5:1 text contrast, 3:1 graphical element contrast):
 
 ```css
 :root {
-  /* Brand / Agricultural Trust */
+  /* Brand / Agricultural Trust (Earthy Forest & Golden Wheat) */
   --color-primary-900: #064e3b; /* Deep Forest Green */
   --color-primary-800: #065f46;
   --color-primary-700: #047857;
@@ -26,9 +72,14 @@ We utilize curated, high-contrast semantic palettes that exceed WCAG AA (4.5:1 f
   --color-primary-100: #d1fae5;
   --color-primary-50:  #ecfdf5;
 
-  /* Surfaces & Neutrals */
-  --color-bg-base:     #f8fafc; /* Crisp, anti-glare canvas */
+  --color-wheat-gold:  #d97706; /* Golden Harvest */
+  --color-wheat-light: #fef3c7;
+  --color-wheat-dark:  #92400e;
+
+  /* Surfaces & Canvas */
+  --color-bg-base:     #f8fafc; /* Anti-glare rural canvas */
   --color-surface-card:#ffffff;
+  --color-surface-subtle: #f1f5f9;
   --color-text-main:   #0f172a; /* Slate 900 */
   --color-text-muted:  #475569; /* Slate 600 */
   --color-border:      #e2e8f0;
@@ -49,81 +100,62 @@ We utilize curated, high-contrast semantic palettes that exceed WCAG AA (4.5:1 f
 
 ---
 
-## 3. Typography & Hierarchy
-* **Latin Font**: `Inter` / `Outfit` / System sans-serif.
-* **Devanagari Font**: `Noto Sans Devanagari` (matches Latin x-height and optical weight).
-* **Type Scale**:
-  - `Display / Token #`: 36px / Line-height: 40px (Bold)
-  - `Hero / Heading 1`: 24px / Line-height: 32px (Semi-bold)
-  - `Heading 2`: 20px / Line-height: 28px (Medium)
-  - `Body Main`: 16px / Line-height: 24px (Regular) — *Minimum 16px for farmer mobile accessibility*
-  - `Caption / Stale Tag`: 13px / Line-height: 18px (Medium)
+## 4. Motion Engineering & ASCII Canvas Effects
 
----
-
-## 4. Motion Engineering Tokens (`transitions.dev` & `emil-design-eng`)
-
-Never use ad-hoc `transition: all 300ms`. Motion in KisanQueue is strictly tokenized:
-
+### 1. Motion Tokens (`transitions.dev` & `Motion`)
 ```css
 :root {
   /* Durations */
-  --duration-micro:      80ms;   /* Shake segment, path draw delay */
+  --duration-micro:      80ms;   /* Tap feedback, ripple */
   --duration-quick:      150ms;  /* Dropdown/modal close, text swap */
-  --duration-fast:       250ms;  /* Dropdown/modal open, tabs sliding, page slide */
-  --duration-medium:     350ms;  /* Card resize, toast dismiss */
-  --duration-slow:       400ms;  /* Skeleton content reveal, panel open */
+  --duration-fast:       250ms;  /* Dropdown/modal open, tabs sliding */
+  --duration-medium:     350ms;  /* Card morph, toast dismiss */
+  --duration-slow:       400ms;  /* Panel expansion, ASCII stream */
 
   /* Easing Curves */
-  --ease-smooth-out:     cubic-bezier(0.22, 1, 0.36, 1); /* Natural deceleration */
-  --ease-in-out:         cubic-bezier(0.77, 0, 0.175, 1); /* Movement across screen */
-  --ease-bounce:         cubic-bezier(0.34, 1.36, 0.64, 1); /* Badge pop */
-  --ease-drawer:         cubic-bezier(0.32, 0.72, 0, 1);  /* Mobile sheet slide */
+  --ease-smooth-out:     cubic-bezier(0.22, 1, 0.36, 1); /* Natural friction */
+  --ease-in-out:         cubic-bezier(0.77, 0, 0.175, 1); /* Morph */
+  --ease-bounce:         cubic-bezier(0.34, 1.36, 0.64, 1); /* Token Pop */
 
-  /* Scale & Blur Tokens */
-  --scale-press:         0.97;   /* Instant responsive feedback on press */
+  /* Scales */
+  --scale-press:         0.97;   /* Responsive press feedback */
   --scale-enter:         0.95;   /* Elements enter from scale 0.95 (NEVER scale 0) */
-  --blur-crossfade:      2px;    /* Subtle blur to blend state swaps */
+  --blur-crossfade:      2px;
 }
 ```
 
-### Motion Decision Rules
-1. **Never animate from `scale(0)`**: Start from `scale(0.95)` with `opacity: 0` so elements feel anchored.
-2. **Press Feedback**: All interactive buttons & pass cards use `:active { transform: scale(0.97); transition: transform 160ms ease-out; }`.
-3. **Number Pop-in for Live ETA & Queue Position**: When queue position changes from `#14 ➔ #13` or ETA shifts from `45m ➔ 135m`, digits transition vertically with `--blur-crossfade` and `--ease-smooth-out`.
-4. **Origin-Aware Popovers**: Dropdowns expand from their trigger anchor point via `transform-origin: var(--transform-origin)`.
-5. **Reduced Motion Guard**:
-```css
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
+### 2. ASCII Motion & Terminal Effects (`ascii-magic` / `asciinator`)
+* **Hero Mandi ASCII Live Canvas**: Real-time ASCII shader background representing live grain flow and mandi trucks at gate.
+* **Animated ASCII Wheat Icon**:
+```text
+      \ | /
+    -- (🌾) --   KISANQUEUE LIVE ADMISSION LAYER
+      / | \      [STATUS: RAJGARH MANDI NORMAL - 14 FARMERS WAITING]
+```
+* **Matrix Live Queue Ticker**: Real-time streaming ASCII characters for queue position countdown transitions (`KQ-1047 ➔ IN_PROCESS`).
+
+---
+
+## 5. Visual Asset Catalog
+
+| Asset Name | Target Path | Visual Description |
+|---|---|---|
+| **Mandi Hero Banner** | `assets/images/hero_mandi.jpg` | High-detail cinematic photo of modern Indian procurement centre at sunrise with tractor trolleys and digital weighbridge. |
+| **Assistant Mascot Avatar** | `assets/images/assistant_avatar.jpg` | Warm, professional Indian agricultural advisor (*Krishi Mitra*) in traditional attire with modern digital advisor badge. |
+| **Signed QR Pass Watermark** | `assets/images/wheat_grain_pattern.svg` | Subtle vector grain watermark embedded behind the dynamic QR pass for tactile authenticity. |
+
+---
+
+## 6. Component Inventory & Interaction Patterns
+
+```mermaid
+graph TD
+    A[Skiper UI Dynamic Card] --> B[Motion Spring Layout]
+    B --> C[Bklit UI Analytics Graph]
+    B --> D[ASCII Live Queue Ticker]
+    B --> E[HMAC-SHA256 SVG QR Pass]
 ```
 
----
-
-## 5. UI Component Specifications
-
-### 1. The Interactive Pass Card (`KQ-1047`)
-- **Large Token Callout**: `KQ-1047` centered in bold display type.
-- **Dynamic Status Chip**: Animated live status with pulsating green or amber beacon.
-- **Signed QR Code**: Rendered in SVG with 4px rounded quiet zone and high-contrast black on pure white.
-
-### 2. The 2-Tap Officer Capacity Switcher
-- Fixed persistent bar across the top of the officer screen.
-- 5 large tap-targets (`Normal`, `Busy`, `Lifting Delay`, `Reduced`, `Paused`).
-- Selecting "Lifting Delay" reveals an inline capacity slider (e.g., 60%) and auto-populates pre-set reasons (*"FCI truck late"*, *"Rain stoppage"*).
-- Instant confirmation feedback via Sonner toast notification.
-
-### 3. Skeleton Loading & Staggered Reveal
-- Placeholders pulse subtly with `--ease-linear` shimmer.
-- Real content reveals via staggered cards (40ms offset per item) to eliminate perceived load times.
-
----
-
-## 6. Accessibility & Low-Literacy Usability (WCAG 2.1 AA)
-* **Tri-Factor Status**: Status is NEVER conveyed by color alone. Every badge pairs **Color + Standard Icon + Localized Text** (e.g. `🟢 सामान्य / Normal`, `⚠️ उठान में देरी / Lifting Delayed`).
-* **One-Handed Mobile Ergonomics**: All critical primary buttons (Pass Generation, QR expansion, Language toggle) reside in the bottom 40% of the screen.
-* **Offline Stale Watermark**: Any cached data displays an unmistakable timestamp chip (*"Showing offline data from 10:15 AM"*).
+1. **Pass Card (`KQ-1047`)**: Built with **Skiper UI** floating container, Urbanist bold typography, pulsating live status beacon, and SVG QR matrix.
+2. **Mandi Capacity Dashboard**: Built with **Bklit UI** charts for hourly throughput, counter active state, and lifting delay percentage.
+3. **Interactive WhatsApp Simulator**: Realistic chat interface powered by **Motion** spring bubble animations and the **Krishi Mitra** avatar.

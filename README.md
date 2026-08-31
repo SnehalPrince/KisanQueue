@@ -2,8 +2,8 @@
 
 <img src="https://img.shields.io/badge/SIH%202026-PS%2026032-orange?style=for-the-badge" />
 <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Stack-FastAPI%20%2B%20React-blue?style=for-the-badge" />
-<img src="https://img.shields.io/badge/Craft-Design%20Engineered-purple?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Stack-FastAPI%20%2B%20React%20%2B%20Motion-blue?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Craft-SkiperUI%20%2B%20BklitUI-purple?style=for-the-badge" />
 <img src="https://img.shields.io/badge/Status-Blueprint%20Complete-brightgreen?style=for-the-badge" />
 
 # 🌾 KisanQueue
@@ -31,19 +31,19 @@ A farmer holds a valid government slot, drives 40 km to the mandi, and discovers
 
 ---
 
-## ✨ Key Features
+## ✨ Key Features & Modern UI Craft
 
-| Feature | Description | Craft / Standard |
+| Feature | Description | UI Library & Craft |
 |---|---|---|
-| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice | Zero Form Fatigue |
-| 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | HMAC-SHA256 Signed |
-| ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts live to officer updates | Explainable Math (No Black Box) |
+| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice | Motion Springs + Krishi Mitra Avatar |
+| 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | Skiper UI Floating Modal |
+| ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts live to officer updates | Explainable Math + NumberPopIn |
+| 📊 **Mandi Throughput Analytics** | Real-time graphs of hourly grain intake and truck lifting capacity | Bklit UI Analytics Charts |
+| 📟 **ASCII Live Queue Matrix** | Terminal-grade live queue ticker and grain flow shaders | `ascii-magic` / `asciinator` |
 | 🟢 **Live Centre Status** | Officer-reported operational status: Normal, Busy, Lifting Delayed, Reduced, Paused | Tri-Factor Badging (Icon+Text+Color) |
 | ⚡ **Sub-2s Real-Time Sync** | WebSocket event fan-out updates farmer's screen within ~2 seconds of officer action | Native FastAPI WebSockets |
 | 🎨 **Design Engineering** | Tokenized motion scale, number pop-in digits, origin-aware popovers, press physics | Emil Kowalski & `transitions.dev` |
-| 📋 **Officer Mandi Console** | 2-tap capacity & delay controller, QR check-in camera scanner, throughput table | Tablet & Mobile Ergonomics |
-| 🏛️ **Government Adapter** | `GovernmentProcurementAdapter` interface — connects to state APIs without modifying core code | Clean Architecture Pattern |
-| 🌐 **Bilingual (Hindi / English)** | Full localization across Web and WhatsApp; Devanagari font rendering optimization | WCAG 2.1 AA Compliant |
+| 🌐 **Bilingual Typography** | English: `Urbanist` + `Rustic Roadway`<br>Hindi: `AMS Shikha` / `Manoja` + `Noto Sans Devanagari` | Curated Multi-Font Stack |
 
 ---
 
@@ -100,8 +100,12 @@ Delayed State: N = 14, T_base = 25, C = 1, F = 0.60 ➔ ETA = 584 min (~9h 44m, 
 
 ### Frontend
 - **Framework**: React 18+ with TypeScript & Vite (lightning-fast HMR, lightweight bundle)
-- **Styling & Motion**: Tailwind CSS + `transitions.dev` Motion Tokens + `framer-motion` GPU transforms
-- **State Management**: TanStack Query v5 (server cache & auto-revalidation) + Zustand (persistent profile)
+- **Component Primitives**: **Skiper UI** + Radix UI Primitives (floating modals, interactive cards)
+- **Animation & Physics**: **Motion (`motion/react`)** + `transitions.dev` Motion Tokens
+- **Analytics & Graphs**: **Bklit UI** (hourly throughput, capacity factors)
+- **ASCII Effects**: **ascii-magic / asciinator** (live queue matrix ticker)
+- **Typography**: English (`Urbanist` + `Rustic Roadway`) & Hindi (`AMS Shikha` / `Manoja` + `Noto Sans Devanagari`)
+- **State Management**: TanStack Query v5 (server cache & auto-revalidation) + Zustand (`persist`)
 - **Micro-Interactions**: Sonner (`ask-sonner` toast notifications), Lucide Icons, NumberPopIn
 - **Localization**: `react-i18next` with complete English & Hindi dictionaries
 
@@ -111,12 +115,6 @@ Delayed State: N = 14, T_base = 25, C = 1, F = 0.60 ➔ ETA = 584 min (~9h 44m, 
 - **Security & Tokens**: `python-jose` (JWT), `passlib[bcrypt]`, constant-time HMAC-SHA256 QR signing
 - **Realtime**: Native FastAPI WebSockets with async `ConnectionManager`
 - **Observability**: `structlog` structured JSON logging with `X-Request-ID` correlation middleware
-
-### Installed Skills & Craft Engines
-* **UI/UX**: `emil-design-eng`, `transitions-dev`, `impeccable`, `visual-design-foundations`
-* **FastAPI & Async**: `fastapi-templates`, `async-python-patterns`, `python-design-patterns`
-* **Security & Auth**: `security-and-hardening` (Addy Osmani), `jwt-security`, `signed-audit-trails-recipe`
-* **Testing & A11y**: `test-driven-development`, `python-testing-patterns`, `accessibility-compliance` (Axe-core)
 
 ---
 
@@ -133,11 +131,11 @@ The complete implementation blueprint lives in [`/docs`](docs/). All 30 files ar
 | 04 | [User Flows](docs/04_USER_FLOWS.md) | One-time onboarding, conversational pass gen, check-in |
 | 05 | [Feature Specification](docs/05_FEATURE_SPECIFICATION.md) | Every feature with acceptance criteria & error states |
 | 06 | [MVP Scope](docs/06_MVP_SCOPE.md) | P0/P1/P2 breakdown & 7-hour build plan |
-| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Screen inventory, states, mobile-first specifications |
-| 08 | [Design System & Motion](docs/08_DESIGN_SYSTEM.md) | Emil Kowalski principles, transitions.dev tokens, WCAG AA |
+| 07 | [UX/UI Design](docs/07_UX_UI_DESIGN.md) | Skiper UI, Motion, Bklit UI, ASCII Magic, Typography |
+| 08 | [Design System & Motion](docs/08_DESIGN_SYSTEM.md) | Urbanist + Rustic Roadway, AMS Shikha, Motion tokens |
 | 09 | [Tech Stack & Tooling](docs/09_TECH_STACK.md) | Package manifests, architectural rationale |
 | 10 | [System Architecture](docs/10_SYSTEM_ARCHITECTURE.md) | MVP + production architecture diagrams |
-| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | State management, UI motion engineering, routes |
+| 11 | [Frontend Architecture](docs/11_FRONTEND_ARCHITECTURE.md) | Motion springs, Bklit charts, Zustand state, routes |
 | 12 | [Backend Architecture](docs/12_BACKEND_ARCHITECTURE.md) | FastAPI module breakdown, async patterns, logging |
 | 13 | [Database Schema](docs/13_DATABASE_SCHEMA.md) | All tables, constraints, indexes, ER diagram |
 | 14 | [API Specification](docs/14_API_SPECIFICATION.md) | REST endpoints + WebSocket event schemas |
@@ -199,24 +197,6 @@ npm run dev                    # Starts Vite server on localhost:5173
 3. **Farmer's ETA jumps to ~2h 15m in real time** on Web & WhatsApp in < 2 seconds — without refreshing.
 
 *Full walkthrough & judge Q&A recovery script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)*
-
----
-
-## 🤝 Differentiation vs Existing Systems
-
-| State System | What It Does | What It Misses | What KisanQueue Adds |
-|---|---|---|---|
-| **MP e-Uparjan** | Registration, slot booking, payment status | No live delay visibility or backlog status | Live capacity-aware ETA updated by mandi officers in real time |
-| **Haryana e-Kharid** | Digital gate pass, QR check-in | No predictive wait times or dynamic queues | Real-time queue tracker with delay notifications |
-| **Punjab Anaaj Kharid** | e-Passes, bulk SMS alerts | Rigid portal forms, broadcast-only alerts | Persistent WhatsApp Assistant with progressive, 1-tap pass generation |
-
----
-
-## 🏆 Smart India Hackathon 2026
-
-- **Hackathon**: Smart India Hackathon 2026
-- **Problem Statement**: PS 26032
-- **Category**: Agriculture, Food Processing & Rural Development
 
 ---
 

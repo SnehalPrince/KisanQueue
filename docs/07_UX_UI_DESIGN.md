@@ -1,88 +1,82 @@
-# 07 — UX/UI Design
+# 07 — UX/UI Design & Modern Visual Architecture
 
-## Information Architecture
+> **Modern UI Stack**: [`skiperui`](https://skiper-ui.com), [`motion`](https://motion.dev) (formerly Framer Motion), [`bklit-ui`](https://bklit.dev), [`ascii-magic`](https://ascii-magic.com) / [`asciinator`](https://asciinator.app).  
+> **Typography**: English (`Urbanist` + `Rustic Roadway`) · Hindi (`AMS Shikha` / `Manoja` + `Rozha One` / `Noto Sans Devanagari`).  
+> **Curated Visual Assets**: `assets/images/hero_mandi.jpg`, `assets/images/assistant_avatar.jpg` (Zero generic template placeholders).
+
+---
+
+## 1. Information Architecture & Modern Component Topology
 
 ```text
-Farmer Web & WhatsApp Assistant
-├── One-Time Onboarding (language select ➔ phone/OTP ➔ Name, Village, District)
-├── Home / Centre Discovery (nearby mandis, color-coded live status, wait times)
-├── 1-Tap Pass Generator (Select crop, enter quintals, confirm ➔ Instant Digital Pass)
-├── Live Queue Tracker (live queue position, ETA clock, signed QR gate pass)
-├── Post-Procurement Receipt (weight, grade, MSP total)
-├── Payment Status (DBT status chip & UTR info)
-└── WhatsApp Simulator (interactive chat UI replicating persistent assistant)
+Farmer Web & WhatsApp Assistant (Powered by Skiper UI + Motion)
+├── Hero & Discovery (Cinematic Mandi Banner + ASCII Live Queue Matrix Ticker)
+├── One-Time Onboarding (Language Select ➔ Phone/OTP ➔ Permanent Profile)
+├── Conversational 1-Tap Pass Generator (Skiper UI Floating Modal + Motion Springs)
+├── Live Digital Pass Screen (Token KQ-1047, HMAC QR Code, Vertical NumberPopIn ETA)
+├── Post-Procurement Receipt & Payment (Bklit UI Transaction Summary)
+└── Interactive WhatsApp Simulator (Krishi Mitra Avatar + Motion Bubble Physics)
 
-Officer Console
-├── Login (officer credentials)
-├── Mandi Dashboard (today's arrivals, active counters, queue throughput)
-├── Check-in Scanner (camera QR scan / manual token entry)
-├── Counter Processing (start / complete processing)
-└── 2-Tap Capacity & Delay Controller (Normal / Busy / Lifting delayed / Paused)
-
-Admin Console (minimal, P1)
-├── Mandi & Counter Configuration
-├── Officer Management
-└── State/District Congestion Overview
+Officer Mandi Console (Powered by Bklit UI + Skiper UI)
+├── Mandi Real-Time Dashboard (Bklit UI Queue Throughput Graph & Live Arrivals)
+├── Check-in Scanner (Camera QR Scanner + Constant-time HMAC Validator)
+└── 2-Tap Capacity & Delay Controller (Persistent Top Strip with Instant WS Push)
 ```
 
 ---
 
-## Farmer Journey (Screen-by-Screen)
+## 2. Screen-by-Screen Specifications & Component Craft
 
-### 1. One-Time Onboarding (First-Time User Only)
-- **Step 1: Language selection** — Large Hindi/English cards.
-- **Step 2: Phone & OTP** — Single numeric field with auto-focus.
-- **Step 3: Location Profile** — Farmer provides Name, Village, and District. This profile is permanently saved.
-- *Outcome*: Returning visits completely skip this step and land directly on the Home dashboard or WhatsApp conversation.
+### 1. Hero & Centre Discovery (`/`)
+* **Visual Anchor**: Curated real photographic banner [`assets/images/hero_mandi.jpg`](file:///c:/Users/sneha/Music/KisanQueue/assets/images/hero_mandi.jpg) overlaid with subtle grain and golden morning gradient.
+* **ASCII Live Queue Matrix**: Generated using `ascii-magic` / `asciinator` styling:
+  ```text
+  [/// LIVE MANDI FEED ///]  RAJGARH: 14 WAITING (45 MIN) | BIAORA: 6 WAITING (20 MIN)
+  ```
+* **Mandi Status Cards (Skiper UI)**:
+  * Rendered in **Urbanist** bold for live numbers and **AMS Shikha / Manoja** for Hindi titles.
+  * Interactive hover card lift (`--scale-press: 0.97`, `--ease-smooth-out`).
+  * Live status beacon: `🟢 सामान्य / Normal`, `⚠️ उठान में देरी / Lifting Delayed`.
 
-### 2. Conversational Pass Creation (WhatsApp & Web)
-- Farmer says: *"I want to sell wheat"* (or taps *"Generate Pass"* on Web).
-- System recognizes farmer's registered district and immediately displays the 3 nearest mandis with their **live congestion status** and **capacity-aware ETAs**.
-- System asks only: *"How much wheat are you bringing?"*
-- Farmer enters quantity (e.g. `80 quintals`).
-- System previews the pass with estimated arrival window and wait time.
-- Farmer taps **"Confirm & Get Pass"**.
+### 2. Progressive Pass Creation Dialog (Skiper UI Modal)
+* **Trigger**: *"1-Tap Pass Generate"* button with rustic highway styling (`font-rustic-accent`).
+* **Motion Physics**: Expands smoothly from button anchor using `Motion` spring physics (`stiffness: 300, damping: 25`).
+* **Minimal Input**: Auto-fills registered farmer info; requests only Crop and Quantity (*quintals*).
+* **Live Cost & ETA Preview**: Instant preview calculating arrival window before pass generation.
 
-### 3. Digital Procurement Pass & Live Tracker (`My Queue`)
-- **Digital Pass Header**: Prominent Token ID (e.g. `KQ-1047`) and centre name.
-- **High-Contrast QR Code**: Encodes HMAC-signed pass payload for gate admission (with screenshot recommendation).
-- **Live Progress Counter**: Live position indicator (e.g. `#14 in queue`) updating via WebSocket.
-- **ETA Clock & Confidence Badge**: e.g., `~45 min` (High) or `~2h 15m` (Low — Lifting delay).
-- **Delay Alert Banner**: If the officer reports a delay, a clear amber/red alert appears explaining *why* the wait changed (e.g. *"Delay reported: FCI truck delayed by 2 hours"*).
+### 3. Digital Gate Pass & Live Queue Tracker (`/pass/KQ-1047`)
+* **Token Identifier**: Bold `KQ-1047` in `Urbanist` (36px, `font-weight: 800`).
+* **Cryptographic QR Code**: High-contrast black on pure white SVG, framed with wheat watermark pattern.
+* **Vertical NumberPopIn**: When queue position shifts (`#14 ➔ #13`), digits animate vertically with a subtle 2px blur crossfade (`--blur-crossfade`).
+* **Delay Alert Banner**: Expandable accordion explaining delay causes with full officer notes.
 
-### 4. Post-Delivery Receipt & Payment Tracker
-- Shows completed weighing summary (Quantity accepted, Grade A/B, MSP rate, Total amount).
-- Payment status chips (`Pending` / `In Progress` / `Paid`) with estimated DBT payout timeline.
+### 4. Officer Mandi Console (`/officer`)
+* **Throughput & Capacity Graphs (Bklit UI)**: Real-time visual graphs displaying hourly farmer processing rates, truck lifting capacity, and queue backlog trends.
+* **2-Tap Delay Controller**: Persistent header controls to update capacity factor ($F = 0.60$) in 2 taps, immediately firing WebSocket events to all connected farmers.
 
-### 5. In-App WhatsApp Simulator
-- WhatsApp-styled chat window allowing full testing and demonstration of the persistent assistant.
-
----
-
-## Officer Journey
-
-1. **Login** — Officer ID & password.
-2. **Dashboard Overview** — Live queue table (Token, Farmer Name, Crop, Quintals, Status), active counters, daily count.
-3. **Gate Check-In** — 1-click QR camera scan or quick manual token entry.
-4. **2-Tap Capacity & Condition Selector**:
-   - Fixed at the top of the dashboard.
-   - States: `Normal` (100%), `Busy` (80%), `Lifting Delayed` (custom %, default 60%), `Reduced Capacity`, `Paused`.
-   - Updating status takes < 5 seconds and instantly recalculates all farmer ETAs.
+### 5. In-App WhatsApp Assistant Simulator (`/whatsapp-demo`)
+* Features the **Krishi Mitra** visual avatar [`assets/images/assistant_avatar.jpg`](file:///c:/Users/sneha/Music/KisanQueue/assets/images/assistant_avatar.jpg).
+* Fluid chat bubbles rendered with **Motion** stagger animation and typing indicators.
 
 ---
 
-## Screen States & Graceful Degradation
+## 3. Bilingual Typographic Guide
 
-- **Empty State**: Friendly illustration and message when no queue is active.
-- **Loading State**: Subtle skeleton placeholders to prevent layout jump.
-- **Offline / Stale State**: If network drops, the pass QR and last known queue position remain visible with a clear label: *"Offline — showing status from 9:45 AM"*.
-- **Stale Data Warning**: Yellow chip if centre status hasn't been updated in >30 minutes.
+```html
+<!-- English Display & Body -->
+<h1 class="font-['Urbanist'] font-bold text-3xl text-slate-900">Rajgarh Procurement Centre</h1>
+<span class="font-rustic-accent uppercase text-amber-700 text-sm">Govt. MSP Admission Gate</span>
+
+<!-- Hindi Display & Body -->
+<h1 class="font-hindi-hero font-bold text-3xl text-emerald-950">राजगढ़ उपार्जन केंद्र</h1>
+<p class="font-['Noto_Sans_Devanagari'] text-base text-slate-700">वर्तमान प्रतीक्षा समय: ~45 मिनट</p>
+```
 
 ---
 
-## Accessibility & Localization
+## 4. Visual Asset Management
 
-- **High Contrast**: Minimum 4.5:1 text-to-background contrast.
-- **Colorblind-Safe Badges**: Status is always indicated by **Icon + Text + Color** together (e.g., `✅ Normal`, `⚠️ Delayed`, `⏸️ Paused`).
-- **Large Touch Targets**: Minimum 48×48px buttons for one-handed operation.
-- **Devanagari Font Optimization**: Crisp rendering with Noto Sans Devanagari across all Android viewports.
+All UI screens consume local, pre-rendered assets located in [`assets/images/`](file:///c:/Users/sneha/Music/KisanQueue/assets/images/):
+1. `hero_mandi.jpg`: High-resolution photograph for landing banner & centre headers.
+2. `assistant_avatar.jpg`: High-resolution Krishi Mitra avatar for assistant headers.
+3. SVG Icons: Strict use of `lucide-react` with 2px stroke width.
