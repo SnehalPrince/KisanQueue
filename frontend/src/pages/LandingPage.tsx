@@ -50,7 +50,7 @@ const statItemVariants = {
  */
 export function LandingPage() {
   const navigate = useNavigate()
-  const { language, setLanguage } = useAppStore()
+  const { language, setLanguage, farmer, isAuthenticated } = useAppStore()
   const { scrollTo } = useSmoothScroll()
   const [selectedCentre, setSelectedCentre] = useState<CentrePreview | null>(null)
   const reduceMotion = useReducedMotion()
@@ -78,7 +78,11 @@ export function LandingPage() {
   }
 
   function handleProfileClick() {
-    navigate('/onboarding')
+    if (isAuthenticated && farmer) {
+      navigate('/home')
+    } else {
+      navigate('/onboarding')
+    }
   }
 
   function handleScrollToCentres() {
@@ -156,9 +160,23 @@ export function LandingPage() {
               {text.explore}
               <ArrowDown size={18} aria-hidden="true" />
             </motion.button>
-            <span className="profile-hint" lang={language === 'hi' ? 'hi' : 'en'}>
-              {text.profileHint}
-            </span>
+            {isAuthenticated && farmer ? (
+              <button
+                type="button"
+                className="hero-farmer-badge"
+                onClick={() => navigate('/home')}
+                aria-label={language === 'hi' ? 'किसान डैशबोर्ड खोलें' : 'Open Farmer Dashboard'}
+              >
+                <span>🌾 {language === 'hi' ? `नमस्ते, ${farmer.name}` : `Welcome, ${farmer.name}`}</span>
+                <strong className="hero-farmer-link">
+                  {language === 'hi' ? 'डैशबोर्ड खोलें →' : 'Open Dashboard →'}
+                </strong>
+              </button>
+            ) : (
+              <span className="profile-hint" lang={language === 'hi' ? 'hi' : 'en'}>
+                {text.profileHint}
+              </span>
+            )}
           </div>
         </div>
 

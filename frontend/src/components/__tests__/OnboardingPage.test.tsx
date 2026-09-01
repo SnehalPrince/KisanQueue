@@ -16,6 +16,7 @@ function wrapper({ children }: { children: React.ReactNode }) {
         <Routes>
           <Route path="/onboarding" element={children} />
           <Route path="/" element={<div data-testid="landing-page">Landing Page</div>} />
+          <Route path="/home" element={<div data-testid="farmer-home">Farmer Home</div>} />
         </Routes>
       </MemoryRouter>
       <Toaster />
@@ -92,7 +93,7 @@ describe('OnboardingPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'सत्यापित करें और आगे बढ़ें' }))
 
     await waitFor(() => {
-      expect(screen.getByTestId('landing-page')).toBeInTheDocument()
+      expect(screen.getByTestId('farmer-home')).toBeInTheDocument()
     })
 
     const state = useAppStore.getState()

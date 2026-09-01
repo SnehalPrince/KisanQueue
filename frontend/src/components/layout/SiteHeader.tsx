@@ -1,4 +1,6 @@
-import { Languages, ArrowUpRight } from 'lucide-react'
+import { Languages, ArrowUpRight, User, LogOut } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAppStore } from '@/store/app-store'
 import type { Language } from '@/store/app-store'
 import type { CopyMap } from '@/lib/copy'
 
@@ -12,10 +14,17 @@ interface SiteHeaderProps {
 /**
  * Sticky site header: brand mark, desktop nav, language toggle, profile CTA.
  *
- * Profile CTA is toast-gated in this slice (no auth yet).
- * Desktop nav is hidden on mobile (< 760px via CSS).
+ * When authenticated: Displays farmer avatar, name, and 1-tap link to /home.
+ * When unauthenticated: Displays "Set up profile ↗" button to /onboarding.
  */
 export function SiteHeader({ language, text, onToggleLanguage, onProfileClick }: SiteHeaderProps) {
+  const navigate = useNavigate()
+  const { farmer, isAuthenticated, logout } = useAppStore()
+
+  function handleDashboardClick() {
+    navigate('/home')
+  }
+
   return (
     <header className="site-header" aria-label="Primary navigation">
       <a className="brand" href="#top" aria-label="KisanQueue home">
@@ -28,6 +37,16 @@ export function SiteHeader({ language, text, onToggleLanguage, onProfileClick }:
       <nav className="desktop-nav" aria-label="Section navigation">
         <a href="#centres">{text.navCentres}</a>
         <a href="#how-it-works">{text.navHow}</a>
+        {isAuthenticated && (
+          <>
+            <a href="/home" className="nav-dashboard-link">
+              {language === 'hi' ? 'डैशबोर्ड' : 'Dashboard'}
+            </a>
+            <a href="/queue" className="nav-queue-link">
+              {language === 'hi' ? 'लाइव कतार' : 'Live Queue'}
+            </a>
+          </>
+        )}
       </nav>
 
       <div className="header-actions">
@@ -42,16 +61,40 @@ export function SiteHeader({ language, text, onToggleLanguage, onProfileClick }:
           <span>{language === 'hi' ? 'EN' : 'हि'}</span>
         </button>
 
-        <button
-          className="quiet-button"
-          type="button"
-          onClick={onProfileClick}
-          aria-label={text.profile}
-        >
-          {text.profile}
-          <ArrowUpRight size={15} aria-hidden="true" />
-        </button>
+        {isAuthenticated && farmer ? (
+          <div className="auth-header-group">
+            <button
+              className="user-profile-btn"
+              type="button"
+              onClick={handleDashboardClick}
+              aria-label={
+                language === 'hi'
+                  ? `${farmer.name} - किसान डैशबोर्ड`
+                  : `${farmer.name} - Farmer Dashboard`
+              }
+            >
+              <span className="user-avatar-initial" aria-hidden="true">
+                {farmer.name.slice(0, 1).toUpperCase()}
+              </span>
+              <span className="user-name-text">{farmer.name}</span>
+              <span className="user-badge-tag">
+                {language === 'hi' ? 'डैशबोर्ड' : 'Dashboard'}
+              </span>
+            </button>
+          </div>
+        ) : (
+          <button
+            className="quiet-button"
+            type="button"
+            onClick={onProfileClick}
+            aria-label={text.profile}
+          >
+            {text.profile}
+            <ArrowUpRight size={15} aria-hidden="true" />
+          </button>
+        )}
       </div>
     </header>
   )
 }
+
