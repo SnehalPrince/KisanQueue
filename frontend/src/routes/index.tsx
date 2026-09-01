@@ -5,51 +5,39 @@ import { FarmerHomePage } from '@/pages/FarmerHomePage'
 import { PassPage } from '@/pages/PassPage'
 import { CentresPage } from '@/pages/CentresPage'
 import { CentreDetailPage } from '@/pages/CentreDetailPage'
-
-/**
- * Application route table.
- *
- * Routes marked [DONE] are fully implemented.
- * Routes marked [RESERVED] are placeholders for upcoming slices.
- */
-function ReservedPage({ name }: { readonly name: string }) {
-  return (
-    <main style={{ padding: '64px 24px', textAlign: 'center', color: '#40534C' }}>
-      <p style={{ fontWeight: 700, fontSize: '18px' }}>{name}</p>
-      <p style={{ marginTop: '8px', fontSize: '14px', color: '#677D6A' }}>
-        This page is coming in the next implementation slice.
-      </p>
-    </main>
-  )
-}
+import { QueuePage } from '@/pages/QueuePage'
+import { OfficerLoginPage } from '@/pages/OfficerLoginPage'
+import { OfficerDashboardPage } from '@/pages/OfficerDashboardPage'
+import { ProcurementReceiptPage } from '@/pages/ProcurementReceiptPage'
+import { PaymentStatusPage } from '@/pages/PaymentStatusPage'
 
 export function AppRoutes() {
   return (
     <Routes>
-      {/* [DONE] Slice 1 — Landing */}
+      {/* Slice 1 — Landing */}
       <Route path="/" element={<LandingPage />} />
 
-      {/* [DONE] Slice 2 — Farmer Onboarding */}
+      {/* Slice 2 — Farmer Onboarding */}
       <Route path="/onboarding" element={<OnboardingPage />} />
 
-      {/* [DONE] Slice 3 — Farmer Home + Pass */}
+      {/* Slice 3 — Farmer Home + Pass */}
       <Route path="/home" element={<FarmerHomePage />} />
       <Route path="/pass/:id" element={<PassPage />} />
 
-      {/* [DONE] Slice 4 — Centre Discovery */}
+      {/* Slice 4 — Centre Discovery */}
       <Route path="/centres" element={<CentresPage />} />
       <Route path="/centres/:id" element={<CentreDetailPage />} />
 
-      {/* [RESERVED] Slice 5 — Live Queue */}
-      <Route path="/queue" element={<ReservedPage name="Live Queue" />} />
+      {/* Slice 5 — Live Queue & Tracking */}
+      <Route path="/queue" element={<QueuePage />} />
 
-      {/* [RESERVED] Slice 6 — Officer Console */}
-      <Route path="/officer" element={<ReservedPage name="Officer Login" />} />
-      <Route path="/officer/dashboard" element={<ReservedPage name="Officer Dashboard" />} />
+      {/* Slice 6 — Officer Console */}
+      <Route path="/officer" element={<OfficerLoginPage />} />
+      <Route path="/officer/dashboard" element={<OfficerDashboardPage />} />
 
-      {/* [RESERVED] Slice 7 — Procurement & Payment */}
-      <Route path="/procurement/:id" element={<ReservedPage name="Procurement Status" />} />
-      <Route path="/payment/:id" element={<ReservedPage name="Payment Status" />} />
+      {/* Slice 7 — Procurement Receipt & DBT Payment Tracker */}
+      <Route path="/procurement/:id" element={<ProcurementReceiptPage />} />
+      <Route path="/payment/:id" element={<PaymentStatusPage />} />
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
