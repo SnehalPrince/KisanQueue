@@ -73,8 +73,8 @@ CENTRES = [
         "avg_processing_minutes": 25,
         "daily_capacity": 100,
         "active_counters_default": 2,
-        "supported_crops": json.dumps(["Wheat", "Soybean"]),
-        "msp_rates": json.dumps({"Wheat": 2275.0, "Soybean": 4600.0}),
+        "supported_crops": json.dumps(["wheat", "soybean"]),
+        "msp_rates": json.dumps({"wheat": 2275.0, "soybean": 4600.0}),
         "is_active": True,
     },
     {
@@ -86,8 +86,8 @@ CENTRES = [
         "avg_processing_minutes": 30,
         "daily_capacity": 80,
         "active_counters_default": 2,
-        "supported_crops": json.dumps(["Wheat", "Barley"]),
-        "msp_rates": json.dumps({"Wheat": 2275.0, "Barley": 1735.0}),
+        "supported_crops": json.dumps(["wheat", "barley"]),
+        "msp_rates": json.dumps({"wheat": 2275.0, "barley": 1735.0}),
         "is_active": True,
     },
     {
@@ -99,8 +99,8 @@ CENTRES = [
         "avg_processing_minutes": 20,
         "daily_capacity": 120,
         "active_counters_default": 3,
-        "supported_crops": json.dumps(["Paddy", "Wheat"]),
-        "msp_rates": json.dumps({"Paddy": 2300.0, "Wheat": 2275.0}),
+        "supported_crops": json.dumps(["paddy", "wheat"]),
+        "msp_rates": json.dumps({"paddy": 2300.0, "wheat": 2275.0}),
         "is_active": True,
     },
 ]
@@ -149,31 +149,31 @@ OFFICERS = [
 # Ramesh (farmer-001) is at position 5 after entries for farmers 3, A, B, C
 QUEUE_ENTRIES = [
     # COMPLETED (tokens 39-42)
-    {"token_num": 39, "token_code": "KQ-39", "farmer_id": "farmer-007", "crop": "Wheat",
+    {"token_num": 39, "token_code": "KQ-39", "farmer_id": "farmer-007", "crop": "wheat",
      "qty": 22.0, "status": "COMPLETED", "position": None},
-    {"token_num": 40, "token_code": "KQ-40", "farmer_id": "farmer-008", "crop": "Wheat",
+    {"token_num": 40, "token_code": "KQ-40", "farmer_id": "farmer-008", "crop": "wheat",
      "qty": 55.0, "status": "COMPLETED", "position": None},
-    {"token_num": 41, "token_code": "KQ-41", "farmer_id": "farmer-009", "crop": "Soybean",
+    {"token_num": 41, "token_code": "KQ-41", "farmer_id": "farmer-009", "crop": "soybean",
      "qty": 18.5, "status": "COMPLETED", "position": None},
-    {"token_num": 42, "token_code": "KQ-42", "farmer_id": "farmer-010", "crop": "Wheat",
+    {"token_num": 42, "token_code": "KQ-42", "farmer_id": "farmer-010", "crop": "wheat",
      "qty": 30.0, "status": "COMPLETED", "position": None},
     # PROCESSING (token 43)
-    {"token_num": 43, "token_code": "KQ-43", "farmer_id": "farmer-003", "crop": "Wheat",
+    {"token_num": 43, "token_code": "KQ-43", "farmer_id": "farmer-003", "crop": "wheat",
      "qty": 45.0, "status": "PROCESSING", "position": 1},
     # WAITING (farmer-001 at position 5, others are seed positions)
-    {"token_num": 47, "token_code": "KQ-47", "farmer_id": "farmer-001", "crop": "Wheat",
+    {"token_num": 47, "token_code": "KQ-47", "farmer_id": "farmer-001", "crop": "wheat",
      "qty": 40.5, "status": "WAITING", "position": 5},
-    {"token_num": 52, "token_code": "KQ-52", "farmer_id": "farmer-002", "crop": "Soybean",
+    {"token_num": 52, "token_code": "KQ-52", "farmer_id": "farmer-002", "crop": "soybean",
      "qty": 14.0, "status": "WAITING", "position": 10},
 ]
 
 # Procurement records for completed tokens
 PROCUREMENT_RECORDS = [
-    {"queue_code": "KQ-39", "crop": "Wheat", "declared": 22.0, "actual": 22.0,
+    {"queue_code": "KQ-39", "crop": "wheat", "declared": 22.0, "actual": 22.0,
      "grade": "A", "msp": 2275.0, "total": 50050.0},
-    {"queue_code": "KQ-40", "crop": "Wheat", "declared": 55.0, "actual": 55.0,
+    {"queue_code": "KQ-40", "crop": "wheat", "declared": 55.0, "actual": 55.0,
      "grade": "B", "msp": 2275.0, "total": 125125.0},
-    {"queue_code": "KQ-41", "crop": "Soybean", "declared": 18.5, "actual": 18.5,
+    {"queue_code": "KQ-41", "crop": "soybean", "declared": 18.5, "actual": 18.5,
      "grade": "A", "msp": 4600.0, "total": 85100.0},
 ]
 

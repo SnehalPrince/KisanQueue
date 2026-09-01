@@ -3,7 +3,7 @@ modules/queue/schemas.py — Queue / pass Pydantic schemas.
 """
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class GeneratePassRequest(BaseModel):
@@ -11,6 +11,11 @@ class GeneratePassRequest(BaseModel):
     crop: str
     quantity_quintals: float = Field(..., gt=0, le=1000, description="Quantity in quintals")
     farmer_id: str | None = None  # derived from JWT if not provided
+
+    @field_validator("crop")
+    @classmethod
+    def normalize_crop(cls, v: str) -> str:
+        return v.strip().lower()
 
 
 class GeneratePassResponse(BaseModel):

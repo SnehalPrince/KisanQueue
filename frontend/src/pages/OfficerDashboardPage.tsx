@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -19,6 +19,9 @@ import {
 import { toast } from 'sonner'
 import { useQueueLiveStore } from '@/store/queue-live-store'
 import { useAppStore } from '@/store/app-store'
+import { officerService } from '@/services/api/officer-service'
+import { realtimeService } from '@/services/api/realtime-service'
+import { CROP_BY_ID } from '@/lib/crop-constants'
 import type { CentreStatus } from '@/types/centre'
 
 export function OfficerDashboardPage() {
@@ -46,6 +49,74 @@ export function OfficerDashboardPage() {
   const [selectedGrade, setSelectedGrade] = useState<'A' | 'B' | 'C'>('A')
   const [actualWeight, setActualWeight] = useState<number>(40.5)
 
+  // 1. Fetch live queue from real backend on mount and sync
+  useEffect(() => {
+    async function fetchBackendQueue() {
+      try {
+        const data = await officerService.getQueue()
+        if (data && data.entries && data.entries.length > 0) {
+          const mapped = data.entries.map((be) => {
+            const tokenNum = parseInt(be.token_code.replace(/[^0-9]/g, ''), 10) || 0
+            return {
+              id: be.id,
+              token: tokenNum,
+              farmerId: `farmer-${tokenNum}`,
+              farmerName: `Farmer (${be.token_code})`,
+              crop: be.crop as any,
+              quantityQ: be.quantity_q,
+              status: be.status as any,
+              position: be.queue_position,
+              joinedAt: be.joined_at ? new Date(be.joined_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '08:00 AM',
+            }
+          })
+          useQueueLiveStore.setState({ entries: mapped })
+        }
+      } catch (err) {
+        console.warn('Backend getQueue fallback to local store:', err)
+      }
+    }
+
+    fetchBackendQueue()
+
+    // 2. Connect WebSocket
+    realtimeService.connect()
+
+    const unsubStatus = realtimeService.subscribe('CENTRE_STATUS_CHANGED', (data) => {
+      if (data.status) {
+        setCondition(data.status, data.capacity_factor, data.active_counters)
+      }
+    })
+
+    const unsubJoined = realtimeService.subscribe('QUEUE_JOINED', () => {
+      fetchBackendQueue()
+    })
+
+    const unsubPos = realtimeService.subscribe('QUEUE_POSITION_CHANGED', () => {
+      fetchBackendQueue()
+    })
+
+    const unsubEta = realtimeService.subscribe('ETA_UPDATED', () => {
+      fetchBackendQueue()
+    })
+
+    const unsubStarted = realtimeService.subscribe('PROCESSING_STARTED', () => {
+      fetchBackendQueue()
+    })
+
+    const unsubCompleted = realtimeService.subscribe('PROCESSING_COMPLETED', () => {
+      fetchBackendQueue()
+    })
+
+    return () => {
+      unsubStatus()
+      unsubJoined()
+      unsubPos()
+      unsubEta()
+      unsubStarted()
+      unsubCompleted()
+    }
+  }, [setCondition])
+
   // Quick statistics
   const waitingCount = entries.filter((e) => e.status === 'WAITING').length
   const checkedInCount = entries.filter((e) => e.status === 'CHECKED_IN').length
@@ -53,43 +124,76 @@ export function OfficerDashboardPage() {
   const completedCount = entries.filter((e) => e.status === 'COMPLETED').length
 
   function handleLogout() {
+    officerService.logout()
     logoutOfficer()
     toast.info(language === 'hi' ? 'अधिकारी सत्र समाप्त' : 'Officer session logged out')
     navigate('/officer', { replace: true })
   }
 
-  function handleConditionSelect(status: CentreStatus) {
+  async function handleConditionSelect(status: CentreStatus) {
+    let factor = 1.0
+    let counters = 2
+    let note = ''
+
     if (status === 'NORMAL') {
-      setCondition('NORMAL', 1.0, 2, 'Operations normal at all counters')
+      factor = 1.0
+      counters = 2
+      note = 'Operations normal at all counters'
       toast.success(
         language === 'hi' ? 'स्थिति: सामान्य (100% क्षमता, 2 काउंटर)' : 'Condition: NORMAL (100% capacity, 2 counters)',
       )
     } else if (status === 'BUSY') {
-      setCondition('BUSY', 0.8, 2, 'High arrival volume today')
+      factor = 0.8
+      counters = 2
+      note = 'High arrival volume today'
       toast.warning(
         language === 'hi' ? 'स्थिति: व्यस्त (80% क्षमता, 2 काउंटर)' : 'Condition: BUSY (80% capacity, 2 counters)',
       )
     } else if (status === 'LIFTING_DELAYED') {
-      setCondition('LIFTING_DELAYED', 0.6, 1, 'FCI truck delayed by ~2 hours')
+      factor = 0.6
+      counters = 1
+      note = 'FCI truck delayed by ~2 hours'
       toast.error(
         language === 'hi'
           ? 'स्थिति: उठान में देरी (60% क्षमता, 1 काउंटर, ईटीए स्वतः बढ़ा)'
           : 'Condition: LIFTING DELAYED (60% capacity, 1 counter, all ETAs jumped)',
       )
     } else if (status === 'PAUSED') {
-      setCondition('PAUSED', 0.0, 0, 'Centre operations temporarily paused')
+      factor = 0.0
+      counters = 0
+      note = 'Centre operations temporarily paused'
       toast.error(
         language === 'hi' ? 'स्थिति: कामकाज बंद (प्रवेश रोका गया)' : 'Condition: PAUSED (Queue entries stopped)',
       )
     }
+
+    // Call real API
+    try {
+      await officerService.updateCapacity({
+        status,
+        capacity_factor: factor,
+        active_counters: counters,
+        note,
+      })
+    } catch (e) {
+      console.warn('Backend updateCapacity error:', e)
+    }
+
+    setCondition(status, factor, counters, note)
   }
 
-  function handleGateCheckIn(e?: React.FormEvent) {
+  async function handleGateCheckIn(e?: React.FormEvent) {
     if (e) e.preventDefault()
     const clean = tokenInput.replace(/[^0-9]/g, '')
     if (!clean) {
       toast.error(language === 'hi' ? 'कृपया टोकन संख्या दर्ज करें' : 'Please enter token number')
       return
+    }
+
+    try {
+      await officerService.checkIn({ token_code: `KQ-${clean}` })
+    } catch (err) {
+      console.warn('Backend checkin error, applying local state:', err)
     }
 
     const success = checkInEntry(clean)
@@ -107,7 +211,16 @@ export function OfficerDashboardPage() {
     }
   }
 
-  function handleStartProcessing(token: number) {
+  async function handleStartProcessing(token: number) {
+    const targetEntry = entries.find((e) => e.token === token)
+    if (targetEntry) {
+      try {
+        await officerService.startProcessing(targetEntry.id)
+      } catch (err) {
+        console.warn('Backend startProcessing error, applying local state:', err)
+      }
+    }
+
     const success = startProcessingEntry(token)
     if (success) {
       toast.info(
@@ -124,8 +237,14 @@ export function OfficerDashboardPage() {
     setSelectedGrade('A')
   }
 
-  function handleFinalizeProcurement() {
+  async function handleFinalizeProcurement() {
     if (!completingEntry) return
+
+    try {
+      await officerService.completeProcessing(completingEntry.id)
+    } catch (err) {
+      console.warn('Backend completeProcessing error, applying local fallback:', err)
+    }
 
     const record = completeProcurement(completingEntry.token, selectedGrade, actualWeight)
     if (record) {
@@ -666,20 +785,27 @@ export function OfficerDashboardPage() {
               </div>
 
               {/* MSP Calculation Summary */}
-              <div className="bg-[#1A3636] border border-[#677D6A]/60 rounded-xl p-3 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-white/60 block">{language === 'hi' ? 'एमएसपी दर:' : 'MSP Rate:'}</span>
-                  <span className="font-bold text-white">
-                    ₹{completingEntry.crop === 'soybean' ? '4,600' : '2,275'} / Q
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-white/60 block">{language === 'hi' ? 'कुल भुगतान राशि:' : 'Total Payout:'}</span>
-                  <span className="font-extrabold text-[#D6BD98] text-base">
-                    ₹{Math.round(actualWeight * (completingEntry.crop === 'soybean' ? 4600 : 2275)).toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </div>
+              {(() => {
+                const cropId = completingEntry.crop.toLowerCase() as keyof typeof CROP_BY_ID
+                const mspRate = CROP_BY_ID[cropId]?.mspPerQuintal ?? 2275
+                const totalPayout = Math.round(actualWeight * mspRate)
+                return (
+                  <div className="bg-[#1A3636] border border-[#677D6A]/60 rounded-xl p-3 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-white/60 block">{language === 'hi' ? 'एमएसपी दर:' : 'MSP Rate:'}</span>
+                      <span className="font-bold text-white">
+                        ₹{mspRate.toLocaleString('en-IN')} / Q
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-white/60 block">{language === 'hi' ? 'कुल भुगतान राशि:' : 'Total Payout:'}</span>
+                      <span className="font-extrabold text-[#D6BD98] text-base">
+                        ₹{totalPayout.toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })()}
 
               {/* Modal Actions */}
               <div className="flex gap-3 pt-2">

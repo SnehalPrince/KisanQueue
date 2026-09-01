@@ -18,9 +18,9 @@ import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
 import { centreService } from '@/services/api/centre-service'
 import { queueService } from '@/services/api/queue-service'
+import type { QueueEntryPreview } from '@/services/api/queue-service'
 import { queueKeys } from '@/lib/queue-keys'
-// Fixtures can stay here for now or be moved to a constants file
-import { CROP_OPTIONS } from '@/services/mock/fixtures/crops'
+import { CROP_OPTIONS } from '@/lib/crop-constants'
 import { SellCropModal } from '@/components/sell/SellCropModal'
 import type { CentreStatus } from '@/types/centre'
 
@@ -356,7 +356,7 @@ export function CentreDetailPage() {
             </p>
           ) : (
             <div className="cdetail-queue__list" role="list">
-              {queueEntries.slice(0, 10).map((entry, i) => (
+              {queueEntries.slice(0, 10).map((entry: QueueEntryPreview, i: number) => (
                 <motion.div
                   key={entry.id}
                   role="listitem"

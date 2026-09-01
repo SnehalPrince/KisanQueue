@@ -34,12 +34,13 @@ OFFICER_USER = "officer_rajgarh"
 OFFICER_PASS = "KisanQueue!2026Secure"
 
 
-async def _farmer_token(client: AsyncClient) -> str:
-    """Return a valid farmer JWT for the seeded demo farmer."""
-    r = await client.post("/v1/auth/otp/request", json={"phone": FARMER_PHONE})
+async def _farmer_token(client: AsyncClient, phone: str | None = None) -> str:
+    """Return a valid farmer JWT."""
+    p = phone or f"+91987654{int(time.time() * 10000) % 10000:04d}"
+    r = await client.post("/v1/auth/otp/request", json={"phone": p})
     assert r.status_code == 200
     r = await client.post(
-        "/v1/auth/otp/verify", json={"phone": FARMER_PHONE, "otp": FARMER_OTP}
+        "/v1/auth/otp/verify", json={"phone": p, "otp": FARMER_OTP}
     )
     assert r.status_code == 200
     return r.json()["access_token"]

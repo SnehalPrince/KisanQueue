@@ -1,6 +1,4 @@
-"""
-tests/test_integration.py — Integration tests for core KisanQueue backend flows.
-"""
+import time
 import pytest
 from httpx import AsyncClient
 
@@ -10,13 +8,14 @@ pytestmark = [pytest.mark.db]
 
 @pytest.mark.asyncio
 async def test_auth_and_pass_generation_flow(async_client: AsyncClient):
+    phone = f"+9199{int(time.time() * 1000) % 100000000:08d}"
     # 1. OTP Request
-    resp = await async_client.post("/v1/auth/otp/request", json={"phone": "+919999999999"})
+    resp = await async_client.post("/v1/auth/otp/request", json={"phone": phone})
     assert resp.status_code == 200
     assert resp.json()["success"] == True
     
     # 2. OTP Verify
-    resp = await async_client.post("/v1/auth/otp/verify", json={"phone": "+919999999999", "otp": "1234"})
+    resp = await async_client.post("/v1/auth/otp/verify", json={"phone": phone, "otp": "1234"})
     assert resp.status_code == 200
     token = resp.json()["access_token"]
     

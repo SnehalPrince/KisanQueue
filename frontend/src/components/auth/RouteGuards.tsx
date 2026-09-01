@@ -27,9 +27,10 @@ export function RequireFarmerAuth({ children }: GuardProps) {
  */
 export function RequireOfficerAuth({ children }: GuardProps) {
   const officerUser = useQueueLiveStore((s) => s.officerUser)
+  const token = typeof window !== 'undefined' ? (localStorage.getItem('officer_token') || localStorage.getItem('access_token')) : null
   const location = useLocation()
 
-  if (!officerUser) {
+  if (!officerUser && !token) {
     return <Navigate to="/officer" state={{ from: location }} replace />
   }
 

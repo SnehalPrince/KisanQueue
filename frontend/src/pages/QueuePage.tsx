@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import {
@@ -19,6 +19,8 @@ import {
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
 import { useQueueLiveStore } from '@/store/queue-live-store'
+import { queueService } from '@/services/api/queue-service'
+import { realtimeService } from '@/services/api/realtime-service'
 import { formatEta } from '@/lib/eta'
 import { statusKey } from '@/lib/copy'
 
@@ -34,9 +36,44 @@ export function QueuePage() {
   const { condition, entries, procurements, getFarmerPositionAndEta, setCondition, completeProcurement } =
     useQueueLiveStore()
 
-  const [selectedToken] = useState<string>(tokenQuery)
+  const [selectedToken, setSelectedToken] = useState<string>(tokenQuery)
   const [lastSyncSeconds, setLastSyncSeconds] = useState(0)
   const [isSimulating, setIsSimulating] = useState(false)
+  const [activeBackendPass, setActiveBackendPass] = useState<any>(null)
+
+  // Fetch active pass and live queue from backend
+  const fetchLiveStatus = useCallback(async () => {
+    try {
+      const pass = await queueService.getMyActivePass()
+      if (pass) {
+        setActiveBackendPass(pass)
+        const tokenDigits = pass.token.replace(/[^0-9]/g, '')
+        if (tokenDigits) {
+          setSelectedToken(tokenDigits)
+        }
+      }
+
+      // Fetch queue entries for centre
+      const centreId = pass?.centreId || 'centre-001'
+      const qEntries = await queueService.getQueueEntries(centreId)
+      if (qEntries && qEntries.length > 0) {
+        const mapped = qEntries.map((qe) => ({
+          id: qe.id,
+          token: parseInt(qe.token.replace(/[^0-9]/g, ''), 10) || 1,
+          farmerId: `farmer-${qe.id.slice(0, 4)}`,
+          farmerName: `Farmer (${qe.token})`,
+          crop: qe.crop as any,
+          quantityQ: qe.quantityQ,
+          status: qe.status as any,
+          position: qe.position,
+          joinedAt: 'Today',
+        }))
+        useQueueLiveStore.setState({ entries: mapped })
+      }
+    } catch (e) {
+      console.warn('Backend live status fetch error, using local state:', e)
+    }
+  }, [])
 
   // Live timer for sync counter
   useEffect(() => {
@@ -46,12 +83,52 @@ export function QueuePage() {
     return () => clearInterval(timer)
   }, [])
 
-  // Lookup target entry (defaults to Ramesh Token 47)
-  const targetTokenNum = Number(selectedToken) || 47
+  // Connect WebSocket & fetch on mount
+  useEffect(() => {
+    fetchLiveStatus()
+
+    realtimeService.connect()
+
+    const unsubEta = realtimeService.subscribe('ETA_UPDATED', (data) => {
+      setLastSyncSeconds(0)
+      if (data.eta_minutes !== undefined) {
+        fetchLiveStatus()
+      }
+    })
+
+    const unsubPos = realtimeService.subscribe('QUEUE_POSITION_CHANGED', () => {
+      setLastSyncSeconds(0)
+      fetchLiveStatus()
+    })
+
+    const unsubStatus = realtimeService.subscribe('CENTRE_STATUS_CHANGED', (data) => {
+      setLastSyncSeconds(0)
+      if (data.status) {
+        setCondition(data.status, data.capacity_factor, data.active_counters)
+      }
+    })
+
+    const unsubCompleted = realtimeService.subscribe('PROCESSING_COMPLETED', () => {
+      setLastSyncSeconds(0)
+      fetchLiveStatus()
+    })
+
+    return () => {
+      unsubEta()
+      unsubPos()
+      unsubStatus()
+      unsubCompleted()
+    }
+  }, [fetchLiveStatus, setCondition])
+
+  // Lookup target entry (uses active backend pass or defaults to Ramesh Token 47)
+  const targetTokenNum = activeBackendPass
+    ? (parseInt(activeBackendPass.token.replace(/[^0-9]/g, ''), 10) || 47)
+    : (Number(selectedToken) || 47)
   const farmerData = getFarmerPositionAndEta(targetTokenNum)
   const activeEntry = entries.find((e) => e.token === targetTokenNum)
-  const activePassId = farmer?.id === 'farmer-001' || targetTokenNum === 47 ? 'pass-kq-1047' : 'pass-kq-1047'
-  const isCompleted = activeEntry?.status === 'COMPLETED'
+  const activePassId = activeBackendPass?.id || (farmer?.id === 'farmer-001' || targetTokenNum === 47 ? 'pass-kq-1047' : 'pass-kq-1047')
+  const isCompleted = activeEntry?.status === 'COMPLETED' || activeBackendPass?.queueEntryStatus === 'COMPLETED'
   const procurementRecord = procurements[`rec-${targetTokenNum}`] || (isCompleted ? procurements['rec-farmer-001'] : null)
 
   function handleSimulateDelay() {

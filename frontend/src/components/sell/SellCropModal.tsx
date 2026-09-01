@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { X } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -7,8 +7,7 @@ import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
 import { queueService } from '@/services/api/queue-service'
 import { queueKeys } from '@/lib/queue-keys'
-import { CROP_OPTIONS } from '@/services/mock/fixtures/crops'
-import { CENTRE_FIXTURES } from '@/services/mock/fixtures/centres'
+import { CROP_OPTIONS, CROP_BY_ID } from '@/lib/crop-constants'
 import type { CropId, GeneratePassRequest, PassSummary } from '@/types/queue'
 import type { CentrePreview } from '@/types/centre'
 
@@ -331,24 +330,35 @@ export function SellCropModal({ isOpen, onClose, language }: SellCropModalProps)
 
   const stepIndex = STEPS.indexOf(step)
 
-  // Pre-fetch summary when on quantity step to make confirmation instant
-  const { data: summary } = useQuery({
-    queryKey: queueKeys.passSummary(
-      farmer?.id ?? '',
-      selectedCentreId ?? '',
-      selectedCrop ?? '',
-      quantity,
-    ),
-    queryFn: () =>
-      queueService.previewPass({
-        farmerId: farmer!.id,
-        centreId: selectedCentreId!,
-        crop: selectedCrop!,
-        quantityQ: quantity,
-      }),
-    enabled: !!farmer && !!selectedCrop && !!selectedCentreId && quantity > 0 && step === 'summary',
-    staleTime: 30_000,
-  })
+  // Derive the summary locally from crop constants + fetched centre data.
+  // This is instant (no round-trip) since we already have both in memory.
+  const centreData = useQuery({
+    queryKey: ['centres', 'list'],
+    queryFn: () => import('@/services/api/centre-service').then(m => m.centreService.getCentres()),
+    staleTime: 60_000,
+  }).data
+
+  const summary = useMemo((): PassSummary | null => {
+    if (!selectedCrop || !selectedCentreId || quantity <= 0) return null
+    const cropMeta = CROP_BY_ID[selectedCrop]
+    if (!cropMeta) return null
+    const centre = (centreData ?? []).find((c: CentrePreview) => c.id === selectedCentreId)
+    if (!centre) return null
+    return {
+      centreId: centre.id,
+      centreName: centre.name,
+      centreHindiName: centre.hindiName,
+      centreStatus: centre.status,
+      crop: selectedCrop,
+      cropNameEn: cropMeta.nameEn,
+      cropNameHi: cropMeta.nameHi,
+      quantityQ: quantity,
+      estimatedQueuePosition: centre.queueLength + 1,
+      estimatedEtaMinutes: centre.etaMinutes,
+      estimatedMsp: Math.round(cropMeta.mspPerQuintal * quantity),
+      mspRate: cropMeta.mspPerQuintal,
+    }
+  }, [selectedCrop, selectedCentreId, quantity, centreData])
 
   const generateMutation = useMutation({
     mutationFn: (req: GeneratePassRequest) => queueService.generatePass(req),

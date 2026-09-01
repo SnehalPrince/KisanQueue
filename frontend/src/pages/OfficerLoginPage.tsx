@@ -5,6 +5,7 @@ import { ShieldCheck, Lock, User, ArrowRight, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQueueLiveStore } from '@/store/queue-live-store'
 import { useAppStore } from '@/store/app-store'
+import { officerService } from '@/services/api/officer-service'
 
 export function OfficerLoginPage() {
   const navigate = useNavigate()
@@ -21,7 +22,7 @@ export function OfficerLoginPage() {
     toast.info(language === 'hi' ? 'डेमो विवरण भरा गया' : 'Demo credentials autofilled')
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!username.trim()) {
       toast.error(language === 'hi' ? 'कृपया यूज़रनेम दर्ज करें' : 'Please enter username')
@@ -29,9 +30,23 @@ export function OfficerLoginPage() {
     }
 
     setIsLoading(true)
-    setTimeout(() => {
+    try {
+      // 1. Authenticate with real backend API
+      await officerService.login(username, password)
+      
+      // 2. Set local store state
+      loginOfficer(username, password)
+
+      toast.success(
+        language === 'hi'
+          ? 'स्वागत है, अधिकारी सुरेश पटेल (राजगढ़ उपार्जन केंद्र)'
+          : 'Welcome, Officer Suresh Patel (Rajgarh APMC)',
+      )
+      navigate('/officer/dashboard', { replace: true })
+    } catch (err: any) {
+      console.warn('Backend login failed, falling back to local demo state:', err)
+      // Fallback for offline/mock demo
       const success = loginOfficer(username, password)
-      setIsLoading(false)
       if (success) {
         toast.success(
           language === 'hi'
@@ -42,11 +57,13 @@ export function OfficerLoginPage() {
       } else {
         toast.error(
           language === 'hi'
-            ? 'अमान्य विवरण। डेमो लॉगिन के लिए "डेमो विवरण" बटन दबाएं।'
-            : 'Invalid credentials. Click "Demo Login" for instant access.',
+            ? 'अमान्य विवरण। सही यूज़रनेम और पासवर्ड दर्ज करें।'
+            : 'Invalid credentials. Please enter valid officer details.',
         )
       }
-    }, 400)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

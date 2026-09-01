@@ -78,8 +78,18 @@ def build_processing_started_event(entry: Any) -> dict:
     })
 
 
-def build_processing_completed_event(entry: Any, total_amount: float) -> dict:
+def build_processing_completed_event(entry: Any) -> dict:
+    """Safe for broadcast to entire centre — contains no financial or bank data."""
     return _event("PROCESSING_COMPLETED", {
+        "queue_entry_id": entry.id,
+        "token_code": entry.token_code,
+        "farmer_user_id": entry.farmer_user_id,
+    })
+
+
+def build_farmer_payment_event(entry: Any, total_amount: float) -> dict:
+    """Private event sent ONLY to the individual farmer over their direct connection."""
+    return _event("FARMER_PAYMENT_READY", {
         "queue_entry_id": entry.id,
         "token_code": entry.token_code,
         "farmer_user_id": entry.farmer_user_id,

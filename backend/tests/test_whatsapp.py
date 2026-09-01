@@ -1,3 +1,4 @@
+import time
 import pytest
 from httpx import AsyncClient
 
@@ -6,27 +7,28 @@ pytestmark = [pytest.mark.db]
 
 @pytest.mark.asyncio
 async def test_whatsapp_simulator_onboarding(async_client: AsyncClient):
+    unique_phone = f"9999{int(time.time() * 1000) % 1000000:06d}"
     # 1. Start onboarding
-    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": "9999999999", "text": "Hi"})
+    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": unique_phone, "text": "Hi"})
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
     assert "कृपया अपना नाम बताएं" in data["reply"]
 
     # 2. Provide name
-    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": "9999999999", "text": "Ramesh Kumar"})
+    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": unique_phone, "text": "Ramesh Kumar"})
     assert response.status_code == 200
     data = response.json()
     assert "आपका गाँव और जिला क्या है" in data["reply"]
 
     # 3. Provide location
-    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": "9999999999", "text": "Biaora, Rajgarh"})
+    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": unique_phone, "text": "Biaora, Rajgarh"})
     assert response.status_code == 200
     data = response.json()
     assert "सफलतापूर्वक सेट" in data["reply"]
 
     # 4. Status query (already onboarded)
-    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": "9999999999", "text": "स्थिति दिखाओ"})
+    response = await async_client.post("/v1/whatsapp/simulate", json={"phone": unique_phone, "text": "स्थिति दिखाओ"})
     assert response.status_code == 200
     data = response.json()
     # It should hit the default help since we mocked a new phone not in `users` table yet, 

@@ -179,6 +179,39 @@ export function PassPage() {
                   <li>{isHi ? 'DBT से सीधे बैंक में पैसा' : 'Payment via DBT directly to your bank'}</li>
                 </ol>
               </motion.section>
+
+              {/* Cancel Button */}
+              {pass.queueEntryStatus === 'WAITING' && (
+                <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+                  <button
+                    onClick={async () => {
+                      if (window.confirm(isHi ? 'क्या आप वाकई इस पास को रद्द करना चाहते हैं?' : 'Are you sure you want to cancel this pass?')) {
+                        try {
+                          await queueService.cancelPass(pass.id)
+                          toast.success(isHi ? 'पास सफलतापूर्वक रद्द कर दिया गया' : 'Pass cancelled successfully')
+                          navigate('/home')
+                        } catch (err: any) {
+                          toast.error(isHi ? 'पास रद्द करने में असमर्थ' : 'Failed to cancel pass', {
+                            description: err?.message || 'Please try again.',
+                          })
+                        }
+                      }
+                    }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.4)',
+                      color: '#fca5a5',
+                      padding: '0.6rem 1.2rem',
+                      borderRadius: '0.75rem',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {isHi ? '✕ पास रद्द करें' : '✕ Cancel Pass'}
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -255,6 +255,9 @@ async def start_processing(entry_id: str, db: DbSession, payload: OfficerOnly) -
     entry.status = "PROCESSING"
     entry.processing_started_at = datetime.now(timezone.utc)
     _write_event(db, entry, "PROCESSING_STARTED", prev, "PROCESSING", officer_id)
+    # Recalculate queue positions — the PROCESSING farmer is now removed from the
+    # WAITING/CHECKED_IN count, so all downstream ETAs need to update (bug 4.3 fix).
+    await _recalculate_and_broadcast(entry.centre_id, db)
     return {"status": "processing", "queue_entry_id": entry_id}
 
 
@@ -282,7 +285,21 @@ async def complete_processing(entry_id: str, db: DbSession, payload: OfficerOnly
     from modules.integration.mock_adapter import MockGovernmentProcurementAdapter
     centre_result = await db.execute(select(Centre).where(Centre.id == entry.centre_id))
     centre = centre_result.scalar_one_or_none()
-    msp_rate = (centre.msp_rates.get(entry.crop, 0.0) if centre else 0.0)
+
+    # Bulletproof MSP rate lookup: normalize all dict keys to lowercase,
+    # handling JSON string or dict, guarding against any casing mismatch.
+    rates: dict[str, float] = {}
+    if centre and centre.msp_rates:
+        raw_rates = json.loads(centre.msp_rates) if isinstance(centre.msp_rates, str) else centre.msp_rates
+        if isinstance(raw_rates, dict):
+            rates = {str(k).strip().lower(): float(v) for k, v in raw_rates.items()}
+
+    crop_key = str(entry.crop).strip().lower()
+    msp_rate = rates.get(crop_key, 0.0)
+    if msp_rate == 0.0:
+        FALLBACK_MSP = {"wheat": 2275.0, "soybean": 4600.0, "paddy": 2300.0, "barley": 1735.0}
+        msp_rate = FALLBACK_MSP.get(crop_key, 2275.0)
+
     total = round(msp_rate * entry.quantity_quintals, 2)
 
     proc = ProcurementRecord(
@@ -311,6 +328,22 @@ async def complete_processing(entry_id: str, db: DbSession, payload: OfficerOnly
 
     _write_audit(db, "PROCESSING_COMPLETED", officer_id,
                  target_id=entry_id, target_type="queue_entry", centre_id=centre_id)
+
+    # Realtime notification: private payment info to farmer, non-financial update to centre
+    try:
+        from realtime.manager import connection_manager
+        from realtime.events import build_farmer_payment_event, build_processing_completed_event
+        await connection_manager.send_to_farmer(
+            entry.farmer_user_id,
+            build_farmer_payment_event(entry, total),
+        )
+        if centre_id:
+            await connection_manager.broadcast_to_centre(
+                centre_id,
+                build_processing_completed_event(entry),
+            )
+    except Exception as e:
+        log.warning("officer.complete_ws_failed", error=str(e))
 
     if centre_id:
         await _recalculate_and_broadcast(centre_id, db)

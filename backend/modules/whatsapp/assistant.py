@@ -34,7 +34,7 @@ async def process_whatsapp_message(db: AsyncSession, phone: str, text: str) -> t
     elif any(kw in text_lower for kw in ["msp", "भाव", "payment", "भुगतान", "dbt", "रुपये", "5"]):
         return handle_msp_query(is_hindi)
     elif "cancel" in text_lower or "रद्द" in text_lower:
-        return handle_cancel_query(is_hindi)
+        return await handle_cancel_query(db, farmer, is_hindi)
     else:
         return handle_default_help(is_hindi)
 
@@ -98,36 +98,107 @@ async def handle_onboarding(db: AsyncSession, session: WhatsAppSession, text: st
     return ("आपका प्रोफ़ाइल सेट है! (Your profile is set!)", None)
 
 async def handle_status_query(db: AsyncSession, farmer: Farmer, is_hindi: bool) -> tuple[str, dict | None]:
-    # Placeholder for actual queue status check
-    reply = (
-        "📊 **राजगढ़ उपार्जन केंद्र - लाइव रिपोर्ट:**\n"
-        "• स्थिति: **सामान्य रूप से चालू**\n"
-        "• सक्रिय कांटे: **4 काउंटर**\n"
-        "• अनुमानित प्रतीक्षा: **~15 मिनट**\n"
-        "• अधिकारी नोट: \"सभी किसान समय पर आएं\""
-    ) if is_hindi else (
-        "📊 **Rajgarh Procurement Centre - Live Status:**\n"
-        "• Condition: **NORMAL**\n"
-        "• Active Counters: **4**\n"
-        "• Estimated Queue Wait: **~15 mins**\n"
-        "• Mandi Note: \"Arrive on time\""
+    """Return real centre status and ETA from the farmer's active queue entry."""
+    from models.queue_entry import QueueEntry
+    from models.capacity_update import CapacityUpdate
+    from models.centre import Centre
+
+    # Find farmer's active queue entry
+    entry_result = await db.execute(
+        select(QueueEntry).where(
+            QueueEntry.farmer_user_id == farmer.user_id,
+            QueueEntry.status.in_(("WAITING", "CHECKED_IN", "PROCESSING")),
+        ).limit(1)
     )
+    entry = entry_result.scalar_one_or_none()
+
+    if entry is None:
+        no_pass = "आपका कोई सक्रिय पास नहीं है। KisanQueue ऐप से पास बनाएं।" if is_hindi \
+            else "You have no active queue pass. Generate one via the KisanQueue app."
+        return no_pass, {"label": "पास बनाएं" if is_hindi else "Get a Pass", "url": "/centres"}
+
+    # Get latest capacity update for the centre
+    cap_result = await db.execute(
+        select(CapacityUpdate)
+        .where(CapacityUpdate.centre_id == entry.centre_id)
+        .order_by(CapacityUpdate.effective_from.desc())
+        .limit(1)
+    )
+    cap = cap_result.scalar_one_or_none()
+
+    centre_result = await db.execute(select(Centre).where(Centre.id == entry.centre_id))
+    centre = centre_result.scalar_one_or_none()
+    centre_name = (centre.hindi_name if is_hindi and centre else (centre.name if centre else "केंद्र"))
+
+    status_str = cap.status if cap else "NORMAL"
+    counters = cap.active_counters if cap else 2
+    eta = entry.eta_minutes
+    pos = entry.queue_position
+
+    STATUS_HI = {"NORMAL": "सामान्य", "BUSY": "व्यस्त", "LIFTING_DELAYED": "उठान देरी", "PAUSED": "बंद"}
+    STATUS_EN = {"NORMAL": "Normal", "BUSY": "Busy", "LIFTING_DELAYED": "Lifting Delayed", "PAUSED": "Paused"}
+
+    if is_hindi:
+        reply = (
+            f"📊 **{centre_name} - लाइव रिपोर्ट:**\n"
+            f"• स्थिति: **{STATUS_HI.get(status_str, status_str)}**\n"
+            f"• सक्रिय कांटे: **{counters}**\n"
+            f"• आपकी कतार स्थिति: **#{pos}**\n"
+            f"• अनुमानित प्रतीक्षा: **{'~' + str(eta) + ' मिनट' if eta else 'N/A'}**\n"
+            + (f"• अधिकारी नोट: {cap.note}" if cap and cap.note else "")
+        )
+    else:
+        reply = (
+            f"📊 **{centre_name} - Live Status:**\n"
+            f"• Status: **{STATUS_EN.get(status_str, status_str)}**\n"
+            f"• Active Counters: **{counters}**\n"
+            f"• Your Queue Position: **#{pos}**\n"
+            f"• Est. Wait: **{'~' + str(eta) + ' min' if eta else 'N/A'}**\n"
+            + (f"• Officer Note: {cap.note}" if cap and cap.note else "")
+        )
     link = {"label": "लाइव कतार पृष्ठ खोलें" if is_hindi else "Open Live Queue Tracker", "url": "/queue"}
     return reply, link
 
 async def handle_pass_query(db: AsyncSession, farmer: Farmer, is_hindi: bool) -> tuple[str, dict | None]:
-    reply = (
-        f"🎫 **आपका डिजिटल किसान पास:**\n"
-        f"• किसान: **{farmer.name}**\n"
-        f"• फसल: **गेहूं (Wheat)**\n"
-        f"• गेट चेक-इन पर यह क्यूआर दिखाएं।"
-    ) if is_hindi else (
-        f"🎫 **Your Digital Kisan Pass:**\n"
-        f"• Farmer: **{farmer.name}**\n"
-        f"• Crop: **Wheat**\n"
-        f"• Present this QR code at Gate 1."
+    """Return the farmer's real active pass details from the DB."""
+    from models.queue_entry import QueueEntry
+
+    entry_result = await db.execute(
+        select(QueueEntry).where(
+            QueueEntry.farmer_user_id == farmer.user_id,
+            QueueEntry.status.in_(("WAITING", "CHECKED_IN", "PROCESSING")),
+        ).limit(1)
     )
-    link = {"label": "डिजिटल पास (QR) देखें" if is_hindi else "View Digital QR Pass", "url": "/pass/PASS-123"}
+    entry = entry_result.scalar_one_or_none()
+
+    if entry is None:
+        no_pass = "आपके पास कोई सक्रिय पास नहीं है। ऐप से नया पास बनाएं।" if is_hindi \
+            else "You have no active pass. Generate a new pass from the app."
+        return no_pass, {"label": "पास बनाएं" if is_hindi else "Get a Pass", "url": "/centres"}
+
+    CROP_HI = {"wheat": "गेहूं", "soybean": "सोयाबीन", "paddy": "धान", "barley": "जौ"}
+    crop_display = CROP_HI.get(entry.crop, entry.crop) if is_hindi else entry.crop.capitalize()
+
+    if is_hindi:
+        reply = (
+            f"🎫 **आपका डिजिटल किसान पास:**\n"
+            f"• टोकन: **{entry.token_code}**\n"
+            f"• फसल: **{crop_display}**\n"
+            f"• मात्रा: **{entry.quantity_quintals} क्विंटल**\n"
+            f"• स्थिति: **{entry.status}**\n"
+            f"• गेट चेक-इन पर यह क्यूआर दिखाएं।"
+        )
+    else:
+        reply = (
+            f"🎫 **Your Digital Kisan Pass:**\n"
+            f"• Token: **{entry.token_code}**\n"
+            f"• Crop: **{crop_display}**\n"
+            f"• Quantity: **{entry.quantity_quintals} Qtl**\n"
+            f"• Status: **{entry.status}**\n"
+            f"• Show this QR at the gate."
+        )
+    link = {"label": "डिजिटल पास (QR) देखें" if is_hindi else "View Digital QR Pass",
+            "url": f"/pass/{entry.id}"}
     return reply, link
 
 def handle_msp_query(is_hindi: bool) -> tuple[str, dict | None]:
@@ -147,8 +218,58 @@ def handle_msp_query(is_hindi: bool) -> tuple[str, dict | None]:
     link = {"label": "उपार्जन रसीद देखें" if is_hindi else "View Receipt", "url": "/procurement/rec-1"}
     return reply, link
 
-def handle_cancel_query(is_hindi: bool) -> tuple[str, dict | None]:
-    return ("आपका पास रद्द कर दिया गया है।" if is_hindi else "Your pass has been cancelled.", None)
+async def handle_cancel_query(db: AsyncSession, farmer: Farmer, is_hindi: bool) -> tuple[str, dict | None]:
+    """Actually cancel the farmer's WAITING pass, or return an honest error if there's nothing to cancel."""
+    from models.queue_entry import QueueEntry
+    from modules.qr.service import QRService
+
+    entry_result = await db.execute(
+        select(QueueEntry).where(
+            QueueEntry.farmer_user_id == farmer.user_id,
+            QueueEntry.status == "WAITING",
+        ).limit(1)
+    )
+    entry = entry_result.scalar_one_or_none()
+
+    if entry is None:
+        # Check if they have any active (non-WAITING) entry
+        active_result = await db.execute(
+            select(QueueEntry).where(
+                QueueEntry.farmer_user_id == farmer.user_id,
+                QueueEntry.status.in_(("CHECKED_IN", "PROCESSING")),
+            ).limit(1)
+        )
+        active = active_result.scalar_one_or_none()
+        if active:
+            msg = (
+                f"आपका पास ({active.token_code}) अभी **{active.status}** है — इसे रद्द नहीं किया जा सकता।\n"
+                "कृपया मंडी अधिकारी से संपर्क करें।"
+            ) if is_hindi else (
+                f"Your pass ({active.token_code}) is currently **{active.status}** and cannot be cancelled.\n"
+                "Please contact the mandi officer."
+            )
+        else:
+            msg = ("रद्द करने के लिए कोई सक्रिय पास नहीं है।" if is_hindi
+                   else "You have no active pass to cancel.")
+        return msg, None
+
+    # Cancel the WAITING entry
+    entry.status = "CANCELLED"
+    await QRService.revoke(entry.id, db)
+
+    try:
+        from modules.officer.router import _recalculate_and_broadcast
+        await _recalculate_and_broadcast(entry.centre_id, db)
+    except Exception as e:
+        log.warning("whatsapp.cancel_broadcast_failed", error=str(e))
+
+    log.info("whatsapp.pass_cancelled", token=entry.token_code, farmer_id=farmer.user_id)
+    msg = (
+        f"✅ आपका पास **{entry.token_code}** रद्द कर दिया गया है।\nआप नया पास बना सकते हैं।"
+    ) if is_hindi else (
+        f"✅ Your pass **{entry.token_code}** has been cancelled.\nYou can generate a new pass."
+    )
+    return msg, {"label": "नया पास बनाएं" if is_hindi else "Get a New Pass", "url": "/centres"}
 
 def handle_default_help(is_hindi: bool) -> tuple[str, dict | None]:
     reply = (

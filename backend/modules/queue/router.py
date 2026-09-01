@@ -27,7 +27,7 @@ from models.processing_event import ProcessingEvent
 from models.queue_entry import QueueEntry
 from modules.eta.engine import compute_eta
 from modules.qr.service import QRService
-from modules.queue.schemas import GeneratePassResponse, QueueStatusResponse
+from modules.queue.schemas import GeneratePassRequest, GeneratePassResponse, QueueStatusResponse
 
 router = APIRouter()
 log = structlog.get_logger(__name__)
@@ -37,7 +37,7 @@ ACTIVE_STATUSES = ("WAITING", "CHECKED_IN", "PROCESSING")
 
 @router.post("/passes/generate", response_model=GeneratePassResponse, status_code=201)
 async def generate_pass(
-    body_data: dict,
+    body: GeneratePassRequest,
     db: DbSession,
     payload: FarmerOnly,
 ) -> GeneratePassResponse:
@@ -49,9 +49,6 @@ async def generate_pass(
     - Centre is not PAUSED
     - Farmer has no existing active entry at this centre
     """
-    from modules.queue.schemas import GeneratePassRequest
-    body = GeneratePassRequest(**body_data)
-
     farmer_user_id = payload["sub"]
 
     # Lock the centre row for the duration of this transaction.

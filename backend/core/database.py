@@ -34,6 +34,7 @@ def _build_engine() -> AsyncEngine:
         pool_timeout=10,
         pool_pre_ping=True,  # detect stale connections before use
         echo=settings.DEBUG,  # log SQL in debug mode only
+        connect_args={"prepare_threshold": None},
     )
 
 
