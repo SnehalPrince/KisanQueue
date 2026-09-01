@@ -242,9 +242,11 @@ async def update_capacity(
 async def start_processing(entry_id: str, db: DbSession, payload: OfficerOnly) -> dict:
     """Transition CHECKED_IN -> PROCESSING."""
     officer_id = payload["sub"]
+    officer_centre_id = payload.get("centre_id")
     result = await db.execute(select(QueueEntry).where(QueueEntry.id == entry_id))
     entry = result.scalar_one_or_none()
-    if entry is None:
+    # Opaque 404 (not 403) — prevents enumeration of valid entry IDs across centres.
+    if entry is None or entry.centre_id != officer_centre_id:
         raise QueueEntryNotFoundError()
     if entry.status != "CHECKED_IN":
         raise InvalidQueueStatusTransitionError(f"Cannot start from status: {entry.status}")
@@ -265,7 +267,8 @@ async def complete_processing(entry_id: str, db: DbSession, payload: OfficerOnly
 
     result = await db.execute(select(QueueEntry).where(QueueEntry.id == entry_id))
     entry = result.scalar_one_or_none()
-    if entry is None:
+    # Opaque 404 (not 403) — prevents enumeration of valid entry IDs across centres.
+    if entry is None or entry.centre_id != centre_id:
         raise QueueEntryNotFoundError()
     if entry.status != "PROCESSING":
         raise InvalidQueueStatusTransitionError(f"Cannot complete from status: {entry.status}")
@@ -323,7 +326,8 @@ async def skip_entry(entry_id: str, db: DbSession, payload: OfficerOnly) -> dict
 
     result = await db.execute(select(QueueEntry).where(QueueEntry.id == entry_id))
     entry = result.scalar_one_or_none()
-    if entry is None:
+    # Opaque 404 (not 403) — prevents enumeration of valid entry IDs across centres.
+    if entry is None or entry.centre_id != centre_id:
         raise QueueEntryNotFoundError()
     if entry.status not in ("WAITING", "CHECKED_IN"):
         raise InvalidQueueStatusTransitionError(f"Cannot skip from status: {entry.status}")

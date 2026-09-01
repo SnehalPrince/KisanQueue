@@ -1,7 +1,8 @@
 """
 core/database.py — Async SQLAlchemy engine and session factory.
 
-Uses asyncpg driver. Pool is configured per 12_BACKEND_ARCHITECTURE.md §6:
+Uses psycopg3 (psycopg[binary]) async driver. Pool is configured per
+12_BACKEND_ARCHITECTURE.md §6:
   pool_size=20, max_overflow=10, pool_timeout=10
 
 Session dependency auto-commits on success and rolls back on any exception.

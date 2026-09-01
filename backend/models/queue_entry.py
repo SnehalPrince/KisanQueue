@@ -7,8 +7,13 @@ Status machine (13_DATABASE_SCHEMA.md):
     WAITING -> CANCELLED
     WAITING -> EXPIRED (cron)
 
-The partial unique index ensures each farmer has at most one active entry
-per centre (WAITING, CHECKED_IN, or PROCESSING).
+Duplicate-prevention (two complementary layers):
+  1. DB layer — partial unique index ``uq_queue_entry_active_per_farmer_centre``
+     (migration 0002) enforces at most one entry with status IN
+     ('WAITING', 'CHECKED_IN', 'PROCESSING') per (farmer_user_id, centre_id).
+  2. App layer — ``generate_pass`` acquires a ``SELECT ... FOR UPDATE`` lock on
+     the centre row, serialising concurrent queue-join requests and providing a
+     clean 409 before the DB constraint is ever tested.
 """
 from __future__ import annotations
 

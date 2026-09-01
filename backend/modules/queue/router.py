@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, timezone
 import structlog
 from fastapi import APIRouter
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 
 from core.dependencies import DbSession, FarmerOnly
 from core.exceptions import (
@@ -53,8 +54,12 @@ async def generate_pass(
 
     farmer_user_id = payload["sub"]
 
-    # Fetch centre
-    centre_result = await db.execute(select(Centre).where(Centre.id == body.centre_id))
+    # Lock the centre row for the duration of this transaction.
+    # This serialises concurrent generate_pass calls for the same centre,
+    # eliminating the TOCTOU race on duplicate-check + position/token computation.
+    centre_result = await db.execute(
+        select(Centre).where(Centre.id == body.centre_id).with_for_update()
+    )
     centre = centre_result.scalar_one_or_none()
     if centre is None:
         raise CentreNotFoundError()
@@ -136,7 +141,14 @@ async def generate_pass(
         valid_until=valid_until,
     )
     db.add(entry)
-    await db.flush()  # get entry.id
+    # Flush inside a try/except — the DB-level unique constraint on token_code is
+    # the last-resort guard if two requests slip through the FOR UPDATE lock
+    # (e.g. during a failover). Surfaces as a clean 409 instead of a raw 500.
+    try:
+        await db.flush()  # get entry.id
+    except IntegrityError:
+        await db.rollback()
+        raise DuplicateQueueEntryError()
 
     # Issue QR token
     qr_data = await QRService.issue(entry, db)

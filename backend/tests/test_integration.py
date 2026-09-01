@@ -4,6 +4,10 @@ tests/test_integration.py — Integration tests for core KisanQueue backend flow
 import pytest
 from httpx import AsyncClient
 
+# These tests require a live PostgreSQL connection.
+pytestmark = [pytest.mark.db]
+
+
 @pytest.mark.asyncio
 async def test_auth_and_pass_generation_flow(async_client: AsyncClient):
     # 1. OTP Request

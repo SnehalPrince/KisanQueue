@@ -1,6 +1,9 @@
 import pytest
 from httpx import AsyncClient
 
+# These tests require a live PostgreSQL connection.
+pytestmark = [pytest.mark.db]
+
 @pytest.mark.asyncio
 async def test_whatsapp_simulator_onboarding(async_client: AsyncClient):
     # 1. Start onboarding

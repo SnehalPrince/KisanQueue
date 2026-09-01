@@ -18,14 +18,14 @@
 
 ## 🎯 What is KisanQueue?
 
-KisanQueue is a **real-time operational visibility and admission layer** that sits *on top of* existing government procurement systems (MP e-Uparjan, Haryana e-Kharid, Punjab Anaaj Kharid). It does not replace them — it adds the live operational intelligence they currently lack.
+KisanQueue is a **real-time operational visibility and admission layer** designed to integrate with government procurement systems (MP e-Uparjan, Haryana e-Kharid, Punjab Anaaj Kharid). It does not replace them — it adds the live operational intelligence they currently lack. *(Government API integration layer is scaffolded; live connections are a roadmap item.)*
 
 ### The Core Problem
 A farmer holds a valid government slot, drives 40 km to the mandi, and discovers a **6-hour lifting delay (FCI trucks late)**, a 30-farmer backlog, or a paused centre with zero warning before they made the trip.
 
 ### The KisanQueue Solution: Progressive Onboarding & Persistent Assistant
 1. **Zero Form Fatigue**: The farmer's identity and village profile are verified **once** during onboarding.
-2. **Persistent WhatsApp Assistant**: Returning farmers simply message *"I want to sell wheat"*. The assistant recognizes them by phone, recommends nearby mandis with live congestion/ETAs, asks only for quantity (*quintals*), and generates an instant pass (`KQ-1047`) with a signed QR code.
+2. **In-App Conversational Assistant** (WhatsApp-style simulator): Returning farmers tap *"I want to sell wheat"*. The assistant recognizes them by phone, recommends nearby mandis with live congestion/ETAs, asks only for quantity (*quintals*), and generates an instant pass (`KQ-1047`) with a signed QR code. *(WhatsApp Business API integration is a roadmap item; current build uses an in-app simulator.)*
 3. **Backlog-Aware Deterministic ETA**: Reacts in real time when mandi officers report delays or capacity changes.
 4. **Offline-Resilient QR Pass**: HMAC-SHA256 signed gate pass that can be screenshotted and scanned at the gate even without mobile network.
 
@@ -46,14 +46,14 @@ A farmer holds a valid government slot, drives 40 km to the mandi, and discovers
 
 | Feature | Description | UI Library & Craft |
 |---|---|---|
-| 🤖 **Persistent WhatsApp Assistant** | Identifies returning farmers by phone — never asks for identity details twice | Motion Springs + Krishi Mitra Avatar |
+| 🤖 **Conversational Assistant (Simulator)** | Identifies returning farmers by phone — never asks for identity details twice. *(In-app simulator; WhatsApp Business API integration is roadmap)* | Motion Springs + Krishi Mitra Avatar |
 | 🎟️ **1-Tap Digital Pass (`KQ-1047`)** | Instant pass generation: crop + quantity ➔ signed QR gate pass + arrival window | Skiper UI Floating Modal + DecryptedText |
 | ⏱️ **Backlog-Aware ETA** | Deterministic formula: `ceil(N × T_base / (C × F))` — reacts live to officer updates | Explainable Math + NumberPopIn |
 | 📊 **Mandi Throughput Analytics** | Real-time graphs of hourly grain intake and truck lifting capacity | Bklit UI Analytics Charts |
 | 📟 **ASCII Live Queue Matrix** | Terminal-grade live queue ticker and grain flow shaders | `ascii-magic` / `asciinator` |
 | ✨ **Ambient Visual Craft** | Grain background overlay, spotlight card glow, and magnetic buttons | React Bits (`reactbits.dev`) |
 | 🟢 **Live Centre Status** | Officer-reported operational status: Normal, Busy, Lifting Delayed, Reduced, Paused | Tri-Factor Badging (Icon+Text+Color) |
-| ⚡ **Sub-2s Real-Time Sync** | WebSocket event fan-out updates farmer's screen within ~2 seconds of officer action | Native FastAPI WebSockets |
+| ⚡ **Real-Time WebSocket Sync** | WebSocket push updates farmer's screen on officer action *(target: <2 s; not yet benchmarked under load)* | Native FastAPI WebSockets |
 | 🌐 **Bilingual Typography** | English: `Urbanist` + `Rustic Roadway`<br>Hindi: `AMS Shikha` / `Manoja` + `Noto Sans Devanagari` | Curated Multi-Font Stack |
 
 ---
@@ -203,9 +203,9 @@ npm run dev                    # Starts Vite server on localhost:5173
 
 ## 🎬 3-Step Demo Moment for Judges
 
-1. **Farmer requests pass on WhatsApp**: *"I want to sell wheat"* ➔ Bot recognizes Ramesh, recommends 3 nearby mandis with live congestion/ETAs, asks quantity (*80 quintals*), issues Pass **`KQ-1047`** with signed QR.
+1. **Farmer requests a pass via the in-app conversational simulator**: *"I want to sell wheat"* ➔ Bot recognizes Ramesh, recommends 3 nearby mandis with live congestion/ETAs, asks quantity (*80 quintals*), issues Pass **`KQ-1047`** with signed QR. *(WhatsApp Business API integration is a roadmap item — current build uses an in-app simulator.)*
 2. **Officer reports lifting delay** on web console: Sets capacity to 60%, 1 counter.
-3. **Farmer's ETA jumps to ~2h 15m in real time** on Web & WhatsApp in < 2 seconds — without refreshing.
+3. **Farmer's ETA jumps to ~2h 15m in real time** on Web via WebSocket push — without refreshing.
 
 *Full walkthrough & judge Q&A recovery script: [`docs/27_DEMO_SCRIPT.md`](docs/27_DEMO_SCRIPT.md)*
 
