@@ -30,7 +30,7 @@ export function OfficerLoginPage() {
 
     setIsLoading(true)
     setTimeout(() => {
-      const success = loginOfficer(username)
+      const success = loginOfficer(username, password)
       setIsLoading(false)
       if (success) {
         toast.success(

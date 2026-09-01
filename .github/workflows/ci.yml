@@ -25,7 +25,17 @@ jobs:
           cd frontend
           npm ci
 
-      - name: Build Check
+      - name: Linter Check (Oxlint)
+        run: |
+          cd frontend
+          npx oxlint
+
+      - name: Unit & Integration Tests (Vitest)
+        run: |
+          cd frontend
+          npm test
+
+      - name: Build Check (Vite)
         run: |
           cd frontend
           npm run build

@@ -12,6 +12,7 @@ import { WelcomeBanner } from '@/components/home/WelcomeBanner'
 import { ActivePassCard } from '@/components/home/ActivePassCard'
 import { QuickActionGrid } from '@/components/home/QuickActionGrid'
 import { SellCropModal } from '@/components/sell/SellCropModal'
+import { WhatsAppSimulatorModal } from '@/components/whatsapp/WhatsAppSimulatorModal'
 
 /**
  * FarmerHomePage — authenticated dashboard at /home.
@@ -27,6 +28,7 @@ export function FarmerHomePage() {
   const navigate = useNavigate()
 
   const [sellOpen, setSellOpen] = useState(false)
+  const [whatsAppOpen, setWhatsAppOpen] = useState(false)
 
   // Auth guard
   useEffect(() => {
@@ -61,15 +63,7 @@ export function FarmerHomePage() {
   }
 
   function handleWhatsApp() {
-    toast.info(
-      language === 'hi' ? 'कृषि मित्र जल्द आ रहा है!' : 'Krishi Mitra coming soon!',
-      {
-        description:
-          language === 'hi'
-            ? 'व्हाट्सएप असिस्टेंट अगले अपडेट में मिलेगा।'
-            : 'WhatsApp assistant will be available in the next update.',
-      },
-    )
+    setWhatsAppOpen(true)
   }
 
   if (!farmer) return null
@@ -185,6 +179,12 @@ export function FarmerHomePage() {
         isOpen={sellOpen}
         onClose={() => setSellOpen(false)}
         language={language}
+      />
+
+      {/* WhatsApp Krishi Mitra Conversational Modal */}
+      <WhatsAppSimulatorModal
+        isOpen={whatsAppOpen}
+        onClose={() => setWhatsAppOpen(false)}
       />
     </div>
   )

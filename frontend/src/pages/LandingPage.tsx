@@ -11,7 +11,7 @@ import type { CentrePreview } from '@/types/centre'
 import { SiteHeader } from '@/components/layout/SiteHeader'
 import { CentreStatusGrid } from '@/components/centre/CentreStatusGrid'
 import { CentreModal } from '@/components/centre/CentreModal'
-import { useSmoothScroll } from '@/components/layout/SmoothScrollProvider'
+import { useSmoothScroll } from '@/components/layout/SmoothScrollContext'
 
 /**
  * Stagger variants for the How It Works section.

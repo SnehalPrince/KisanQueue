@@ -10,6 +10,7 @@ import { OfficerLoginPage } from '@/pages/OfficerLoginPage'
 import { OfficerDashboardPage } from '@/pages/OfficerDashboardPage'
 import { ProcurementReceiptPage } from '@/pages/ProcurementReceiptPage'
 import { PaymentStatusPage } from '@/pages/PaymentStatusPage'
+import { RequireFarmerAuth, RequireOfficerAuth } from '@/components/auth/RouteGuards'
 
 export function AppRoutes() {
   return (
@@ -20,9 +21,23 @@ export function AppRoutes() {
       {/* Slice 2 — Farmer Onboarding */}
       <Route path="/onboarding" element={<OnboardingPage />} />
 
-      {/* Slice 3 — Farmer Home + Pass */}
-      <Route path="/home" element={<FarmerHomePage />} />
-      <Route path="/pass/:id" element={<PassPage />} />
+      {/* Slice 3 — Farmer Home + Pass (Guarded) */}
+      <Route
+        path="/home"
+        element={
+          <RequireFarmerAuth>
+            <FarmerHomePage />
+          </RequireFarmerAuth>
+        }
+      />
+      <Route
+        path="/pass/:id"
+        element={
+          <RequireFarmerAuth>
+            <PassPage />
+          </RequireFarmerAuth>
+        }
+      />
 
       {/* Slice 4 — Centre Discovery */}
       <Route path="/centres" element={<CentresPage />} />
@@ -31,9 +46,16 @@ export function AppRoutes() {
       {/* Slice 5 — Live Queue & Tracking */}
       <Route path="/queue" element={<QueuePage />} />
 
-      {/* Slice 6 — Officer Console */}
+      {/* Slice 6 — Officer Console (Guarded) */}
       <Route path="/officer" element={<OfficerLoginPage />} />
-      <Route path="/officer/dashboard" element={<OfficerDashboardPage />} />
+      <Route
+        path="/officer/dashboard"
+        element={
+          <RequireOfficerAuth>
+            <OfficerDashboardPage />
+          </RequireOfficerAuth>
+        }
+      />
 
       {/* Slice 7 — Procurement Receipt & DBT Payment Tracker */}
       <Route path="/procurement/:id" element={<ProcurementReceiptPage />} />

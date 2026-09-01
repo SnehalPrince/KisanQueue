@@ -1,20 +1,7 @@
-import { useEffect, useRef, createContext, useContext, type ReactNode } from 'react'
+import { useEffect, useRef, useCallback, type ReactNode } from 'react'
 import Lenis from 'lenis'
 import { useReducedMotion } from 'motion/react'
-
-interface SmoothScrollContextType {
-  readonly lenis: Lenis | null
-  readonly scrollTo: (target: string | HTMLElement | number, options?: { offset?: number; duration?: number }) => void
-}
-
-const SmoothScrollContext = createContext<SmoothScrollContextType>({
-  lenis: null,
-  scrollTo: () => {},
-})
-
-export function useSmoothScroll() {
-  return useContext(SmoothScrollContext)
-}
+import { SmoothScrollContext } from './SmoothScrollContext'
 
 interface SmoothScrollProviderProps {
   readonly children: ReactNode
@@ -26,7 +13,7 @@ interface SmoothScrollProviderProps {
  * Applied skills:
  * - accessibility-a11y: strictly respects prefers-reduced-motion (destroys/bypasses smooth scroll)
  * - emil-design-eng: natural exponential ease-out curve, interruptible physics, touch-safe
- * - react: clean cleanup on unmount, context provider pattern
+ * - react: clean cleanup on unmount, context provider pattern without render ref leaks
  */
 export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
   const lenisRef = useRef<Lenis | null>(null)
@@ -71,30 +58,30 @@ export function SmoothScrollProvider({ children }: SmoothScrollProviderProps) {
     }
   }, [shouldReduceMotion])
 
-  function scrollTo(
-    target: string | HTMLElement | number,
-    options?: { offset?: number; duration?: number },
-  ) {
-    if (lenisRef.current) {
-      lenisRef.current.scrollTo(target, {
-        offset: options?.offset ?? 0,
-        duration: options?.duration ?? 1.1,
-      })
-    } else {
-      // Fallback for reduced-motion or SSR
-      if (typeof target === 'string') {
-        const el = document.querySelector(target)
-        el?.scrollIntoView({ behavior: 'auto' })
-      } else if (target instanceof HTMLElement) {
-        target.scrollIntoView({ behavior: 'auto' })
-      } else if (typeof target === 'number') {
-        window.scrollTo({ top: target, behavior: 'auto' })
+  const scrollTo = useCallback(
+    (target: string | HTMLElement | number, options?: { offset?: number; duration?: number }) => {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(target, {
+          offset: options?.offset ?? 0,
+          duration: options?.duration ?? 1.1,
+        })
+      } else {
+        // Fallback for reduced-motion or SSR
+        if (typeof target === 'string') {
+          const el = document.querySelector(target)
+          el?.scrollIntoView({ behavior: 'auto' })
+        } else if (target instanceof HTMLElement) {
+          target.scrollIntoView({ behavior: 'auto' })
+        } else if (typeof target === 'number') {
+          window.scrollTo({ top: target, behavior: 'auto' })
+        }
       }
-    }
-  }
+    },
+    [],
+  )
 
   return (
-    <SmoothScrollContext.Provider value={{ lenis: lenisRef.current, scrollTo }}>
+    <SmoothScrollContext.Provider value={{ scrollTo }}>
       {children}
     </SmoothScrollContext.Provider>
   )

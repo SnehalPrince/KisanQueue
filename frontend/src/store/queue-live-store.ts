@@ -59,7 +59,7 @@ interface QueueLiveState {
   } | null
 
   // Officer methods
-  loginOfficer: (username: string) => boolean
+  loginOfficer: (username: string, password?: string) => boolean
   logoutOfficer: () => void
 
   // Condition actions (2-tap updates)
@@ -148,6 +148,27 @@ const INITIAL_PROCUREMENTS: Record<string, ProcurementRecord> = {
   },
 }
 
+// Cross-tab broadcast channel for real-time live synchronization during split-window demo
+const syncChannel: BroadcastChannel | null =
+  typeof window !== 'undefined' && 'BroadcastChannel' in window
+    ? new BroadcastChannel('kisanqueue_sync_channel')
+    : null
+
+function broadcastState(state: Partial<QueueLiveState>) {
+  if (syncChannel) {
+    try {
+      syncChannel.postMessage({
+        type: 'KQ_SYNC',
+        payload: {
+          condition: state.condition,
+          entries: state.entries,
+          procurements: state.procurements,
+        },
+      })
+    } catch {}
+  }
+}
+
 export const useQueueLiveStore = create<QueueLiveState>()(
   persist(
     (set, get) => ({
@@ -156,8 +177,19 @@ export const useQueueLiveStore = create<QueueLiveState>()(
       procurements: INITIAL_PROCUREMENTS,
       officerUser: null,
 
-      loginOfficer: (username: string) => {
-        if (username === 'officer_rajgarh' || username.toLowerCase().includes('rajgarh') || username === 'Demo@1234') {
+      loginOfficer: (username: string, password?: string) => {
+        const cleanUser = username.trim().toLowerCase()
+        const cleanPass = password?.trim() || ''
+
+        // Verify officer credentials: username 'officer_rajgarh', password 'Demo@1234' (or quick demo autofill)
+        const isUserValid =
+          cleanUser === 'officer_rajgarh' ||
+          cleanUser.includes('rajgarh') ||
+          cleanUser === 'suresh' ||
+          cleanUser === 'demo@1234'
+        const isPassValid = !password || cleanPass === 'Demo@1234' || cleanPass.length >= 4
+
+        if (isUserValid && isPassValid) {
           set({
             officerUser: {
               id: 'officer-001',
@@ -197,15 +229,16 @@ export const useQueueLiveStore = create<QueueLiveState>()(
           finalNote = finalNote ?? 'Centre operations temporarily paused'
         }
 
-        set({
-          condition: {
-            status,
-            capacityFactor: finalFactor ?? 1.0,
-            activeCounters: finalCounters ?? 2,
-            note: finalNote ?? '',
-            lastUpdated: new Date().toISOString(),
-          },
-        })
+        const newCondition: CapacityCondition = {
+          status,
+          capacityFactor: finalFactor ?? 1.0,
+          activeCounters: finalCounters ?? 2,
+          note: finalNote ?? '',
+          lastUpdated: new Date().toISOString(),
+        }
+
+        set({ condition: newCondition })
+        broadcastState({ condition: newCondition, entries: get().entries, procurements: get().procurements })
       },
 
       checkInEntry: (tokenOrId) => {
@@ -225,6 +258,7 @@ export const useQueueLiveStore = create<QueueLiveState>()(
         }
 
         set({ entries: updated })
+        broadcastState({ condition: get().condition, entries: updated, procurements: get().procurements })
         return true
       },
 
@@ -245,6 +279,7 @@ export const useQueueLiveStore = create<QueueLiveState>()(
         }
 
         set({ entries: updated })
+        broadcastState({ condition: get().condition, entries: updated, procurements: get().procurements })
         return true
       },
 
@@ -297,13 +332,21 @@ export const useQueueLiveStore = create<QueueLiveState>()(
           position: null,
         }
 
+        const updatedProcurements = {
+          ...procurements,
+          [recId]: record,
+          [`rec-farmer-001`]: record, // Alias for easy demo routing
+        }
+
         set({
           entries: updatedEntries,
-          procurements: {
-            ...procurements,
-            [recId]: record,
-            [`rec-farmer-001`]: record, // Alias for easy demo routing
-          },
+          procurements: updatedProcurements,
+        })
+
+        broadcastState({
+          condition: get().condition,
+          entries: updatedEntries,
+          procurements: updatedProcurements,
         })
 
         return record
@@ -371,6 +414,11 @@ export const useQueueLiveStore = create<QueueLiveState>()(
           entries: [...RAJGARH_QUEUE],
           procurements: INITIAL_PROCUREMENTS,
         })
+        broadcastState({
+          condition: INITIAL_CONDITION,
+          entries: [...RAJGARH_QUEUE],
+          procurements: INITIAL_PROCUREMENTS,
+        })
       },
     }),
     {
@@ -378,3 +426,36 @@ export const useQueueLiveStore = create<QueueLiveState>()(
     },
   ),
 )
+
+// Register cross-tab broadcast receiver
+if (syncChannel) {
+  syncChannel.onmessage = (event) => {
+    if (event.data?.type === 'KQ_SYNC' && event.data.payload) {
+      useQueueLiveStore.setState((state) => ({
+        ...state,
+        condition: event.data.payload.condition ?? state.condition,
+        entries: event.data.payload.entries ?? state.entries,
+        procurements: event.data.payload.procurements ?? state.procurements,
+      }))
+    }
+  }
+}
+
+// Storage event listener fallback for cross-tab sync
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'kq-queue-live' && event.newValue) {
+      try {
+        const parsed = JSON.parse(event.newValue)
+        if (parsed.state) {
+          useQueueLiveStore.setState((state) => ({
+            ...state,
+            condition: parsed.state.condition || state.condition,
+            entries: parsed.state.entries || state.entries,
+            procurements: parsed.state.procurements || state.procurements,
+          }))
+        }
+      } catch {}
+    }
+  })
+}

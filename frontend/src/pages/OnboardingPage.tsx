@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
 import { ArrowLeft, Globe2 } from 'lucide-react'
@@ -53,7 +53,6 @@ export function OnboardingPage() {
     primaryCrop: 'Wheat',
     aadhaarLast4: '',
   })
-  const profileDataRef = useRef<ProfileFormData>(profileData)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
 
@@ -75,7 +74,6 @@ export function OnboardingPage() {
   }
 
   function handleProfileNext(data: ProfileFormData) {
-    profileDataRef.current = data
     setProfileData(data)
     setCurrentStep(3)
   }
@@ -85,16 +83,15 @@ export function OnboardingPage() {
     isWhatsAppLinked: boolean
   }) {
     setIsSubmitting(true)
-    const currentProfile = profileDataRef.current
     try {
       const session = await authService.createProfile({
         phone: verifiedPhone,
-        name: currentProfile.name,
-        village: currentProfile.village,
-        district: currentProfile.district,
+        name: profileData.name,
+        village: profileData.village,
+        district: profileData.district,
         language: prefs.language,
-        primaryCrop: currentProfile.primaryCrop,
-        aadhaarLast4: currentProfile.aadhaarLast4,
+        primaryCrop: profileData.primaryCrop,
+        aadhaarLast4: profileData.aadhaarLast4,
         isWhatsAppLinked: prefs.isWhatsAppLinked,
       })
 
@@ -245,7 +242,7 @@ export function OnboardingPage() {
                     initialLanguage={language}
                     isSubmitting={isSubmitting}
                     isCompleted={isCompleted}
-                    farmerName={farmer?.name || profileData.name || profileDataRef.current.name}
+                    farmerName={farmer?.name || profileData.name}
                     onSubmit={handleCompleteRegistration}
                     onBack={() => setCurrentStep(2)}
                     onFinish={handleFinish}

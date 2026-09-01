@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { X } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -369,22 +369,27 @@ export function SellCropModal({ isOpen, onClose, language }: SellCropModalProps)
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => closeBtnRef.current?.focus(), 50)
-    } else {
-      setStep('crop')
-      setSelectedCrop(null)
-      setSelectedCentreId('centre-001')
-      setQuantity(40.5)
     }
   }, [isOpen])
+
+  const handleModalClose = useCallback(() => {
+    setStep('crop')
+    setSelectedCrop(null)
+    setSelectedCentreId('centre-001')
+    setQuantity(40.5)
+    onClose()
+  }, [onClose])
 
   // Keyboard: Escape to close
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) onClose()
+      if (e.key === 'Escape' && isOpen) {
+        handleModalClose()
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [isOpen, onClose])
+  }, [isOpen, handleModalClose])
 
   function goNext() {
     setDirection(1)
@@ -433,7 +438,7 @@ export function SellCropModal({ isOpen, onClose, language }: SellCropModalProps)
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             ref={overlayRef}
-            onClick={onClose}
+            onClick={handleModalClose}
             aria-hidden="true"
           />
 
@@ -460,7 +465,7 @@ export function SellCropModal({ isOpen, onClose, language }: SellCropModalProps)
               <button
                 ref={closeBtnRef}
                 className="sell-modal__close"
-                onClick={onClose}
+                onClick={handleModalClose}
                 aria-label={isHi ? 'बंद करें' : 'Close'}
               >
                 <X size={20} aria-hidden="true" />
