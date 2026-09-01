@@ -18,6 +18,11 @@ Error envelope format (all errors):
 from __future__ import annotations
 
 import time
+import asyncio
+import sys
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
