@@ -1,22 +1,23 @@
 ---
-name: Feature Request
-about: Suggest an idea or operational improvement for KisanQueue
-title: '[FEAT] '
-labels: 'enhancement'
+name: 🚀 Feature / Enhancement Request
+about: Propose a new feature, UX flow, or operational enhancement for KisanQueue
+title: '[FEAT]: '
+labels: ['enhancement', 'triage']
 assignees: ''
 ---
 
-## 🚀 Problem Statement / User Need
-<!-- Is your feature request related to a problem? Ex. "I'm always frustrated when [...]" -->
+### 🚀 Problem Statement / User Need
+<!-- What challenge, friction point, or gap does this feature address? Example: "Farmers waiting at remote procurement centres currently have to..." -->
 
-## 💡 Proposed Solution
-<!-- A clear and concise description of what you want to happen. -->
+### 💡 Proposed Solution & Design
+<!-- Describe the proposed solution, UI flow, or architectural improvement. -->
 
-## 🌾 Farmer / Mandi Officer Value
-<!-- How does this improve waiting time, operational transparency, or ease of use? -->
+### 🌾 Value & Impact
+- **Primary Stakeholder**: [ ] Farmer | [ ] Mandi Operator | [ ] Procurement Officer | [ ] Admin
+- **Operational Value**: <!-- How does this reduce waiting time, prevent distress selling, or increase transparency? -->
 
-## 🎨 UI/UX Mockups or References
-<!-- If you have design ideas or visual references, attach them here. -->
+### 🎨 UI/UX Mockups & References
+<!-- Add wireframes, component sketches, design tokens, or reference implementations if available. -->
 
-## 📋 Additional Context
-<!-- Add any other context or screenshots about the feature request here. -->
+### 📋 Technical Considerations
+<!-- Any API endpoints, database schema changes, WebSocket events, or offline requirements? -->

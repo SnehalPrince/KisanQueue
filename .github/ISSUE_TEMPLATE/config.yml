@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 KisanQueue Technical Documentation
+    url: https://github.com/SnehalPrince/KisanQueue/tree/main/docs
+    about: Read our comprehensive documentation (architecture, ETA engine, API, UX).
+  - name: 💬 Discussions & Q&A
+    url: https://github.com/SnehalPrince/KisanQueue/discussions
+    about: Ask questions, share ideas, or discuss implementation with the team.

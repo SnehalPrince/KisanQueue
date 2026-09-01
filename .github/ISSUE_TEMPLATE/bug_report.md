@@ -1,30 +1,35 @@
 ---
-name: Bug Report
-about: Create a report to help us improve KisanQueue
-title: '[BUG] '
-labels: 'bug'
+name: 🐛 Bug Report
+about: Report a defect, error, or unexpected behavior in KisanQueue
+title: '[BUG]: '
+labels: ['bug', 'triage']
 assignees: ''
 ---
 
-## 🐛 Bug Description
-<!-- A clear and concise description of what the bug is. -->
+### 🐛 Bug Summary
+<!-- A clear and concise description of the bug. -->
 
-## 🔁 Steps to Reproduce
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+### 🔁 Reproduction Steps
+1. Navigate to '...'
+2. Click on '...'
+3. Enter input '...'
 4. See error
 
-## 🎯 Expected Behavior
-<!-- A clear and concise description of what you expected to happen. -->
+### 🎯 Expected vs. Actual Behavior
+- **Expected**: <!-- What did you expect to happen? -->
+- **Actual**: <!-- What actually happened? -->
 
-## 📸 Screenshots / Logs
-<!-- If applicable, add screenshots or terminal/console logs to help explain your problem. -->
+### 📱 Environment & Context
+- **OS / Device**: [e.g., Android 14, iOS 17, Windows 11, Ubuntu 24.04]
+- **Browser / Client**: [e.g., Chrome 128, Mobile Safari, WhatsApp Web]
+- **Language Mode**: [ ] Hindi (हिन्दी) | [ ] English
+- **Network / Connectivity**: [e.g., WiFi, 4G, 2G Low-bandwidth, Offline mode]
 
-## 📱 Environment Information
-- **Device / OS**: [e.g. Android 13, Windows 11, iOS 17]
-- **Browser**: [e.g. Chrome 120, Safari 17]
-- **Language Mode**: [Hindi / English]
+### 📸 Screenshots & Logs
+<!-- Add screenshots, screen recordings, console logs, or backend error traces if applicable. -->
+```text
 
-## 📋 Additional Context
-<!-- Add any other context about the problem here. -->
+```
+
+### 📋 Additional Notes
+<!-- Any other helpful context, such as related tokens, mandi centres, or test accounts. -->
