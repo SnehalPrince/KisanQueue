@@ -7,7 +7,7 @@ import { LandingPage } from '@/pages/LandingPage'
 import { useAppStore } from '@/store/app-store'
 
 // Mock the centre service so tests don't depend on timing
-vi.mock('@/services/mock/centre-service', () => ({
+vi.mock('@/services/api/centre-service', () => ({
   centreService: {
     listPreviews: vi.fn().mockResolvedValue([
       {

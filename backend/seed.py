@@ -286,7 +286,7 @@ async def seed() -> None:
         print("Seeding queue entries...")
         qe_id_map: dict[str, str] = {}
         for i, qe in enumerate(QUEUE_ENTRIES):
-            qeid = uid()
+            qeid = f"qe-mock-{qe['token_code']}"
             qe_id_map[qe["token_code"]] = qeid
             joined_hour = 6 + i
             await db.execute(
@@ -313,7 +313,7 @@ async def seed() -> None:
             qe_id = qe_id_map.get(pr["queue_code"])
             if not qe_id:
                 continue
-            proc_id = uid()
+            proc_id = f"proc-mock-{pr['queue_code']}"
             await db.execute(
                 text("""
                     INSERT INTO procurement_records (id, queue_entry_id, crop, declared_quantity_q,
@@ -338,13 +338,14 @@ async def seed() -> None:
                         ON CONFLICT DO NOTHING
                     """),
                     {
-                        "id": uid(), "prid": proc_id,
+                        "id": f"pay-mock-{pr['queue_code']}", "prid": proc_id,
                         "status": ps["status"], "amount": ps["amount"], "utr": ps["utr"],
                     },
                 )
 
         await db.commit()
-        print("✓ Seed complete!")
+        print("Seed complete!")
+        print(f"Officer password used: {OFFICER_PASSWORD}")
 
 
 if __name__ == "__main__":

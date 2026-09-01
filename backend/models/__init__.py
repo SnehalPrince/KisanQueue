@@ -14,6 +14,7 @@ from models.procurement_record import ProcurementRecord
 from models.qr_token import QRToken
 from models.queue_entry import QueueEntry
 from models.user import User
+from models.whatsapp_session import WhatsAppSession
 
 __all__ = [
     "Base",
@@ -29,4 +30,5 @@ __all__ = [
     "PaymentStatus",
     "AuditLog",
     "Notification",
+    "WhatsAppSession",
 ]

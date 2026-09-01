@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Search, SlidersHorizontal, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
-import { centreService } from '@/services/mock/centre-service'
+import { centreService } from '@/services/api/centre-service'
 import { CentreCard } from '@/components/centres/CentreCard'
 import type { CentreStatus } from '@/types/centre'
 

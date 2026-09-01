@@ -53,6 +53,22 @@ jobs:
   backend:
     name: Backend Tests & Lint
     runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: kisan
+          POSTGRES_PASSWORD: kisanpassword
+          POSTGRES_DB: kisanqueue_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -75,10 +91,12 @@ jobs:
 
       - name: Run Pytest
         env:
-          DATABASE_URL: "postgresql+asyncpg://mock:mock@localhost:5432/mock"
+          DATABASE_URL: "postgresql+psycopg://kisan:kisanpassword@localhost:5432/kisanqueue_test"
           JWT_SECRET_KEY: "mock_secret_key_for_testing_only_long_enough"
           QR_HMAC_SECRET: "mock_hmac_secret_for_testing_only_long_enough"
           OTP_MOCK_ENABLED: "True"
         run: |
           cd backend
+          alembic upgrade head
+          python seed.py
           pytest tests/

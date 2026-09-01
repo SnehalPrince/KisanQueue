@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 class GeneratePassRequest(BaseModel):
     centre_id: str
     crop: str
-    quantity_q: float = Field(..., gt=0, le=1000, description="Quantity in quintals")
+    quantity_quintals: float = Field(..., gt=0, le=1000, description="Quantity in quintals")
     farmer_id: str | None = None  # derived from JWT if not provided
 
 
@@ -22,7 +22,7 @@ class GeneratePassResponse(BaseModel):
     centre_name: str
     centre_hindi_name: str | None
     crop: str
-    quantity_q: float
+    quantity_quintals: float
     queue_position: int
     eta_minutes: int | None
     eta_confidence: str
@@ -40,7 +40,7 @@ class QueueStatusResponse(BaseModel):
     centre_id: str | None = None
     centre_name: str | None = None
     crop: str | None = None
-    quantity_q: float | None = None
+    quantity_quintals: float | None = None
     queue_position: int | None = None
     eta_minutes: int | None = None
     eta_confidence: str | None = None

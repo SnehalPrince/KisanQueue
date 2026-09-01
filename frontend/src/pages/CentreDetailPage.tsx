@@ -16,9 +16,10 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
-import { centreService } from '@/services/mock/centre-service'
-import { queueService } from '@/services/mock/queue-service'
+import { centreService } from '@/services/api/centre-service'
+import { queueService } from '@/services/api/queue-service'
 import { queueKeys } from '@/lib/queue-keys'
+// Fixtures can stay here for now or be moved to a constants file
 import { CROP_OPTIONS } from '@/services/mock/fixtures/crops'
 import { SellCropModal } from '@/components/sell/SellCropModal'
 import type { CentreStatus } from '@/types/centre'

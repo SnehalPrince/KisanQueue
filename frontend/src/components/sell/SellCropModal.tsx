@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
-import { queueService } from '@/services/mock/queue-service'
+import { queueService } from '@/services/api/queue-service'
 import { queueKeys } from '@/lib/queue-keys'
 import { CROP_OPTIONS } from '@/services/mock/fixtures/crops'
 import { CENTRE_FIXTURES } from '@/services/mock/fixtures/centres'
@@ -66,9 +66,14 @@ function StepCentreSelect({
   cropId: CropId
 }) {
   const isHi = language === 'hi'
+  
+  const { data: centres } = useQuery({
+    queryKey: ['centres'],
+    queryFn: () => import('@/services/api/centre-service').then(m => m.centreService.getCentres()),
+  })
 
   // Filter to only centres accepting this crop (simplified: all for wheat/soybean, some for paddy/barley)
-  const eligibleCentres: CentrePreview[] = CENTRE_FIXTURES.filter((c) => c.status !== 'PAUSED')
+  const eligibleCentres: CentrePreview[] = (centres || []).filter((c) => c.status !== 'PAUSED')
 
   const statusLabel: Record<string, { en: string; hi: string; dot: string }> = {
     NORMAL: { en: 'Normal', hi: 'सामान्य', dot: 'green' },

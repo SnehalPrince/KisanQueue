@@ -3,7 +3,7 @@ import { motion } from 'motion/react'
 import { Phone, KeyRound, Sparkles, ArrowRight, RotateCw, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import type { CopyMap } from '@/lib/copy'
-import { authService } from '@/services/mock/auth-service'
+import { authService } from '@/services/api/auth-service'
 import type { AuthSession } from '@/types/auth'
 
 interface PhoneOtpStepProps {
@@ -124,10 +124,10 @@ export function PhoneOtpStep({ text, onOtpVerified }: PhoneOtpStepProps) {
     setIsVerifying(true)
     setErrorMessage(null)
     try {
-      const result = await authService.verifyOtp(phone, fullOtp)
-      if (result.isExisting && result.session) {
-        toast.success(`Welcome back, ${result.session.farmer.name}!`)
-        onOtpVerified(phone, result.session)
+      const session = await authService.verifyOtp(phone, fullOtp)
+      if (session) {
+        toast.success(`Welcome back, ${session.farmer.name}!`)
+        onOtpVerified(phone, session)
       } else {
         toast.success('Mobile verified! Please complete your farmer details.')
         onOtpVerified(phone)

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { ArrowLeft, Share2, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAppStore } from '@/store/app-store'
-import { queueService } from '@/services/mock/queue-service'
+import { queueService } from '@/services/api/queue-service'
 import { queueKeys } from '@/lib/queue-keys'
 import { QRPassCard } from '@/components/pass/QRPassCard'
 

@@ -31,7 +31,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
+from fastapi.exceptions import RequestValidationError
 from core.config import settings
 from core.database import close_db_pool, init_db_pool
 from core.exceptions import KisanQueueError
@@ -153,6 +153,19 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException) 
     )
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "error_code": "VALIDATION_ERROR",
+            "message": "Invalid request parameters",
+            "detail": exc.errors(),
+            "request_id": _request_id(request),
+        },
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     log.exception(
@@ -210,6 +223,7 @@ from modules.officer.router import router as officer_router
 from modules.procurement.router import router as procurement_router
 from modules.queue.router import router as queue_router
 from realtime.gateway import router as ws_router
+from modules.whatsapp.router import router as whatsapp_router
 
 app.include_router(auth_router, prefix="/v1/auth", tags=["Auth"])
 app.include_router(farmer_router, prefix="/v1/farmer", tags=["Farmer"])
@@ -218,4 +232,5 @@ app.include_router(queue_router, prefix="/v1", tags=["Queue"])
 app.include_router(officer_router, prefix="/v1/officer", tags=["Officer"])
 app.include_router(procurement_router, prefix="/v1", tags=["Procurement"])
 app.include_router(notifications_router, prefix="/v1/notifications", tags=["Notifications"])
+app.include_router(whatsapp_router, prefix="/v1/whatsapp", tags=["WhatsApp"])
 app.include_router(ws_router, prefix="/v1/realtime", tags=["Realtime"])

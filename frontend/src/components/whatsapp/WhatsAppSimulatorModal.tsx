@@ -87,73 +87,44 @@ export function WhatsAppSimulatorModal({ isOpen, onClose }: WhatsAppSimulatorMod
     setInputText('')
     setIsTyping(true)
 
-    setTimeout(() => {
-      let botReply = ''
-      let actionLink: { label: string; url: string } | undefined
-
-      const query = (customQuery || promptText).toLowerCase()
-
-      if (
-        query.includes('status') ||
-        query.includes('स्थिति') ||
-        query.includes('mandi') ||
-        query.includes('eta') ||
-        query.includes('कतार')
-      ) {
-        const liveInfo = getFarmerPositionAndEta(farmer?.phone ? 42 : 'farmer-001')
-        botReply = isHindi
-          ? `📊 **राजगढ़ उपार्जन केंद्र - लाइव रिपोर्ट:**\n• स्थिति: **${condition.status === 'NORMAL' ? 'सामान्य रूप से चालू' : condition.status === 'BUSY' ? 'आज व्यस्त' : 'प्रक्रिया धीमी'}**\n• सक्रिय कांटे: **${condition.activeCounters} काउंटर**\n• अनुमानित प्रतीक्षा: **${liveInfo.etaMinutes ? `~${liveInfo.etaMinutes} मिनट` : '15-20 मिनट'}**\n• अधिकारी नोट: "${condition.note}"`
-          : `📊 **Rajgarh Procurement Centre - Live Status:**\n• Condition: **${condition.status}**\n• Active Weighing Counters: **${condition.activeCounters}**\n• Estimated Queue Wait: **~${liveInfo.etaMinutes ?? 25} mins**\n• Mandi Note: "${condition.note}"`
-        actionLink = {
-          label: isHindi ? 'लाइव कतार पृष्ठ खोलें' : 'Open Live Queue Tracker',
-          url: '/queue',
-        }
-      } else if (
-        query.includes('pass') ||
-        query.includes('पास') ||
-        query.includes('qr') ||
-        query.includes('slot') ||
-        query.includes('टोकन')
-      ) {
-        botReply = isHindi
-          ? `🎫 **आपका डिजिटल किसान पास:**\n• पास कोड: **KQ-PASS-7729**\n• किसान: **${farmerName}**\n• फसल: **गेहूं (Wheat) - 40 क्विंटल**\n• स्लॉट समय: **आज सुबह 09:00 AM**\n• गेट चेक-इन पर यह क्यूआर दिखाएं।`
-          : `🎫 **Your Digital Kisan Pass:**\n• Pass Code: **KQ-PASS-7729**\n• Farmer: **${farmerName}**\n• Crop: **Wheat - 40 Quintals**\n• Slot Time: **Today 09:00 AM**\n• Present this QR code at Gate 1.`
-        actionLink = {
-          label: isHindi ? 'डिजिटल पास (QR) देखें' : 'View Digital QR Pass',
-          url: '/pass/PASS-7729',
-        }
-      } else if (
-        query.includes('msp') ||
-        query.includes('भाव') ||
-        query.includes('payment') ||
-        query.includes('भुगतान') ||
-        query.includes('dbt') ||
-        query.includes('रुपये')
-      ) {
-        botReply = isHindi
-          ? `💰 **एमएसपी दरें व डीबीटी भुगतान स्थिति:**\n• गेहूं (Wheat): **₹2,275/क्विंटल**\n• सोयाबीन (Soybean): **₹4,600/क्विंटल**\n• धान (Paddy): **₹2,183/क्विंटल**\n• तौल के बाद भुगतान 48 घंटों में सीधे आपके आधार-लिंक्ड बैंक खाते (DBT) में क्रेडिट होता है।`
-          : `💰 **Government MSP Rates & DBT Status:**\n• Wheat: **₹2,275 / Quintal**\n• Soybean: **₹4,600 / Quintal**\n• Paddy: **₹2,183 / Quintal**\n• Payments are credited directly via PFMS/DBT to your bank account within 48 hours of weighment.`
-        actionLink = {
-          label: isHindi ? 'उपार्जन रसीद व भुगतान स्थिति देखें' : 'View Receipt & DBT Tracker',
-          url: '/procurement/rec-39',
-        }
-      } else {
-        botReply = isHindi
-          ? `🚜 **मंडी गेट चेक-इन सहायता:**\nउपार्जन केंद्र आते समय निम्नलिखित दस्तावेज़ साथ लाएं:\n1. किसान ऋण पुस्तिका / खसरा नकल\n2. आधार कार्ड व बैंक पासबुक\n3. वाहन (ट्रैक्टर/ट्रॉली) पंजीयन\n4. किसानक्यू डिजिटल पास (क्यूआर कोड)`
-          : `🚜 **Mandi Gate Check-in Assistance:**\nPlease ensure you carry the following documents:\n1. Land Record / Khasra document\n2. Aadhaar Card & Bank Passbook\n3. Tractor/Trolley registration\n4. KisanQueue Digital Pass QR.`
+    setTimeout(async () => {
+      try {
+        const response = await fetch('http://localhost:8000/v1/whatsapp/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: farmer?.phone || '9999999999',
+            text: customQuery || promptText
+          })
+        })
+        
+        if (!response.ok) throw new Error('API Error')
+        
+        const data = await response.json()
+        
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `bot-${msgIdCounter++}`,
+            sender: 'bot',
+            text: data.reply,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            actionLink: data.action_link || undefined,
+          },
+        ])
+      } catch (err) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `bot-${msgIdCounter++}`,
+            sender: 'bot',
+            text: isHindi ? 'माफ़ करें, सर्वर से संपर्क नहीं हो पाया।' : 'Sorry, failed to reach the server.',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        ])
+      } finally {
+        setIsTyping(false)
       }
-
-      setIsTyping(false)
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `bot-${msgIdCounter++}`,
-          sender: 'bot',
-          text: botReply,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          actionLink,
-        },
-      ])
     }, 600)
   }, [condition, farmer, farmerName, getFarmerPositionAndEta, isHindi])
 

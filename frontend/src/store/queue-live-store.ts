@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { QueueEntry, QueueEntryStatus, CropId } from '@/types/queue'
 import type { CentreStatus } from '@/types/centre'
-import { RAJGARH_QUEUE } from '@/services/mock/fixtures/queue'
 
 export interface CapacityCondition {
   readonly status: CentreStatus
@@ -173,7 +172,7 @@ export const useQueueLiveStore = create<QueueLiveState>()(
   persist(
     (set, get) => ({
       condition: INITIAL_CONDITION,
-      entries: [...RAJGARH_QUEUE],
+      entries: [],
       procurements: INITIAL_PROCUREMENTS,
       officerUser: null,
 
@@ -411,12 +410,12 @@ export const useQueueLiveStore = create<QueueLiveState>()(
       resetDemoState: () => {
         set({
           condition: INITIAL_CONDITION,
-          entries: [...RAJGARH_QUEUE],
+          entries: [],
           procurements: INITIAL_PROCUREMENTS,
         })
         broadcastState({
           condition: INITIAL_CONDITION,
-          entries: [...RAJGARH_QUEUE],
+          entries: [],
           procurements: INITIAL_PROCUREMENTS,
         })
       },

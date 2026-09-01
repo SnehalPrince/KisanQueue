@@ -6,6 +6,52 @@ import { Toaster } from 'sonner'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { useAppStore } from '@/store/app-store'
 
+vi.mock('@/services/api/auth-service', () => ({
+  authService: {
+    sendOtp: vi.fn().mockResolvedValue(undefined),
+    verifyOtp: vi.fn().mockImplementation(async (phone, otp) => {
+      if (phone === '9876543210' && otp === '1234') {
+        return {
+          token: 'mock-token',
+          farmer: {
+            id: 'f-1',
+            name: 'Ramesh Kumar',
+            hindiName: 'रमेश कुमार',
+            phone: '9876543210',
+            village: 'Pipliya',
+            district: 'Rajgarh',
+            language: 'hi',
+            primaryCrop: 'wheat',
+            isWhatsAppLinked: true,
+            createdAt: new Date().toISOString(),
+          },
+          expiresAt: new Date(Date.now() + 86400000).toISOString(),
+        }
+      }
+      return null
+    }),
+    createProfile: vi.fn().mockImplementation(async (data) => {
+      return {
+        token: 'mock-token',
+        farmer: {
+          id: 'f-2',
+          name: data.name,
+          hindiName: data.name,
+          phone: '9888777666',
+          village: data.village,
+          district: data.district,
+          language: data.language,
+          primaryCrop: data.primaryCrop,
+          isWhatsAppLinked: data.isWhatsAppLinked,
+          createdAt: new Date().toISOString(),
+        },
+        expiresAt: new Date(Date.now() + 86400000).toISOString(),
+      }
+    }),
+    logout: vi.fn(),
+  },
+}))
+
 function wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
