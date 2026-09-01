@@ -53,10 +53,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          cd backend
           python -m pip install --upgrade pip
-          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
-          pip install pytest pytest-asyncio
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
 
       - name: Run Pytest
         run: |
-          if [ -d backend/tests ]; then pytest backend/tests; fi
+          cd backend
+          pytest tests/
