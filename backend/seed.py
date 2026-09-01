@@ -12,6 +12,9 @@ Environment variables required:
 from __future__ import annotations
 
 import asyncio
+import sys
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 import json
 import os
 import sys
@@ -32,10 +35,16 @@ try:
 except ImportError:
     pass
 
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.environ.get("ALEMBIC_DATABASE_URL") or os.environ["DATABASE_URL"]
 OFFICER_PASSWORD = os.environ.get("SEED_ADMIN_PASSWORD", "Demo@1234")
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+from sqlalchemy.pool import NullPool
+
+engine = create_async_engine(
+    DATABASE_URL, 
+    echo=False,
+    poolclass=NullPool,
+)
 Session = async_sessionmaker(engine, expire_on_commit=False)
 
 
@@ -201,7 +210,7 @@ async def seed() -> None:
             await db.execute(
                 text("""
                     INSERT INTO users (id, phone, name, role, preferred_language, is_active)
-                    VALUES (:id, :phone, :name, 'FARMER', :lang, 1)
+                    VALUES (:id, :phone, :name, 'FARMER', :lang, TRUE)
                     ON CONFLICT (id) DO NOTHING
                 """),
                 {"id": f["id"], "phone": f["phone"], "name": f["name"], "lang": f["language"]},
@@ -228,7 +237,7 @@ async def seed() -> None:
             await db.execute(
                 text("""
                     INSERT INTO users (id, phone, name, role, preferred_language, is_active)
-                    VALUES (:id, NULL, :name, 'OFFICER', 'hi', 1)
+                    VALUES (:id, NULL, :name, 'OFFICER', 'hi', TRUE)
                     ON CONFLICT (id) DO NOTHING
                 """),
                 {"id": officer_user_id, "name": o["name"]},
@@ -253,7 +262,7 @@ async def seed() -> None:
                 VALUES (:id, 'centre-001', 'NORMAL', 1.0, 2,
                     'Start of day — normal operations', :eff)
             """),
-            {"id": uid(), "eff": today_at(7, 0).isoformat()},
+            {"id": uid(), "eff": today_at(7, 0)},
         )
         await db.execute(
             text("""
@@ -262,7 +271,7 @@ async def seed() -> None:
                 VALUES (:id, 'centre-002', 'BUSY', 0.8, 2,
                     'High congestion', :eff)
             """),
-            {"id": uid(), "eff": today_at(8, 0).isoformat()},
+            {"id": uid(), "eff": today_at(8, 0)},
         )
         await db.execute(
             text("""
@@ -271,7 +280,7 @@ async def seed() -> None:
                 VALUES (:id, 'centre-003', 'PAUSED', 0.0, 0,
                     'Operations paused today', :eff)
             """),
-            {"id": uid(), "eff": today_at(6, 0).isoformat()},
+            {"id": uid(), "eff": today_at(6, 0)},
         )
 
         print("Seeding queue entries...")
@@ -294,8 +303,8 @@ async def seed() -> None:
                     "tc": qe["token_code"], "pos": qe["position"],
                     "eta": None,
                     "crop": qe["crop"], "qty": qe["qty"], "status": qe["status"],
-                    "joined": today_at(joined_hour, 0).isoformat(),
-                    "valid": (today_at(joined_hour, 0) + timedelta(hours=8)).isoformat(),
+                    "joined": today_at(joined_hour, 0),
+                    "valid": today_at(joined_hour, 0) + timedelta(hours=8),
                 },
             )
 
@@ -309,7 +318,7 @@ async def seed() -> None:
                 text("""
                     INSERT INTO procurement_records (id, queue_entry_id, crop, declared_quantity_q,
                         actual_quantity_q, grade, msp_rate, total_amount, is_verified, is_mock, source_system)
-                    VALUES (:id, :qeid, :crop, :decl, :actual, :grade, :msp, :total, 0, 1, 'MOCK')
+                    VALUES (:id, :qeid, :crop, :decl, :actual, :grade, :msp, :total, FALSE, TRUE, 'MOCK')
                     ON CONFLICT DO NOTHING
                 """),
                 {
@@ -325,7 +334,7 @@ async def seed() -> None:
                     text("""
                         INSERT INTO payment_status (id, procurement_record_id, status, amount,
                             utr_number, is_mock)
-                        VALUES (:id, :prid, :status, :amount, :utr, 1)
+                        VALUES (:id, :prid, :status, :amount, :utr, TRUE)
                         ON CONFLICT DO NOTHING
                     """),
                     {

@@ -40,6 +40,16 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Install Playwright Browsers
+        run: |
+          cd frontend
+          npx playwright install --with-deps
+
+      - name: E2E Tests (Playwright)
+        run: |
+          cd frontend
+          npx playwright test
+
   backend:
     name: Backend Tests & Lint
     runs-on: ubuntu-latest
@@ -58,7 +68,17 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
 
+      - name: Linter Check (Ruff)
+        run: |
+          cd backend
+          ruff check .
+
       - name: Run Pytest
+        env:
+          DATABASE_URL: "postgresql+asyncpg://mock:mock@localhost:5432/mock"
+          JWT_SECRET_KEY: "mock_secret_key_for_testing_only_long_enough"
+          QR_HMAC_SECRET: "mock_hmac_secret_for_testing_only_long_enough"
+          OTP_MOCK_ENABLED: "True"
         run: |
           cd backend
           pytest tests/
