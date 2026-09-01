@@ -167,7 +167,10 @@ export function OfficerDashboardPage() {
       )
     }
 
-    // Call real API
+    // Optimistic UI state update
+    setCondition(status, factor, counters, note)
+
+    // Call real API in background
     try {
       await officerService.updateCapacity({
         status,
@@ -178,8 +181,6 @@ export function OfficerDashboardPage() {
     } catch (e) {
       console.warn('Backend updateCapacity error:', e)
     }
-
-    setCondition(status, factor, counters, note)
   }
 
   async function handleGateCheckIn(e?: React.FormEvent) {
@@ -190,13 +191,16 @@ export function OfficerDashboardPage() {
       return
     }
 
+    // Optimistic UI checkin
+    const success = checkInEntry(clean)
+
+    // Call real backend check-in API
     try {
       await officerService.checkIn({ token_code: `KQ-${clean}` })
     } catch (err) {
       console.warn('Backend checkin error, applying local state:', err)
     }
 
-    const success = checkInEntry(clean)
     if (success) {
       toast.success(
         language === 'hi'

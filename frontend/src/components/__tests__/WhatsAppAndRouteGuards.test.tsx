@@ -86,6 +86,7 @@ describe('WhatsAppSimulatorModal (Krishi Mitra)', () => {
 
 describe('RouteGuards Authentication Enforcement', () => {
   beforeEach(() => {
+    localStorage.clear()
     useAppStore.setState({ isAuthenticated: false, farmer: null })
     useQueueLiveStore.setState({ officerUser: null })
   })

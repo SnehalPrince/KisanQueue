@@ -1,6 +1,10 @@
 /* ─── Fonts ───────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Rozha+One&family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ─── Design Tokens ───────────────────────────────────────────────────── */
 :root {
   /* Brand palette */
@@ -5206,4 +5210,245 @@ html.lenis body {
 
 .wa-send-btn:active {
   transform: scale(0.95);
+}
+
+/* ─── Pass Page & Digital QR Pass Card ─────────────────────────────────────── */
+.pass-page {
+  min-height: 100vh;
+  background: var(--canvas);
+  color: var(--eclipse);
+  padding-bottom: 48px;
+}
+
+.pass-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(249, 248, 245, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.pass-page__back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 14px;
+  color: var(--forest);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 160ms var(--ease-smooth-out);
+}
+
+.pass-page__back:hover {
+  background: var(--muted);
+  color: var(--eclipse);
+}
+
+.pass-page__back:active {
+  transform: scale(0.97);
+}
+
+.pass-page__title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--eclipse);
+}
+
+.pass-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pass-page__action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--forest);
+  cursor: pointer;
+  transition: all 160ms var(--ease-smooth-out);
+}
+
+.pass-page__action-btn:hover {
+  background: var(--border);
+  color: var(--eclipse);
+}
+
+.pass-page__action-btn:active {
+  transform: scale(0.95);
+}
+
+.pass-page__main {
+  max-width: 520px;
+  margin: 24px auto 0;
+  padding: 0 16px;
+}
+
+/* ─── QR Pass Card ─────────────────────────────────────────────────────────── */
+.qr-pass-card {
+  background: #ffffff;
+  border-radius: 28px;
+  border: 2px solid var(--almond);
+  box-shadow: 0 20px 40px -15px rgba(26, 54, 54, 0.15), 0 0 0 1px rgba(214, 189, 152, 0.3);
+  overflow: hidden;
+  position: relative;
+}
+
+.qr-pass-card__header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #ffffff;
+}
+
+.qr-pass-card__brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  color: var(--almond);
+}
+
+.qr-pass-card__status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.qr-pass-card__token-hero {
+  padding: 24px 20px 16px;
+  text-align: center;
+  background: linear-gradient(to bottom, #ffffff, #faf9f6);
+  border-bottom: 2px dashed var(--border);
+  position: relative;
+}
+
+.qr-pass-card__token-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--forest);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.qr-pass-card__token-value {
+  display: block;
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--eclipse);
+  line-height: 1.1;
+  margin: 4px 0 6px;
+  font-family: 'Rozha One', Urbanist, serif;
+}
+
+.qr-pass-card__position {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--matcha);
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  padding: 3px 12px;
+  border-radius: 12px;
+}
+
+.qr-pass-card__qr-wrapper {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.qr-pass-card__qr-box {
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.qr-pass-card__qr-hint {
+  margin: 12px 0 0;
+  font-size: 11px;
+  color: #71767b;
+  text-align: center;
+  max-width: 260px;
+}
+
+.qr-pass-card__details {
+  padding: 16px 20px 24px;
+  background: var(--muted);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.qr-pass-card__detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qr-pass-card__detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--forest);
+}
+
+.qr-pass-card__detail-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--eclipse);
+}
+
+/* ─── Global Micro-Interactions ────────────────────────────────────────────── */
+button:not(:disabled):active {
+  transform: scale(0.97);
+  transition: transform 120ms var(--ease-smooth-out);
+}
+
+.btn-tactile {
+  transition: all 180ms var(--ease-smooth-out);
+}
+.btn-tactile:hover {
+  transform: translateY(-1px);
+}
+.btn-tactile:active {
+  transform: scale(0.97) translateY(0);
 }
