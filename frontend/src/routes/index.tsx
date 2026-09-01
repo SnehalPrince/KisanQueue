@@ -1,13 +1,14 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { LandingPage } from '@/pages/LandingPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
+import { FarmerHomePage } from '@/pages/FarmerHomePage'
+import { PassPage } from '@/pages/PassPage'
 
 /**
  * Application route table.
  *
- * Reserved routes are declared here so links compile, but they render
- * a placeholder that does NOT expose broken UI to users.
- * Subsequent slices will replace placeholders with real pages.
+ * Routes marked [DONE] are fully implemented.
+ * Routes marked [RESERVED] are placeholders for upcoming slices.
  */
 function ReservedPage({ name }: { readonly name: string }) {
   return (
@@ -23,18 +24,30 @@ function ReservedPage({ name }: { readonly name: string }) {
 export function AppRoutes() {
   return (
     <Routes>
+      {/* [DONE] Slice 1 — Landing */}
       <Route path="/" element={<LandingPage />} />
+
+      {/* [DONE] Slice 2 — Farmer Onboarding */}
       <Route path="/onboarding" element={<OnboardingPage />} />
-      <Route path="/home" element={<ReservedPage name="Farmer Home" />} />
+
+      {/* [DONE] Slice 3 — Farmer Home + Pass */}
+      <Route path="/home" element={<FarmerHomePage />} />
+      <Route path="/pass/:id" element={<PassPage />} />
+
+      {/* [RESERVED] Slice 4 — Centre Discovery */}
       <Route path="/centres" element={<ReservedPage name="Centre Discovery" />} />
       <Route path="/centres/:id" element={<ReservedPage name="Centre Details" />} />
-      <Route path="/sell" element={<ReservedPage name="Sell Crop" />} />
-      <Route path="/pass/:id" element={<ReservedPage name="Procurement Pass" />} />
+
+      {/* [RESERVED] Slice 5 — Live Queue */}
       <Route path="/queue" element={<ReservedPage name="Live Queue" />} />
-      <Route path="/procurement/:id" element={<ReservedPage name="Procurement Status" />} />
-      <Route path="/payment/:id" element={<ReservedPage name="Payment Status" />} />
+
+      {/* [RESERVED] Slice 6 — Officer Console */}
       <Route path="/officer" element={<ReservedPage name="Officer Login" />} />
       <Route path="/officer/dashboard" element={<ReservedPage name="Officer Dashboard" />} />
+
+      {/* [RESERVED] Slice 7 — Procurement & Payment */}
+      <Route path="/procurement/:id" element={<ReservedPage name="Procurement Status" />} />
+      <Route path="/payment/:id" element={<ReservedPage name="Payment Status" />} />
 
       {/* Catch-all */}
       <Route path="*" element={<Navigate to="/" replace />} />
