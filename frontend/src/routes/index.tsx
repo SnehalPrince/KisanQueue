@@ -3,6 +3,8 @@ import { LandingPage } from '@/pages/LandingPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { FarmerHomePage } from '@/pages/FarmerHomePage'
 import { PassPage } from '@/pages/PassPage'
+import { CentresPage } from '@/pages/CentresPage'
+import { CentreDetailPage } from '@/pages/CentreDetailPage'
 
 /**
  * Application route table.
@@ -34,9 +36,9 @@ export function AppRoutes() {
       <Route path="/home" element={<FarmerHomePage />} />
       <Route path="/pass/:id" element={<PassPage />} />
 
-      {/* [RESERVED] Slice 4 — Centre Discovery */}
-      <Route path="/centres" element={<ReservedPage name="Centre Discovery" />} />
-      <Route path="/centres/:id" element={<ReservedPage name="Centre Details" />} />
+      {/* [DONE] Slice 4 — Centre Discovery */}
+      <Route path="/centres" element={<CentresPage />} />
+      <Route path="/centres/:id" element={<CentreDetailPage />} />
 
       {/* [RESERVED] Slice 5 — Live Queue */}
       <Route path="/queue" element={<ReservedPage name="Live Queue" />} />
